@@ -54,7 +54,6 @@ public:
 
     // unnecessary
     friend class detQMC;
-    friend void measure(const Hubbard& hubb, int& nn, double& kup, double& kdn, double& order);
 
 
 private:
@@ -82,9 +81,10 @@ private:
     /** update the aux field at time slice l with Metropolis algorithm */
     void Metropolis_update(int l);
 
-    /** propagate the green's function */
+    /** propagate the green's function from l to l+1 */
     void wrap_north(int l);
 
+    /** propagate the green's function from l to l-1 */
     void wrap_south(int l);
 };
 
