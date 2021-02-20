@@ -1,4 +1,4 @@
-# DQMC-HubbardModel
+# DQMC-Hubbard Model
 detQMC simulation of half-filled Hubbard model. (c++ implement)
 * Cyclic update (sweep back and forth).
 * Stable sweeping process with high computational efficiency.
