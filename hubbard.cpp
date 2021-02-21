@@ -275,7 +275,7 @@ void Hubbard::wrap_south(int l) {
 void Hubbard::initStacks(int istab) {
     /*
      *  initialize udv stacks for sweep use
-     *  sweep process will start in 0-to-beta direction, so we compute stackRight here.
+     *  sweep process will start from 0 to beta, so we compute stackRight here.
      *  stabilize the process every istab steps
      */
     assert(stackLeftU.empty() && stackLeftD.empty());
