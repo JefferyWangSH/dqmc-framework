@@ -183,7 +183,7 @@ void getMyArgs(int argc, char* argv[], int& ll, int& lt, double& beta, double& t
         }
     }
 
-    // read nwarm statistics at last
+    // read nwarm information at last
     for (auto iter = optionsMap.begin(); iter != optionsMap.end(); ++iter) {
         if (!iter->second.empty()) {
             if (option2int(iter->first) == 7)
