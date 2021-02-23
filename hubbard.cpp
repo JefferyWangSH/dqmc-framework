@@ -52,7 +52,7 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     // compute exp of Kinetic matrix K
     make_expdtK();
 
-    // initialize udv stacks for sweep use
+    // initialize udv stacks for sweep use, stabilize every nwrap slices
     initStacks(nwrap);
 }
 
