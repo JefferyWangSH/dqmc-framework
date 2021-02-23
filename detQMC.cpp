@@ -2,6 +2,7 @@
 #include <complex>
 #include <cmath>
 
+
 void detQMC::set_Model_Params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap) {
     // half-filled case only
     assert(mu == 0);
