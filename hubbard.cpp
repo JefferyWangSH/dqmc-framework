@@ -4,10 +4,9 @@
  *   1. cyclic sweeping (done)
  *   2. chemical potential mu (done)
  *   3. stable multiplication of ill-conditioned matrices (done)
- *   4. check greens (done)
- *   5. measure of (\pi,\pi) structure factor (missing)
+ *   4. check greens (done, unnecessary)
  *   6. detQMC class (done)
- *   7. check-board decomposition (missing faster?)
+ *   7. check-board decomposition (missing, faster?)
  *   8. ...
  */
 
