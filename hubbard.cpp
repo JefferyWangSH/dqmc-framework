@@ -210,7 +210,7 @@ matXd computeGreen(const SvdStack& left, const SvdStack& right) {
     auto svd = tmp.jacobiSvd(Eigen::ComputeFullU|Eigen::ComputeFullV);
     matXd U = left.matrixU()*svd.matrixU();
     matXd V = right.matrixU()*svd.matrixV();
-    vecXd S = svd.singularValues();
+    const vecXd& S = svd.singularValues();
 
     return computeGreen(U,S,V);
 }

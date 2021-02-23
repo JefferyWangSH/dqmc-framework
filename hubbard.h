@@ -87,5 +87,4 @@ private:
     void wrap_south(int l);
 };
 
-
 #endif //DQMC_HUBBARD_HUBBARD_H

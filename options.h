@@ -139,7 +139,7 @@ void getMyArgs(int argc, char* argv[], int& ll, int& lt, double& beta, double& t
             switch (option2int(key)) {
                 case 0: {
                     ll = str2int(value);
-                    nwarm = 4 * ll * ll * beta;
+                    nwarm = ceil(4 * ll * ll * beta);
                     break;
                 }
                 case 1: {
@@ -148,7 +148,7 @@ void getMyArgs(int argc, char* argv[], int& ll, int& lt, double& beta, double& t
                 }
                 case 2: {
                     beta = str2double(value);
-                    nwarm = 4 * ll * ll * beta;
+                    nwarm = ceil(4 * ll * ll * beta);
                     break;
                 }
                 case 3: {

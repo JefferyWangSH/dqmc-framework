@@ -1,5 +1,5 @@
 #include "hubbard.h"
-#include "detQMC.h"
+#include "DetQMC.h"
 #include "options.h"
 
 
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     double mu = 0.0;
 
     int nwrap = 10;
-    int nwarm = 4 * ll * ll * beta;
+    int nwarm = ceil(4 * ll * ll * beta);
     int nsweep = 200;
 
     std::string filename = "output.txt";
@@ -68,4 +68,3 @@ int main(int argc, char* argv[]) {
 
 
 }
-
