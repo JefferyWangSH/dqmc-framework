@@ -1,7 +1,7 @@
 #ifndef DQMC_HUBBARD_DETQMC_H
 #define DQMC_HUBBARD_DETQMC_H
-#pragma once
 
+#pragma once
 #include "hubbard.h"
 
 class detQMC
