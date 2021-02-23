@@ -1,4 +1,4 @@
-#include "DetQMC.h"
+#include "detQMC.h"
 #include <complex>
 #include <cmath>
 
