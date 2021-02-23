@@ -1,5 +1,5 @@
-#ifndef HUBBARD_V1_3_SVDSTACK_H
-#define HUBBARD_V1_3_SVDSTACK_H
+#ifndef DQMC_HUBBARD_SVDSTACK_H
+#define DQMC_HUBBARD_SVDSTACK_H
 
 #include <iostream>
 #include <cmath>
@@ -19,8 +19,8 @@ struct SvdStack {
 
     typedef Eigen::JacobiSVD<matXd, Eigen::NoQRPreconditioner> SVD;
     std::vector<SVD> stack;
-    int n;
-    matXd tmp, V;
+    int n{};
+    matXd tmp{}, V{};
     int len = 0;
 
 
@@ -92,6 +92,12 @@ struct SvdStack {
     {
         len = 0;
     }
+
+    void resize(int n, int l)
+    {
+        SvdStack newStack(n, l);
+        *this = newStack;
+    }
 };
 
-#endif //HUBBARD_V1_3_SVDSTACK_H
+#endif //DQMC_HUBBARD_SVDSTACK_H

@@ -1,7 +1,8 @@
-#ifndef HUBBARD_V1_3_OPTIONS_H
-#define HUBBARD_V1_3_OPTIONS_H
+#ifndef DQMC_HUBBARD_OPTIONS_H
+#define DQMC_HUBBARD_OPTIONS_H
 
 #include <map>
+#include <algorithm>
 
 int option2int(const std::string& option) {
     if ( option == "ll") { return 0;}
@@ -125,14 +126,14 @@ void getMyArgs(int argc, char* argv[], int& ll, int& lt, double& beta, double& t
 
     // read parameters from optionsMap
     // help message first
-    for (auto iter = optionsMap.begin(); iter != optionsMap.end(); ++iter) {
-        if (option2int(iter->first) == 11 || option2int(iter->first) == 12)
+    for (auto & iter : optionsMap) {
+        if (option2int(iter.first) == 11 || option2int(iter.first) == 12)
             usage(argv[0]);
     }
 
-    for (auto iter = optionsMap.begin(); iter != optionsMap.end(); ++iter) {
-        std::string key = iter->first;
-        std::string value = iter->second;
+    for (auto & iter : optionsMap) {
+        std::string key = iter.first;
+        std::string value = iter.second;
 
         if (!value.empty()) {
             switch (option2int(key)) {
@@ -184,12 +185,12 @@ void getMyArgs(int argc, char* argv[], int& ll, int& lt, double& beta, double& t
     }
 
     // read nwarm information at last
-    for (auto iter = optionsMap.begin(); iter != optionsMap.end(); ++iter) {
-        if (!iter->second.empty()) {
-            if (option2int(iter->first) == 7)
-                nwarm = str2int(iter->second);
+    for (auto & iter : optionsMap) {
+        if (!iter.second.empty()) {
+            if (option2int(iter.first) == 7)
+                nwarm = str2int(iter.second);
         }
     }
 }
 
-#endif //HUBBARD_V1_3_OPTIONS_H
+#endif //DQMC_HUBBARD_OPTIONS_H

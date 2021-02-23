@@ -5,17 +5,14 @@
  *   2. chemical potential mu (done)
  *   3. stable multiplication of ill-conditioned matrices (done)
  *   4. check greens (done)
- *   5. measure of structure factor Szz (missing)
+ *   5. measure of (\pi,\pi) structure factor (missing)
  *   6. detQMC class (done)
- *   7. ...
+ *   7. check-board decomposition (missing faster?)
+ *   8. ...
  */
 
-Hubbard::Hubbard(int ll, int lt, double beta,
-                 double t, double Uint, double mu, int nwrap)
-        :s(ls,lt), expmdtK(ls,ls), exppdtK(ls,ls), GreenU(ls,ls), GreenD(ls,ls),
-         stackLeftU(ls,lt), stackLeftD(ls,lt), stackRightU(ls,lt), stackRightD(ls,lt)
+Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap)
 {
-
     this->ll = ll;
     this->ls = ll * ll;
     this->lt = lt;
@@ -31,6 +28,17 @@ Hubbard::Hubbard(int ll, int lt, double beta,
 
     this->nwrap = nwrap;
     this->current_tau = 0;
+
+    // resize matrices and svdStacks
+    s.resize(ls, lt);
+    exppdtK.resize(ls, ls);
+    expmdtK.resize(ls, ls);
+    GreenU.resize(ls, ls);
+    GreenD.resize(ls, ls);
+    stackLeftU.resize(ls, lt);
+    stackLeftD.resize(ls, lt);
+    stackRightU.resize(ls, lt);
+    stackRightD.resize(ls, lt);
 
     vecGreenU.reserve(lt);
     vecGreenD.reserve(lt);
@@ -52,6 +60,7 @@ Hubbard::Hubbard(int ll, int lt, double beta,
 void Hubbard::initRandom() {
     // set field configuration to random
     assert( s.rows() == ls && s.cols() == lt);
+
     std::bernoulli_distribution dist(0.5);
     for(int i = 0; i < ls; ++i) {
         for(int l = 0; l < lt; ++l) {
@@ -173,8 +182,10 @@ static matXd computeGreen(const matXd& U, const vecXd& S, const matXd& V) {
         { Sbi(i) = 1.0; Ss(i) = S(i); }
     }
 
-    // compute (1 + USV^T)^-1 in a stable manner (note that H is kinda good conditioned) todo:check
-    matXd H = Sbi.asDiagonal() * U.transpose() + Ss.asDiagonal()*V.transpose();
+    // compute (1 + USV^T)^-1 in a stable manner (note that H is kinda good conditioned)
+    /** reference:
+     *  https://github.com/crstnbr/StableDQMC.jl/blob/master/paper/stabledqmc.pdf */
+    matXd H = Sbi.asDiagonal() * U.transpose() + Ss.asDiagonal() * V.transpose();
     matXd g = H.fullPivHouseholderQr().solve(Sbi.asDiagonal()*U.transpose());
 
     return g;
@@ -275,7 +286,7 @@ void Hubbard::wrap_south(int l) {
 void Hubbard::initStacks(int istab) {
     /*
      *  initialize udv stacks for sweep use
-     *  sweep process will start from 0 to beta, so we compute stackRight here.
+     *  sweep process will start in 0-to-beta direction, so we compute stackRight here.
      *  stabilize the process every istab steps
      */
     assert(stackLeftU.empty() && stackLeftD.empty());

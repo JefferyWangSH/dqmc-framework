@@ -1,5 +1,5 @@
-#ifndef HUBBARD_V1_3_HUBBARD_H
-#define HUBBARD_V1_3_HUBBARD_H
+#ifndef DQMC_HUBBARD_HUBBARD_H
+#define DQMC_HUBBARD_HUBBARD_H
 #pragma once
 
 #include <Eigen/LU>
@@ -27,7 +27,7 @@ private:
     double beta{4.0}, dtau{0.1};
     double t{1.0}, Uint{4.0}, mu{0.0}, alpha{};
 
-    int nwrap{8};
+    int nwrap{10};
     int current_tau{0};
 
     matXd s, expmdtK, exppdtK;      // aux field and kinetic matrix expK
@@ -43,8 +43,7 @@ private:
 public:
     /** construction */
     Hubbard() = default;
-    Hubbard(int ll, int lt, double beta,
-            double t, double Uint, double mu, int nwrap=8);
+    Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap=8);
 
     /** sweep the space-time lattice from 0 to beta */
     void sweep_0_to_beta(int istab);
@@ -88,4 +87,5 @@ private:
     void wrap_south(int l);
 };
 
-#endif //HUBBARD_V1_3_HUBBARD_H
+
+#endif //DQMC_HUBBARD_HUBBARD_H
