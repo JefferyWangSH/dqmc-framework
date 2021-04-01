@@ -317,6 +317,11 @@ void detQMC::output_Stats_eqtime(const std::string &filename, bool bool_Append) 
             << std::setw(15) << obs_mean_eqtime["StructFactor"]
             << std::setw(15) << obs_mean_eqtime["MomentumDist"]
             << std::setw(15) << obs_mean_eqtime["localSpinCorr"]
+            << std::setw(15) << obs_err_eqtime["DoubleOccu"]
+            << std::setw(15) << obs_err_eqtime["KineticEnergy"]
+            << std::setw(15) << obs_err_eqtime["StructFactor"]
+            << std::setw(15) << obs_err_eqtime["MomentumDist"]
+            << std::setw(15) << obs_err_eqtime["localSpinCorr"]
             << std::setw(15) << q(0)
             << std::setw(15) << q(1)
             << std::endl;

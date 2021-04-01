@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     /* dqmc simulation */
     detQMC dqmc;
 
-    for (double U = 0.0; U <= 3.0; U += 1.0) {
+    for (double U = 7.0; U <= 7.0; U += 0.5) {
         bool_append = (U != 0);
 
         dqmc.set_Model_Params(ll, lt, beta, t, -U, mu, nwrap);
