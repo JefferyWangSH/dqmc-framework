@@ -22,7 +22,7 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
 
     this->beta = beta;
     this->dtau = beta / lt;
-    this->Uint = abs(Uint);
+    this->Uint = Uint;
     this->alpha = acosh(exp(0.5 * dtau * abs(Uint)));
     this->u_is_attractive = (Uint <= 0);
 
