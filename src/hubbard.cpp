@@ -9,7 +9,7 @@
  *   6. detQMC class (done)
  *   7. check-board decomposition (missing, faster?)
  *   8. time-displaced dynamic measurements: Green_t_0_up/dn (done)
- *   9. attractive interaction U < 0 (missing)
+ *   9. attractive interaction U < 0 (done)
  *   10. ...
  */
 

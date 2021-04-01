@@ -11,7 +11,7 @@
  *   5. Stochastic Analytic Continuation (SAC) to obtain fermion spectrum function (missing)
  *   6. Check-board decomposition (missing)
  *   7. ******** Modify command console output ******** (done)
- *   8. attractive interaction U < 0 (missing)
+ *   8. attractive interaction U < 0 (done)
  *   9. ...
  */
 
