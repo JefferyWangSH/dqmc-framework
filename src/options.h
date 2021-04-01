@@ -61,7 +61,7 @@ void usage(char *program) {
               << "   [ -lt  80 ]                            (imaginary time) size of lattice, default: 80\n"
               << "   [ -beta  4.0 ]                         inverse temperature, default: 4.0\n"
               << "   [ -t  1.0 ]                            hopping strength, default: 1.0\n"
-              << "   [ -u  4.0 ]                            interaction strength, u>0 for repulsive and u<0 for attractive, default: 4.0\n"
+              << "   [ -u  4.0 ]                            interaction strength, u > 0 for repulsive and u < 0 for attractive, default: 4.0\n"
               << "   [ -mu  0.0 ]                           chemical potential, default: 0.0\n"
               << "   [ -nwrap  10 ]                         pace of stabilization process, default: 10\n"
               << "   [ -nwarm  256 ]                        number of warmup sweeps, default: 256\n"

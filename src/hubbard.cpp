@@ -7,7 +7,7 @@
  *   3. stable multiplication of ill-conditioned matrices (done)
  *   4. check greens (done, unnecessary)
  *   6. detQMC class (done)
- *   7. check-board decomposition (missing, faster?)
+ *   7. check-board decomposition (missing)
  *   8. time-displaced dynamic measurements: Green_t_0_up/dn (done)
  *   9. attractive interaction U < 0 (done)
  *   10. ...

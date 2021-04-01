@@ -7,4 +7,4 @@ C++ implementation of DetQMC simulation applied to half-filled Hubbard model.
 * Program works well in condition of moderate model parameters. 
 
 # TODO
-* Spectral function of electrons, e.g. Stochastic Analytic Continuation (SAC).
+* Spectrum function of electrons, e.g. Stochastic Analytic Continuation (SAC).
