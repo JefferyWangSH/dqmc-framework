@@ -349,7 +349,6 @@ void detQMC::output_Stats_dynamic(const std::string& filename, bool bool_Append)
                 << std::setw(15) << obs_err_gt0_k[l-1] / obs_mean_gt0_k[l-1]
                 << std::endl;
     }
-    outfile << std::endl;
     outfile.close();
 }
 

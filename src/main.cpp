@@ -49,7 +49,30 @@ int main(int argc, char* argv[]) {
     /* dqmc simulation */
     detQMC dqmc;
 
-    for (double U = 7.0; U <= 7.0; U += 0.5) {
+    dqmc.set_Model_Params(ll, lt, beta, t, -4.0, mu, nwrap);
+
+    dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
+
+    dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+
+    dqmc.set_Momentum_q(M_PI/2, M_PI/2);
+
+    dqmc.initialMeasure();
+
+    dqmc.runQMC(bool_display_process);
+
+    dqmc.analyseStats();
+
+    dqmc.printStats();
+
+    if (bool_measure_eqtime)
+        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+
+    if (bool_measure_dynamic)
+        dqmc.output_Stats_dynamic(filename_dynamic, false);
+
+    /*
+    for (double U = 0.0; U <= 8.0; U += 0.5) {
         bool_append = (U != 0);
 
         dqmc.set_Model_Params(ll, lt, beta, t, -U, mu, nwrap);
@@ -73,7 +96,7 @@ int main(int argc, char* argv[]) {
 
         if (bool_measure_dynamic)
             dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
-    }
+    }*/
 
     /*
     dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
