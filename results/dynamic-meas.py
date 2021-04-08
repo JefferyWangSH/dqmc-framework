@@ -46,6 +46,6 @@ def plotFigure(u, data):
 
 if __name__ == "__main__":
 
-    tau, matsubara = readDate("dynamic-u4-attractive.txt")
+    tau, matsubara = readDate("dynamic-u4-attractive-Ef.txt")
 
     plotFigure(tau, matsubara)
