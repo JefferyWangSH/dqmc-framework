@@ -62,7 +62,8 @@ int main(int argc, char* argv[]) {
             ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
             ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
             ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
-            ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10), "number of sweeps between bins to avoid correlation, default: 10")
+            ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10),
+                    "number of sweeps between bins to avoid correlation, default: 10")
             ("app", boost::program_options::value<bool>(&bool_append)->default_value(true), "outfile mode: app or trunc, default: true")
             ("eqtime", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
             ("dynamic", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]) {
     detQMC dqmc;
 
     /** Measure observable quantities over interaction strength U */
-    /*
+
     for (double U = 6.5; U <= 8.0; U += 0.5) {
         bool_append = true;
 
@@ -121,7 +122,7 @@ int main(int argc, char* argv[]) {
         if (bool_measure_dynamic)
             dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
     }
-    */
+
 
     /** Measure observable quantities in momentum space */
     /*
