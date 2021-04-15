@@ -17,8 +17,8 @@ def readDate(filename):
         for line in file:
             if len(line) != 0:
                 strList = line.split()
-                data = [float(strList[i+2]) for i in range(5)]
-                err = [float(strList[i+7]) for i in range(5)]
+                data = [float(strList[i+1]) for i in range(5)]
+                err = [float(strList[i+6]) for i in range(5)]
                 dirtData[float(strList[0])] = [data, err]
     file.close()
     
@@ -53,7 +53,7 @@ def plotFigure(u, data, label):
 
 if __name__ == "__main__":
 
-    u, doubleoccu, kineticenergy, structfactor = readDate("eq-beta-3.txt")
+    u, doubleoccu, kineticenergy, structfactor = readDate("eq-beta-5.txt")
 
     plotFigure(u, doubleoccu, 'Double Occu')
     # plotFigure(u, kineticenergy, 'Kinetic Energy')

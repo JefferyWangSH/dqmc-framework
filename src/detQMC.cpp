@@ -269,23 +269,25 @@ void detQMC::printStats() {
     std::cout << "===================================================================" << std::endl;
 
     std::cout << "Simulation Parameters: " << std::endl
-              << "ll:  " << hubb.ll << std::endl
-              << "lt:  " << hubb.lt << std::endl
-              << "beta: " << hubb.beta << std::endl
-              << "U/t:  " << hubb.Uint / hubb.t << std::endl
-              << "mu:   " << hubb.mu << std::endl
-              << "q:    " << "(" << q(0) << ", "<< q(1) << ")" << std::endl
-              << "nwrap:  " << nwrap << std::endl
+              << "  ll:  " << hubb.ll << std::endl
+              << "  lt:  " << hubb.lt << std::endl
+              << "  beta: " << hubb.beta << std::endl
+              << "  U/t:  " << hubb.Uint / hubb.t << std::endl
+              << "  mu:   " << hubb.mu << std::endl
+              << "  q:    " << "(" << q(0) << ", "<< q(1) << ")" << std::endl
+              << "  nwrap:  " << nwrap << std::endl
               << std::endl;
 
     if (bool_measure_eqtime) {
+        std::cout.precision(8);
         std::cout << "Equal-time Measurements: " << std::endl
-                  << "Order param:      " << obs_mean_eqtime["DoubleOccu"] << "   err: " << obs_err_eqtime["DoubleOccu"] << std::endl
-                  << "Kinetic energy:   " << obs_mean_eqtime["KineticEnergy"] << "   err: " << obs_err_eqtime["KineticEnergy"] << std::endl
-                  << "Momentum dist:    " << obs_mean_eqtime["MomentumDist"] << "   err: " << obs_err_eqtime["MomentumDist"] << std::endl
-                  << "local Spin corr:  " << obs_mean_eqtime["localSpinCorr"] << "   err: " << obs_err_eqtime["localSpinCorr"] << std::endl
-                  << "Structure Factor: " << obs_mean_eqtime["StructFactor"] << "   err: " << obs_err_eqtime["StructFactor"] << std::endl
+                  << "  Double occu:      " << obs_mean_eqtime["DoubleOccu"] << "     err: " << obs_err_eqtime["DoubleOccu"] << std::endl
+                  << "  Kinetic energy:   " << obs_mean_eqtime["KineticEnergy"] << "     err: " << obs_err_eqtime["KineticEnergy"] << std::endl
+                  << "  Momentum dist:    " << obs_mean_eqtime["MomentumDist"] << "     err: " << obs_err_eqtime["MomentumDist"] << std::endl
+                  << "  local Spin corr:  " << obs_mean_eqtime["localSpinCorr"] << "     err: " << obs_err_eqtime["localSpinCorr"] << std::endl
+                  << "  Structure Factor: " << obs_mean_eqtime["StructFactor"] << "     err: " << obs_err_eqtime["StructFactor"] << std::endl
                   << std::endl;
+        std::cout.precision(-1);
     }
 
     if (bool_measure_dynamic) {
@@ -312,6 +314,7 @@ void detQMC::output_Stats_eqtime(const std::string &filename, bool bool_Append) 
     }
     outfile << std::setiosflags(std::ios::right)
             << std::setw(15) << hubb.Uint / hubb.t
+            << std::setw(15) << hubb.beta
             << std::setw(15) << obs_mean_eqtime["DoubleOccu"]
             << std::setw(15) << obs_mean_eqtime["KineticEnergy"]
             << std::setw(15) << obs_mean_eqtime["StructFactor"]

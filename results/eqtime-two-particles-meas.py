@@ -12,7 +12,7 @@ def readDate(filename):
         for line in file:
             if len(line) != 0:
                 strList = line.split() 
-                dirtData[float(strList[6])] = float(strList[4])
+                dirtData[float(strList[7])] = float(strList[5])
     file.close()
     
     px = list(dirtData.keys())
@@ -38,6 +38,6 @@ def plotFigure(px, obs, label):
 
 if __name__ == "__main__":
 
-    px, MomentumDist = readDate("output.txt")
+    px, MomentumDist = readDate("eq-u-4.txt")
 
     plotFigure(px, MomentumDist, '${n}_{k}$')
