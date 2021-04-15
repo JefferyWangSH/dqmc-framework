@@ -55,7 +55,8 @@ int main(int argc, char* argv[]) {
             ("lt", boost::program_options::value<int>(&lt)->default_value(80), "imaginary-time size of lattice, default: 80")
             ("beta", boost::program_options::value<double>(&beta)->default_value(4.0), "inverse temperature, default: 4.0")
             ("t", boost::program_options::value<double>(&t)->default_value(1.0), "hopping strength, default: 1.0")
-            ("u", boost::program_options::value<double>(&u)->default_value(-4.0), "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
+            ("u", boost::program_options::value<double>(&u)->default_value(-4.0),
+                    "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
             ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
             ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
             ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
@@ -65,7 +66,8 @@ int main(int argc, char* argv[]) {
             ("app", boost::program_options::value<bool>(&bool_append)->default_value(true), "outfile mode: app or trunc, default: true")
             ("eqtime", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
             ("dynamic", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
-            ("oeq", boost::program_options::value<std::string>(&filename_eqtime)->default_value("../results/meas-eqtime.txt"), "output filename of equal-time data, default: ../results/meas-eqtime.txt")
+            ("oeq", boost::program_options::value<std::string>(&filename_eqtime)->default_value("../results/meas-eqtime.txt"),
+                    "output filename of equal-time data, default: ../results/meas-eqtime.txt")
             ("ody", boost::program_options::value<std::string>(&filename_dynamic)->default_value("../results/meas-dynamic.txt"),
                     "output filename of dynamic data, default: ../results/meas-dynamic.txt");
 
