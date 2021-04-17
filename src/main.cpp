@@ -13,7 +13,8 @@
  *   6. Check-board decomposition (missing)
  *   7. ******** Modify command console output ******** (done)
  *   8. attractive interaction U < 0 (done)
- *   9. ...
+ *   9. openmp parallel, memory-expensive (missing)
+ *   10. ...
  */
 
 
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]) {
     std::string filename_eqtime = "../results/meas-eqtime.txt";
     std::string filename_dynamic = "../results/meas-dynamic.txt";
     bool bool_append = true;
-    bool bool_display_process = false;
+    bool bool_display_process = true;
 
     bool bool_warm_up = true;
     bool bool_measure_eqtime = true;
@@ -97,7 +98,7 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    for (double U = 6.5; U <= 8.0; U += 0.5) {
+    for (double U = 4.0; U <= 4.0; U += 0.5) {
         bool_append = true;
 
         dqmc.set_Model_Params(ll, lt, beta, t, -U, mu, nwrap);
@@ -108,9 +109,11 @@ int main(int argc, char* argv[]) {
 
         dqmc.set_Momentum_q(M_PI, M_PI);
 
+        dqmc.printParams();
+
         dqmc.initialMeasure();
 
-        dqmc.runQMC(false);
+        dqmc.runQMC(bool_display_process);
 
         dqmc.analyseStats();
 
@@ -139,6 +142,8 @@ int main(int argc, char* argv[]) {
         bool_warm_up = (i == 0);
         dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
+        dqmc.printParams();
+
         dqmc.initialMeasure();
 
         dqmc.runQMC(bool_display_process);
@@ -165,6 +170,8 @@ int main(int argc, char* argv[]) {
         dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
         dqmc.set_Momentum_q(M_PI, M_PI);
+
+        dqmc.printParams();
 
         dqmc.initialMeasure();
 

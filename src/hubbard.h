@@ -21,7 +21,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cassert>
 
-#include "svdstack.h"
+#include "svdstack.hpp"
 
 typedef Eigen::MatrixXd matXd;
 typedef Eigen::VectorXd vecXd;

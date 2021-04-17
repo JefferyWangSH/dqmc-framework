@@ -1,4 +1,5 @@
 #include "detQMC.h"
+#include "ProgressBar.hpp"
 #include <cmath>
 
 void detQMC::set_Model_Params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap) {
@@ -24,6 +25,19 @@ void detQMC::set_bool_Params(bool bool_warm_up, bool bool_measure_eqtime, bool b
 
 void detQMC::set_Momentum_q(double qx, double qy) {
     q = (vecXd(2) << qx, qy).finished();
+}
+
+void detQMC::printParams() {
+    std::cout << "===========================================================================" << std::endl;
+    std::cout << "  Simulation Parameters: " << std::endl
+              << "    ll:  " << hubb.ll << std::endl
+              << "    lt:  " << hubb.lt << std::endl
+              << "    beta: " << hubb.beta << std::endl
+              << "    U/t:  " << hubb.Uint / hubb.t << std::endl
+              << "    mu:   " << hubb.mu << std::endl
+              << "    q:    " << "(" << q(0) << ", "<< q(1) << ")" << std::endl
+              << "    nwrap:  " << nwrap << std::endl;
+    std::cout << "===========================================================================" << std::endl;
 }
 
 void detQMC::initialMeasure() {
@@ -78,25 +92,40 @@ void detQMC::runQMC(bool bool_display_process) {
 
     if (bool_warm_up) {
         // thermalization process
-        for (int nwm = 0; nwm < nwarm/2; ++nwm) {
-            if ( nwm % 10 == 0 && bool_display_process)
-            {
-                std::cout << "Warm up sweep: "<< 2 * nwm << std::endl;
-            }
+
+        // progress bar
+        progresscpp::ProgressBar progressBar(nwarm/2, 40, '#', '-');
+
+        for (int nwm = 1; nwm <= nwarm/2; ++nwm) {
             sweep_BackAndForth(false, false);
+            ++progressBar;
+
+            if ( nwm % 10 == 0 && bool_display_process) {
+                std::cout << "Warm-up progress:   ";
+                progressBar.display();
+            }
+        }
+
+        if (bool_display_process) {
+            std::cout << "Warm-up progress:   ";
+            progressBar.done();
         }
     }
 
-    // measuring process
     if (bool_measure_eqtime || bool_measure_dynamic) {
-        for (int bin = 0; bin < nbin; ++bin) {
-            for (int nsw = 0; nsw < nsweep/2; ++nsw) {
-                if ( nsw % 10 == 0 && bool_display_process)
-                {
-                    std::cout << "bin: "<< bin
-                              << "   Measurement sweep: " << 2 * nsw << std::endl;
-                }
+        // measuring process
+
+        progresscpp::ProgressBar progressBar(nbin * nsweep / 2, 40, '#', '-');
+
+        for (int bin = 1; bin <= nbin; ++bin) {
+            for (int nsw = 1; nsw <= nsweep/2; ++nsw) {
                 sweep_BackAndForth(bool_measure_eqtime, bool_measure_dynamic);
+                ++progressBar;
+
+                if ( nsw % 10 == 0 && bool_display_process) {
+                    std::cout << "Measuring progress: ";
+                    progressBar.display();
+                }
             }
 
             // analyse statistical data
@@ -110,6 +139,11 @@ void detQMC::runQMC(bool bool_display_process) {
             for (int n_bw = 0; n_bw < nBetweenBins; ++n_bw) {
                 sweep_BackAndForth(false, false);
             }
+        }
+
+        if (bool_display_process) {
+            std::cout << "Measuring progress: ";
+            progressBar.done();
         }
     }
 
@@ -266,39 +300,28 @@ void detQMC::printStats() {
     int minute = floor(time / 60);
     double sec = time - 60 * minute;
 
-    std::cout << "===================================================================" << std::endl;
-
-    std::cout << "Simulation Parameters: " << std::endl
-              << "  ll:  " << hubb.ll << std::endl
-              << "  lt:  " << hubb.lt << std::endl
-              << "  beta: " << hubb.beta << std::endl
-              << "  U/t:  " << hubb.Uint / hubb.t << std::endl
-              << "  mu:   " << hubb.mu << std::endl
-              << "  q:    " << "(" << q(0) << ", "<< q(1) << ")" << std::endl
-              << "  nwrap:  " << nwrap << std::endl
-              << std::endl;
-
     if (bool_measure_eqtime) {
         std::cout.precision(8);
-        std::cout << "Equal-time Measurements: " << std::endl
-                  << "  Double occu:      " << obs_mean_eqtime["DoubleOccu"] << "     err: " << obs_err_eqtime["DoubleOccu"] << std::endl
-                  << "  Kinetic energy:   " << obs_mean_eqtime["KineticEnergy"] << "     err: " << obs_err_eqtime["KineticEnergy"] << std::endl
-                  << "  Momentum dist:    " << obs_mean_eqtime["MomentumDist"] << "     err: " << obs_err_eqtime["MomentumDist"] << std::endl
-                  << "  local Spin corr:  " << obs_mean_eqtime["localSpinCorr"] << "     err: " << obs_err_eqtime["localSpinCorr"] << std::endl
-                  << "  Structure Factor: " << obs_mean_eqtime["StructFactor"] << "     err: " << obs_err_eqtime["StructFactor"] << std::endl
+        std::cout << std::endl;
+        std::cout << "  Equal-time Measurements: " << std::endl
+                  << "    Double occu:      " << obs_mean_eqtime["DoubleOccu"] << "     err: " << obs_err_eqtime["DoubleOccu"] << std::endl
+                  << "    Kinetic energy:   " << obs_mean_eqtime["KineticEnergy"] << "     err: " << obs_err_eqtime["KineticEnergy"] << std::endl
+                  << "    Momentum dist:    " << obs_mean_eqtime["MomentumDist"] << "     err: " << obs_err_eqtime["MomentumDist"] << std::endl
+                  << "    local Spin corr:  " << obs_mean_eqtime["localSpinCorr"] << "     err: " << obs_err_eqtime["localSpinCorr"] << std::endl
+                  << "    Structure Factor: " << obs_mean_eqtime["StructFactor"] << "     err: " << obs_err_eqtime["StructFactor"] << std::endl
                   << std::endl;
         std::cout.precision(-1);
     }
 
     if (bool_measure_dynamic) {
-        std::cout << "Time-displaced Measurements: " << std::endl
-                  << "  Matsubara Green's function in momentum space:  see in file" << std::endl
+        std::cout << "  Time-displaced Measurements: " << std::endl
+                  << "    Matsubara Green's function in momentum space:  see in file" << std::endl
                   << std::endl;
     }
 
-    std::cout << "Time Cost:      " << minute << " min " << sec << " s" << std::endl;
+    std::cout << "  Time Cost:      " << minute << " min " << sec << " s" << std::endl;
 
-    std::cout << "===================================================================" << std::endl
+    std::cout << "===========================================================================" << std::endl
               << std::endl;
 }
 

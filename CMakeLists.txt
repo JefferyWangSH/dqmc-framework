@@ -9,8 +9,9 @@ set(SOURCES
     src/hubbard.cpp
     src/detQMC.h
     src/detQMC.cpp
-    src/StableGreens.h
-    src/svdstack.h
+    src/svdstack.hpp
+    src/StableGreens.hpp
+    src/ProgressBar.hpp
 )
 
 # link eigen to MKL

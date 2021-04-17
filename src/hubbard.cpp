@@ -1,5 +1,6 @@
 #include "hubbard.h"
-#include "StableGreens.h"
+#include "StableGreens.hpp"
+#include "ProgressBar.hpp"
 
 /** TODO:
  *   1. cyclic sweeping (done)

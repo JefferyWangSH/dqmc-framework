@@ -36,8 +36,8 @@ private:
 
     // for time-displaced measurements: Matsubara Green's function gt0
     matXd obs_bin_gt0[500][500];        // obs_bin_gt0 [bin][tau] <type matXd>
-    double obs_mean_gt0_k[500];         // mean value: obs_mean_gt0_k[tau] <double>
-    double obs_err_gt0_k[500];          // statistical error: obs_err_gt0_k[tau] <double>
+    double obs_mean_gt0_k[500]{};       // mean value: obs_mean_gt0_k[tau] <double>
+    double obs_err_gt0_k[500]{};        // statistical error: obs_err_gt0_k[tau] <double>
 
     /* temporary parameters for measurements */
     // equal-time
@@ -56,7 +56,7 @@ private:
     vecXd q = vecXd::Zero(2);
 
     // time cost of one single measuring process
-    time_t  begin_t, end_t;
+    time_t  begin_t{}, end_t{};
 
 
 public:
@@ -77,6 +77,9 @@ public:
     /* FIXME: set up momentum q, modified to allow sequence of q */
     void set_Momentum_q(double qx, double qy);
 
+    /* print out simulation params on the command console */
+    void printParams();
+
     /* prepare for measuring */
     void initialMeasure();
 
@@ -86,7 +89,7 @@ public:
     /* analyse statistics from simulation */
     void analyseStats();
 
-    /* print results of measurements in the command console */
+    /* print results of measurements on the command console */
     void printStats();
 
     /* write results of measurements to file */

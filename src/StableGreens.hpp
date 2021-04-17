@@ -1,5 +1,5 @@
-#ifndef DQMC_HUBBARD_STABLEGREENS_H
-#define DQMC_HUBBARD_STABLEGREENS_H
+#ifndef DQMC_HUBBARD_STABLEGREENS_HPP
+#define DQMC_HUBBARD_STABLEGREENS_HPP
 #pragma once
 
 /**
@@ -9,7 +9,7 @@
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
-#include "svdstack.h"
+#include "svdstack.hpp"
 
 void div_dvec_max_min(const vecXd& dvec, vecXd& dmax, vecXd& dmin) {
     /*
@@ -182,4 +182,4 @@ void compute_Green(const SvdStack& left, const SvdStack& right, matXd& gtt, matX
     }
 }
 
-#endif //DQMC_HUBBARD_STABLEGREENS_H
+#endif //DQMC_HUBBARD_STABLEGREENS_HPP
