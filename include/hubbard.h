@@ -21,7 +21,9 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cassert>
 
-#include "svdstack.hpp"
+#include "eqtimeMeasure.h"
+#include "dynamicMeasure.h"
+
 
 typedef Eigen::MatrixXd matXd;
 typedef Eigen::VectorXd vecXd;
@@ -29,10 +31,11 @@ typedef Eigen::VectorXd vecXd;
 // random engine
 static std::default_random_engine gen(time(nullptr));
 
+struct SvdStack;
 
 class Hubbard {
 
-private:
+protected:
     // model params
     int ll{4}, ls{16}, lt{80};
     double beta{4.0}, dtau{0.1};
@@ -55,10 +58,10 @@ private:
     std::vector<matXd> vecGreen_t0_up, vecGreen_t0_dn;
 
     // aux SvdStack class for stable multiplication
-    SvdStack stackLeftU;
-    SvdStack stackLeftD;
-    SvdStack stackRightU;
-    SvdStack stackRightD;
+    SvdStack *stackLeftU{};
+    SvdStack *stackLeftD{};
+    SvdStack *stackRightU{};
+    SvdStack *stackRightD{};
 
 public:
     /** construction */
@@ -74,8 +77,10 @@ public:
     /** sweep from beta to 0 to calculate time-displaced green functions */
     void sweep_0_to_beta_displaced(int istab);
 
-    // unnecessary
+    // friend class
     friend class detQMC;
+    friend class measure::eqtimeMeasure;
+    friend class measure::dynamicMeasure;
 
 
 private:

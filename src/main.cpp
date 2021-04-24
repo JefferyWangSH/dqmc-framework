@@ -14,7 +14,8 @@
  *   7. ******** Modify command console output ******** (done)
  *   8. attractive interaction U < 0 (done)
  *   9. openmp parallel, memory-expensive (missing)
- *   10. ...
+ *   10. determine the critical temperature of superconducting transition (missing)
+ *   11. ...
  */
 
 
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
     /** Measure observable quantities over interaction strength U */
 
     for (double U = 4.0; U <= 4.0; U += 0.5) {
-        bool_append = true;
+        bool_append = false;
 
         dqmc.set_Model_Params(ll, lt, beta, t, -U, mu, nwrap);
 
@@ -107,7 +108,7 @@ int main(int argc, char* argv[]) {
 
         dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
-        dqmc.set_Momentum_q(M_PI, M_PI);
+        dqmc.set_Momentum_q(M_PI/2, M_PI/2);
 
         dqmc.printParams();
 
@@ -119,11 +120,9 @@ int main(int argc, char* argv[]) {
 
         dqmc.printStats();
 
-        if (bool_measure_eqtime)
-            dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
 
-        if (bool_measure_dynamic)
-            dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
+        dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
     }
 
 
@@ -153,8 +152,8 @@ int main(int argc, char* argv[]) {
         dqmc.printStats();
 
         bool_append = (i != 0);
-        if (bool_measure_eqtime)
-            dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+
+        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
     }
     */
 
@@ -181,11 +180,9 @@ int main(int argc, char* argv[]) {
 
         dqmc.printStats();
 
-        if (bool_measure_eqtime)
-            dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
 
-        if (bool_measure_dynamic)
-            dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
+        dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
     }
     */
 

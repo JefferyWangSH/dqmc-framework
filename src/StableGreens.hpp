@@ -9,7 +9,7 @@
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
-#include "svdstack.hpp"
+#include "SvdStack.hpp"
 
 void div_dvec_max_min(const vecXd& dvec, vecXd& dmax, vecXd& dmin) {
     /*
@@ -119,33 +119,33 @@ void compute_Green(const matXd& U, const vecXd& S, const matXd& V, matXd& gtt, m
     }
 }
 
-void compute_Green(const SvdStack& left, const SvdStack& right, matXd& gtt, matXd& gt0, bool bool_measure_dynamic) {
+void compute_Green(const SvdStack *left, const SvdStack *right, matXd& gtt, matXd& gt0, bool bool_measure_dynamic) {
     /*
      *  returns (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
      *  note: (1 + left * right^T)^-1 = (1 + (USV^T)_left * (VSU^T)_right)^-1
      */
-    assert(left.n == right.n);
-    const int ndim = left.n;
+    assert(left->n == right->n);
+    const int ndim = left->n;
 
     /* at l = 0 */
-    if(left.empty()) {
-        compute_Green(right.matrixV(), right.singularValues(), right.matrixU(), gtt, gt0, bool_measure_dynamic);
+    if(left->empty()) {
+        compute_Green(right->matrixV(), right->singularValues(), right->matrixU(), gtt, gt0, bool_measure_dynamic);
         return;
     }
 
     /* at l = lt */
-    if(right.empty()) {
-        compute_Green(left.matrixU(), left.singularValues(), left.matrixV(), gtt, gt0, bool_measure_dynamic);
+    if(right->empty()) {
+        compute_Green(left->matrixU(), left->singularValues(), left->matrixV(), gtt, gt0, bool_measure_dynamic);
         return;
     }
 
     // local params
-    const matXd& ul = left.matrixU();
-    const vecXd& dl = left.singularValues();
-    const matXd& vl = left.matrixV();
-    const matXd& ur = right.matrixU();
-    const vecXd& dr = right.singularValues();
-    const matXd& vr = right.matrixV();
+    const matXd& ul = left->matrixU();
+    const vecXd& dl = left->singularValues();
+    const matXd& vl = left->matrixV();
+    const matXd& ur = right->matrixU();
+    const vecXd& dr = right->singularValues();
+    const matXd& vr = right->matrixV();
 
     vecXd dlmax(dl.size()), dlmin(dl.size());
     vecXd drmax(dr.size()), drmin(dr.size());

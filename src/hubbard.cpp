@@ -1,6 +1,6 @@
 #include "hubbard.h"
+#include "SvdStack.hpp"
 #include "StableGreens.hpp"
-#include "ProgressBar.hpp"
 
 /** TODO:
  *   1. cyclic sweeping (done)
@@ -43,10 +43,10 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     Green_t0_up.resize(ls, ls);
     Green_t0_dn.resize(ls, ls);
 
-    stackLeftU.resize(ls, lt);
-    stackLeftD.resize(ls, lt);
-    stackRightU.resize(ls, lt);
-    stackRightD.resize(ls, lt);
+    stackLeftU = new SvdStack(ls, lt);
+    stackLeftD = new SvdStack(ls, lt);
+    stackRightU = new SvdStack(ls, lt);
+    stackRightD = new SvdStack(ls, lt);
 
     vecGreenU.reserve(lt);
     vecGreenD.reserve(lt);
@@ -273,8 +273,8 @@ void Hubbard::initStacks(int istab) {
      *  sweep process will start from 0 to beta, so we initialize stackRight here.
      *  stabilize the process every istab steps
      */
-    assert(stackLeftU.empty() && stackLeftD.empty());
-    assert(stackRightU.empty() && stackRightD.empty());
+    assert(stackLeftU->empty() && stackLeftD->empty());
+    assert(stackRightU->empty() && stackRightD->empty());
 
     matXd tmpU = matXd::Identity(ls, ls);
     matXd tmpD = matXd::Identity(ls, ls);
@@ -285,8 +285,8 @@ void Hubbard::initStacks(int istab) {
         tmpD = make_Bl(l, -1).transpose() * tmpD;
         // stabilize every istab steps with svd decomposition
         if ((l-1) % istab == 0) {
-            stackRightU.push(tmpU);
-            stackRightD.push(tmpD);
+            stackRightU->push(tmpU);
+            stackRightD->push(tmpD);
             tmpU = matXd::Identity(ls, ls);
             tmpD = matXd::Identity(ls, ls);
         }
@@ -307,8 +307,8 @@ void Hubbard::sweep_0_to_beta(int istab) {
 
     int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
     assert(current_tau == 1);
-    assert(stackLeftU.empty() && stackLeftD.empty());
-    assert(stackRightU.len==nlen && stackRightD.len==nlen);
+    assert(stackLeftU->empty() && stackLeftD->empty());
+    assert(stackRightU->len==nlen && stackRightD->len==nlen);
 
     // temporary matrices
     matXd tmpU = matXd::Identity(ls, ls);
@@ -327,10 +327,10 @@ void Hubbard::sweep_0_to_beta(int istab) {
 
         if (l % istab == 0 || l == lt) {
             // wrap greens function
-            stackRightU.pop();
-            stackRightD.pop();
-            stackLeftU.push(tmpU);
-            stackLeftD.push(tmpD);
+            stackRightU->pop();
+            stackRightD->pop();
+            stackLeftU->push(tmpU);
+            stackLeftD->push(tmpD);
 
             // compute fresh greens every istab steps: g = (1 + stackLeft * stackRight^T)^-1
             // stackLeft = B(l-1) *...* B(0)
@@ -361,8 +361,8 @@ void Hubbard::sweep_beta_to_0(int istab) {
 
     int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
     assert(current_tau == lt);
-    assert(stackRightU.empty() && stackRightD.empty());
-    assert(stackLeftU.len==nlen && stackLeftD.len==nlen);
+    assert(stackRightU->empty() && stackRightD->empty());
+    assert(stackLeftU->len==nlen && stackLeftD->len==nlen);
 
     // temporary matrices
     matXd tmpU = matXd::Identity(ls, ls);
@@ -379,10 +379,10 @@ void Hubbard::sweep_beta_to_0(int istab) {
 
         if ((l-1) % istab == 0) {
             // update udv stacks
-            stackLeftU.pop();
-            stackLeftD.pop();
-            stackRightU.push(tmpU);
-            stackRightD.push(tmpD);
+            stackLeftU->pop();
+            stackLeftD->pop();
+            stackRightU->push(tmpU);
+            stackRightD->push(tmpD);
 
             compute_Green(stackLeftU, stackRightU, GreenU, Green_t0_up, false);
             compute_Green(stackLeftD, stackRightD, GreenD, Green_t0_dn, false);
@@ -411,8 +411,8 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
 
     int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
     assert(current_tau == 1);
-    assert(stackLeftU.empty() && stackLeftD.empty());
-    assert(stackRightU.len==nlen && stackRightD.len==nlen);
+    assert(stackLeftU->empty() && stackLeftD->empty());
+    assert(stackRightU->len==nlen && stackRightD->len==nlen);
 
     // initialize: at l = 0, gt0 = g00
     Green_t0_up = GreenU;
@@ -436,10 +436,10 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
 
         if (l % istab == 0 || l == lt) {
             // wrap greens function
-            stackRightU.pop();
-            stackRightD.pop();
-            stackLeftU.push(tmpU);
-            stackLeftD.push(tmpD);
+            stackRightU->pop();
+            stackRightD->pop();
+            stackLeftU->push(tmpU);
+            stackLeftD->push(tmpD);
 
             // compute fresh greens every istab steps
             // stackLeft = B(l-1) *...* B(0)
