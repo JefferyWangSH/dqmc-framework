@@ -131,31 +131,60 @@ int main(int argc, char* argv[]) {
     dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
     dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
 
-    for (int i = 0; i <= ll/2; ++i) {
-        // crystal momentum (qx, qy)
-        const double qx = 2 * M_PI / ll * i;
-        const double qy = 2 * M_PI / ll * i;
+    std::stringstream ss;
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+    std::string str_l = ss.str();
+    ss.str("");
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
+    std::string str_beta = ss.str();
+    ss.str("");
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
+    std::string str_u = ss.str();
+    ss.str("");
+    std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
 
-        dqmc.set_Momentum_q(qx, qy);
+    for (int i = 0; i <= ll; ++i) {
+        // crystal momentum qx
+        const double qx = M_PI - 2 * M_PI / ll * i;
 
-        bool_warm_up = (i == 0);
-        dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+        // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
+        for (int j = 0; j <= ll - i; ++j) {
+            // crystal momentum qy
+            const double qy = M_PI - 2 * M_PI / ll * j;
 
-        dqmc.printParams();
+            dqmc.set_Momentum_q(qx, qy);
 
-        dqmc.initialMeasure();
+            // warm up only one time
+            bool_warm_up = (i == 0 && j == 0);
 
-        dqmc.runQMC(bool_display_process);
+            dqmc.set_bool_Params(bool_warm_up, false, true);
 
-        dqmc.analyseStats();
+            dqmc.printParams();
 
-        dqmc.printStats();
+            dqmc.initialMeasure();
 
-        bool_append = (i != 0);
+            dqmc.runQMC(bool_display_process);
 
-        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+            dqmc.analyseStats();
+
+            dqmc.printStats();
+
+            bool_append = !(i == 0 && j == 0);
+            std::ofstream outfile;
+            outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
+            outfile << std::setiosflags(std::ios::right)
+                    << std::setw(15) << i
+                    << std::setw(15) << j
+                    << std::setw(15) << qx
+                    << std::setw(15) << qy
+                    << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
+                    << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[ceil(lt/2)]
+                    << std::endl;
+            outfile.close();
+        }
     }
     */
+
 
     /** Measure observable quantities over temperature T */
     /*

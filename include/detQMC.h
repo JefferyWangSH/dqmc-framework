@@ -10,10 +10,10 @@
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
+#include "hubbard.h"
 
 #include <map>
 #include <chrono>
-#include "hubbard.h"
 
 
 class detQMC {
@@ -32,17 +32,17 @@ private:
     // lattice momentum q
     Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
 
-    // for equal-time measurements
-    measure::eqtimeMeasure eqtimeMeasure;
-
-    // for time-displaced (dynamic) measurements
-    measure::dynamicMeasure dynamicMeasure;
-
     // time cost of one single measuring process
     std::chrono::steady_clock::time_point begin_t{}, end_t{};
 
 
 public:
+
+    // for equal-time measurements
+    measure::eqtimeMeasure eqtimeMeasure;
+
+    // for time-displaced (dynamic) measurements
+    measure::dynamicMeasure dynamicMeasure;
 
     detQMC() = default;
 

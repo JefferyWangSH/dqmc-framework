@@ -98,7 +98,7 @@ void detQMC::runQMC(bool bool_display_process) {
 
         progresscpp::ProgressBar progressBar(nbin * nsweep / 2, 40, '#', '-');
 
-        for (int bin = 1; bin <= nbin; ++bin) {
+        for (int bin = 0; bin < nbin; ++bin) {
             for (int nsw = 1; nsw <= nsweep/2; ++nsw) {
                 sweep_BackAndForth(bool_measure_eqtime, bool_measure_dynamic);
                 ++progressBar;
@@ -198,6 +198,8 @@ void detQMC::printStats() {
         std::cout << std::endl;
         std::cout << "  Time-displaced Measurements: " << std::endl
                   << "    Dynamical correlation in momentum space:  see in file" << std::endl
+                  << "    Correlation G(k, beta/2):   " << dynamicMeasure.obs_mean_g_kt[ceil(hubb.lt/2.0)]
+                  << "    err: " << dynamicMeasure.obs_err_g_kt[ceil(hubb.lt/2.0)] << std::endl
                   << "    Helicity modules \\Rho_s:   " << dynamicMeasure.obs_mean_rho_s
                   << "    err: " << dynamicMeasure.obs_err_rho_s << std::endl;
         std::cout.precision(-1);

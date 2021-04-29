@@ -78,7 +78,7 @@ void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const 
     double  onsitecorr = 0.0;
 
     for (int i = 0; i < ls; ++i) {
-        onsitecorr += gu(i,i) + gd(i,i) - 2*gu(i,i)*gd(i,i);
+        onsitecorr += gu(i, i) + gd(i, i) - 2 * gu(i,i) * gd(i,i);
     }
     localSpinCorr += onsitecorr / ls;
 }
@@ -161,14 +161,14 @@ void measure::eqtimeMeasure::analyse_equal_time_Stats(const std::string &obs) {
     obs_mean_eqtime[obs] = 0;
     obs_err_eqtime[obs] = 0;
 
-    for (int i = 0; i < nbin; ++i) {
-        obs_mean_eqtime[obs] += obs_bin_eqtime[obs][i];
-        obs_err_eqtime[obs] += pow(obs_bin_eqtime[obs][i], 2);
+    for (int bin = 0; bin < nbin; ++bin) {
+        obs_mean_eqtime[obs] += obs_bin_eqtime[obs][bin];
+        obs_err_eqtime[obs] += pow(obs_bin_eqtime[obs][bin], 2);
     }
 
     obs_mean_eqtime[obs] /= nbin;
     obs_err_eqtime[obs] /= nbin;
-    obs_err_eqtime[obs] = pow(obs_err_eqtime[obs]-pow(obs_mean_eqtime[obs], 2), 0.5) / pow(nbin - 1, 0.5);
+    obs_err_eqtime[obs] = pow(obs_err_eqtime[obs] - pow(obs_mean_eqtime[obs], 2), 0.5) / pow(nbin - 1, 0.5);
 }
 
 void measure::eqtimeMeasure::analyseStats() {

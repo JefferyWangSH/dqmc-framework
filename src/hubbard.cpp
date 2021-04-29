@@ -26,7 +26,7 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     this->dtau = beta / lt;
     this->Uint = Uint;
     this->alpha = acosh(exp(0.5 * dtau * abs(Uint)));
-    this->u_is_attractive = (Uint <= 0);
+    this->u_is_attractive = (Uint < 0.0);
 
     // unnecessary, only used to generate expK
     this->t = t;
