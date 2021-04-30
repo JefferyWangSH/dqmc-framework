@@ -113,12 +113,12 @@ void measure::dynamicMeasure::clear(const Hubbard &hubbard) {
 void measure::dynamicMeasure::measure_time_displaced(const Hubbard &hubbard) {
     n_time_displaced++;
     for (int l = 0; l < hubbard.lt; ++l) {
-        tmp_gt0_tau_up[l] += hubbard.vecGreen_t0_up[l];
-        tmp_g0t_tau_up[l] += hubbard.vecGreen_0t_up[l];
-        tmp_gtt_tau_up[l] += hubbard.vecGreenU[l];
-        tmp_gt0_tau_dn[l] += hubbard.vecGreen_t0_dn[l];
-        tmp_g0t_tau_dn[l] += hubbard.vecGreen_0t_dn[l];
-        tmp_gtt_tau_dn[l] += hubbard.vecGreenD[l];
+        tmp_gt0_tau_up[l] += hubbard.vec_green_t0_up[l];
+        tmp_g0t_tau_up[l] += hubbard.vec_green_0t_up[l];
+        tmp_gtt_tau_up[l] += hubbard.vec_green_tt_up[l];
+        tmp_gt0_tau_dn[l] += hubbard.vec_green_t0_dn[l];
+        tmp_g0t_tau_dn[l] += hubbard.vec_green_0t_dn[l];
+        tmp_gtt_tau_dn[l] += hubbard.vec_green_tt_dn[l];
     }
 }
 
@@ -201,7 +201,7 @@ void measure::dynamicMeasure::analyse_Rho_S(const int &bin, const Hubbard &hubba
                         const Eigen::VectorXd r = (Eigen::VectorXd(2) << (x1 - x2), (y1 - y2)).finished();
                         const double factor = cos(r.dot(qx)) - cos(r.dot(qy));
 
-                        tmp_fourier += - hubbard.t * hubbard.t * factor * (
+                        tmp_fourier -= hubbard.t * hubbard.t * factor * (
                                 + (gtt_up(i2, j2) - gtt_up(j2, i2)) * (g00_up(i1, j1) - g00_up(j1, i1))
                                 + (gtt_up(i2, j2) - gtt_up(j2, i2)) * (g00_dn(i1, j1) - g00_up(j1, i1))
                                 + (gtt_dn(i2, j2) - gtt_up(j2, i2)) * (g00_up(i1, j1) - g00_up(j1, i1))

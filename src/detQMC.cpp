@@ -134,6 +134,9 @@ void detQMC::runQMC(bool bool_display_process) {
         }
     }
 
+    std::cout << std::endl;
+    std::cout << "  Maximum of wrap error (equal-time):     " << hubb.max_wrap_error_equal << std::endl
+              << "  Maximum of wrap error (time-displaced): " << hubb.max_wrap_error_displaced << std::endl;
     end_t = std::chrono::steady_clock::now();
 }
 

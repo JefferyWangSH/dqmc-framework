@@ -13,7 +13,7 @@
  *   6. Check-board decomposition (missing)
  *   7. ******** Modify command console output ******** (done)
  *   8. attractive interaction U < 0 (done)
- *   9. openmp parallel, memory-expensive (missing)
+ *   9. openmp parallel programming (missing)
  *   10. determine the critical temperature of superconducting transition (missing)
  *   11. ...
  */

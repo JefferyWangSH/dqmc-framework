@@ -11,11 +11,32 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include "SvdStack.hpp"
 
+
+void matrix_compare_error(const Eigen::MatrixXd &umat, const Eigen::MatrixXd &vmat, double &error) {
+    /*
+     *  Subroutine to return the difference between two same-size matrices.
+     *  Input: umat, vmat
+     *  Output: the maximum difference -> error
+     */
+    assert(umat.rows() == vmat.rows());
+    assert(umat.cols() == vmat.cols());
+    assert(umat.rows() == umat.cols());
+
+    const int ndim = (int)umat.rows();
+    double tmp_error = 0.0;
+    for (int i = 0; i < ndim; ++i) {
+        for (int j = 0; j < ndim; ++j) {
+            tmp_error = std::max(tmp_error, std::abs(umat(i, j)-vmat(i, j)));
+        }
+    }
+    error = tmp_error;
+}
+
 void div_dvec_max_min(const Eigen::VectorXd &dvec, Eigen::VectorXd &dmax, Eigen::VectorXd &dmin) {
     /*
      *  Subroutine to perform the decomposition of a vector, dvec = dmax * dmin,
-     *  to ensure all elements greater than one are in dmax,
-     *  and all elements less than one are in dmin.
+     *  to ensure all elements that greater than one are in dmax,
+     *  and all elements that less than one are in dmin.
      *  Input: dvec
      *  Output: dmax, dmin
      */
@@ -150,13 +171,13 @@ void compute_Green_eqtime(const SvdStack *left, const SvdStack *right, Eigen::Ma
     const int ndim = left->n;
 
     /* at l = 0 */
-    if(left->empty()) {
+    if (left->empty()) {
         compute_Green_00_bb(right->matrixV(), right->singularValues(), right->matrixU(), gtt);
         return;
     }
 
     /* at l = lt */
-    if(right->empty()) {
+    if (right->empty()) {
         compute_Green_00_bb(left->matrixU(), left->singularValues(), left->matrixV(), gtt);
         return;
     }
