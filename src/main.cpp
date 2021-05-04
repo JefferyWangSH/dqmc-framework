@@ -99,16 +99,18 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    for (double U = 4.0; U <= 4.0; U += 0.5) {
+    std::vector<double> list_u = { -4.0, };
+
+    for (auto uint : list_u) {
         bool_append = false;
 
-        dqmc.set_Model_Params(ll, lt, beta, t, -U, mu, nwrap);
+        dqmc.set_Model_Params(ll, lt, beta, t, uint, mu, nwrap);
 
         dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
 
         dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
-        dqmc.set_Momentum_q(M_PI/2, M_PI/2);
+        dqmc.set_Momentum_q(M_PI / 2, M_PI / 2);
 
         dqmc.printParams();
 

@@ -21,14 +21,13 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cassert>
 
+#include "SvdStack.h"
 #include "eqtimeMeasure.h"
 #include "dynamicMeasure.h"
 
 
 // random engine
 static std::default_random_engine gen(time(nullptr));
-
-struct SvdStack;
 
 class Hubbard {
 

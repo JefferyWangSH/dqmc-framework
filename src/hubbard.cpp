@@ -1,5 +1,4 @@
 #include "hubbard.h"
-#include "SvdStack.hpp"
 #include "StableGreens.hpp"
 
 /** TODO:
@@ -121,7 +120,7 @@ Eigen::MatrixXd Hubbard::make_Bl(int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        r.row(i) *= exp(+ Sigma * alpha * s(i,tau));
+        r.row(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
     return r;
 }
@@ -140,7 +139,7 @@ void Hubbard::multB_fromL(Eigen::MatrixXd& A, int l, int sigma) {
     const int Sigma = (u_is_attractive)? 1 : sigma;
     A = expmdtK * A;
     for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(+ Sigma * alpha * s(i,tau));
+        A.row(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
 }
 
@@ -157,7 +156,7 @@ void Hubbard::multB_fromR(Eigen::MatrixXd& A, int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(+ Sigma * alpha * s(i,tau));
+        A.col(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
     A = A * expmdtK;
 }
@@ -175,7 +174,7 @@ void Hubbard::multinvB_fromL(Eigen::MatrixXd &A, int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(- Sigma * alpha * s(i,tau));
+        A.row(i) *= exp(- Sigma * alpha * s(i, tau));
     }
     A = exppdtK * A;
 }
@@ -194,7 +193,7 @@ void Hubbard::multinvB_fromR(Eigen::MatrixXd &A, int l, int sigma) {
     const int Sigma = (u_is_attractive)? 1 : sigma;
     A = A * exppdtK;
     for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(- Sigma * alpha * s(i,tau));
+        A.col(i) *= exp(- Sigma * alpha * s(i, tau));
     }
 }
 
@@ -253,10 +252,11 @@ void Hubbard::wrap_north(int l) {
      */
     assert(l >= 0 && l <= lt);
 
-    multB_fromL(green_tt_up, (l + 1) % lt, +1);
-    multinvB_fromR(green_tt_up, (l + 1) % lt, +1);
-    multB_fromL(green_tt_dn, (l + 1) % lt, -1);
-    multinvB_fromR(green_tt_dn, (l + 1) % lt, -1);
+    const int tau = (l == lt)? 1 : l + 1;
+    multB_fromL(green_tt_up, tau, +1);
+    multinvB_fromR(green_tt_up, tau, +1);
+    multB_fromL(green_tt_dn, tau, -1);
+    multinvB_fromR(green_tt_dn, tau, -1);
 }
 
 void Hubbard::wrap_south(int l) {
@@ -268,10 +268,11 @@ void Hubbard::wrap_south(int l) {
      */
     assert(l >= 0 && l <= lt);
 
-    multB_fromR(green_tt_up, l, +1);
-    multinvB_fromL(green_tt_up, l, +1);
-    multB_fromR(green_tt_dn, l, -1);
-    multinvB_fromL(green_tt_dn, l, -1);
+    const int tau = (l == 0)? lt : l;
+    multB_fromR(green_tt_up, tau, +1);
+    multinvB_fromL(green_tt_up, tau, +1);
+    multB_fromR(green_tt_dn, tau, -1);
+    multinvB_fromL(green_tt_dn, tau, -1);
 }
 
 void Hubbard::initStacks(int istab) {
@@ -291,7 +292,7 @@ void Hubbard::initStacks(int istab) {
         tmpU = make_Bl(l, +1).transpose() * tmpU;
         tmpD = make_Bl(l, -1).transpose() * tmpD;
         // stabilize every istab steps with svd decomposition
-        if ((l-1) % istab == 0) {
+        if ((l - 1) % istab == 0) {
             stackRightU->push(tmpU);
             stackRightD->push(tmpD);
             tmpU = Eigen::MatrixXd::Identity(ls, ls);

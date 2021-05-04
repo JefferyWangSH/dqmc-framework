@@ -6,6 +6,9 @@ void measure::dynamicMeasure::resize(const int &nbin) {
 }
 
 void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
+    // clear data of previous simulation
+    clear();
+
     obs_bin_g_kt.reserve(nbin);
     obs_bin_rho_s.reserve(nbin);
 
@@ -89,6 +92,28 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
         obs_bin_g0t_dn.shrink_to_fit();
         obs_bin_gtt_dn.shrink_to_fit();
     }
+}
+
+void measure::dynamicMeasure::clear() {
+    obs_bin_g_kt.clear();
+    obs_bin_rho_s.clear();
+
+    obs_bin_gt0_up.clear();
+    obs_bin_g0t_up.clear();
+    obs_bin_gtt_up.clear();
+    obs_bin_gt0_dn.clear();
+    obs_bin_g0t_dn.clear();
+    obs_bin_gtt_dn.clear();
+
+    obs_mean_g_kt.clear();
+    obs_err_g_kt.clear();
+
+    tmp_gt0_tau_up.clear();
+    tmp_g0t_tau_up.clear();
+    tmp_gtt_tau_up.clear();
+    tmp_gt0_tau_dn.clear();
+    tmp_g0t_tau_dn.clear();
+    tmp_gtt_tau_dn.clear();
 }
 
 void measure::dynamicMeasure::clear(const Hubbard &hubbard) {

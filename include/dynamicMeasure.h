@@ -66,6 +66,7 @@ namespace measure{
         void initial(const Hubbard &hubbard);
 
         /* clear temporary parameters */
+        void clear();
         void clear(const Hubbard &hubbard);
 
         /* time-displaced measurements */
