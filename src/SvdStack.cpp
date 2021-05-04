@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include <cassert>
+
+#include "mkl_lapacke.h"
+
 #include "SvdStack.h"
 
 
@@ -24,39 +27,25 @@ void SvdStack::clear() {
     len = 0;
 }
 
-
-/** svd decomposition of arbitrary M * N real matrix, using LAPACK */
-static void lapack_dgesdd(const int &m, const int &n, const Eigen::MatrixXd &a, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
+/** svd decomposition of arbitrary M * N real matrix, using MKL_LAPACK */
+void mkl_lapack_dgesvd(const int &m, const int &n, const Eigen::MatrixXd &a, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
     assert(m == a.rows());
     assert(n == a.cols());
 
     /* Matrix size */
-    const int lda = m;
-    const int ldu = m;
-    const int ldvt = n;
-
-    int info, lwork;
-    double wkopt;
-    double* work;
+    int matrix_layout = LAPACK_ROW_MAJOR;
+    lapack_int info, lda = m, ldu = m, ldvt = n;
 
     /* Local arrays */
-    /* iwork dimension should be at least 8*min(m,n) */
-    int iwork[8 * n];
-    double s_[n], u_[ldu * m], vt_[ldvt * n];
+    double s_[ldu * ldu], u_[ldu * m], vt_[ldvt * n];
     double a_[lda * n];
-
+    double superb[ldu * lda];
     for (int i = 0; i < lda * n; ++i) {
         a_[i] = a(i / lda, i % lda);
     }
 
-    /* Query and allocate the optimal workspace */
-    lwork = -1;
-    dgesdd( "A", &m, &n, a_, &lda, s_, u_, &ldu, vt_, &ldvt, &wkopt, &lwork, iwork, &info );
-    lwork = (int)wkopt;
-    work = (double*)malloc( lwork*sizeof(double) );
-
     /* Compute SVD */
-    dgesdd( "A", &m, &n, a_, &lda, s_, u_, &ldu, vt_, &ldvt, work, &lwork, iwork, &info );
+    info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', m, n, a_, lda, s_, u_, ldu, vt_, ldvt, superb );
 
     /* Check for convergence */
     if( info > 0 ) {
@@ -65,12 +54,9 @@ static void lapack_dgesdd(const int &m, const int &n, const Eigen::MatrixXd &a, 
     }
 
     /* Convert to Eigen */
-    u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(vt_, n, n);
-    s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(s_, 1, lda);
-    v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(u_, m, m);
-
-    /* Free workspace */
-    free( (void*)work );
+    u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(u_, n, n);
+    s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(s_, 1, n);
+    v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(vt_, m, m);
 }
 
 
@@ -79,13 +65,13 @@ void SvdStack::push(const Eigen::MatrixXd &a) {
     assert( len < stack.size() );
 
     if (len == 0) {
-        lapack_dgesdd(n, n, a, stack[len].matrixU(), stack[len].singularValues(), stack[len].matrixV());
+        mkl_lapack_dgesvd(n, n, a, stack[len].matrixU(), stack[len].singularValues(), stack[len].matrixV());
     }
     else {
         /** IMPORTANT! Mind the order of multiplication!
          *  Avoid confusing of different eigen scales here */
         tmp = ( a * matrixU() ) * singularValues().asDiagonal();
-        lapack_dgesdd(n, n, tmp, stack[len].matrixU(), stack[len].singularValues(), stack[len].matrixV());
+        mkl_lapack_dgesvd(n, n, tmp, stack[len].matrixU(), stack[len].singularValues(), stack[len].matrixV());
     }
     len += 1;
 }

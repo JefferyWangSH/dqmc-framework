@@ -9,7 +9,7 @@ Prerequisite
 ------------
 1. g++ and cmake installed.
 2. Eigen library, linked to Intel MKL.
-3. BLAS and Lapack for SVD stabilization.
+3. `mkl_lapacke.h` for SVD stabilization.
 
 Accomplished
 ------------
