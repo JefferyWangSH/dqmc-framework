@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(dqmc_hubbard)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -march=native -O3 -fopenmp")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -llapack -lblas -std=c++14 -march=native -O3 -fopenmp")
 
 set(SOURCES
         src/main.cpp
         src/hubbard.cpp
         src/detQMC.cpp
-        src/SvdStack.hpp
+        src/SvdStack.cpp
         src/StableGreens.hpp
         src/ProgressBar.hpp
         src/eqtimeMeasure.cpp

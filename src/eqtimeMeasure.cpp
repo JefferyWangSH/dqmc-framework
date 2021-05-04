@@ -24,8 +24,8 @@ void measure::eqtimeMeasure::clear() {
 
 void measure::eqtimeMeasure::meas_Double_Occu(const Hubbard &hubbard, const int &t) {
     assert( t >= 0 && t < hubbard.lt);
-    const Eigen::MatrixXd gu = hubbard.vecGreenU[t];
-    const Eigen::MatrixXd gd = hubbard.vecGreenD[t];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     for (int i = 0; i < hubbard.ls; ++i) {
         const double doubleoccu = (1 - gu(i,i)) * (1 - gd(i,i));
@@ -36,8 +36,8 @@ void measure::eqtimeMeasure::meas_Double_Occu(const Hubbard &hubbard, const int 
 void measure::eqtimeMeasure::meas_Kinetic_Energy(const Hubbard &hubbard, const int &t) {
     assert( t >= 0 && t < hubbard.lt);
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = hubbard.vecGreenU[t];
-    const Eigen::MatrixXd gd = hubbard.vecGreenD[t];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     for (int x = 0; x < ll; ++x) {
         for (int y = 0; y < ll; ++y) {
@@ -51,8 +51,8 @@ void measure::eqtimeMeasure::meas_Kinetic_Energy(const Hubbard &hubbard, const i
 void measure::eqtimeMeasure::meas_Momentum_Dist(const Hubbard &hubbard, const int &t, const Eigen::VectorXd &p) {
     assert( t >= 0 && t < hubbard.lt);
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = hubbard.vecGreenU[t];
-    const Eigen::MatrixXd gd = hubbard.vecGreenD[t];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
     double tmpfourier = 0.0;
 
     for (int xi = 0; xi < ll; ++xi) {
@@ -73,12 +73,12 @@ void measure::eqtimeMeasure::meas_Momentum_Dist(const Hubbard &hubbard, const in
 void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const int &t) {
     assert( t >= 0 && t < hubbard.lt);
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd gu = hubbard.vecGreenU[t];
-    const Eigen::MatrixXd gd = hubbard.vecGreenD[t];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
     double  onsitecorr = 0.0;
 
     for (int i = 0; i < ls; ++i) {
-        onsitecorr += gu(i,i) + gd(i,i) - 2*gu(i,i)*gd(i,i);
+        onsitecorr += gu(i, i) + gd(i, i) - 2 * gu(i,i) * gd(i,i);
     }
     localSpinCorr += onsitecorr / ls;
 }
@@ -87,8 +87,8 @@ void measure::eqtimeMeasure::meas_Struct_Factor(const Hubbard &hubbard, const in
     assert( t >= 0 && t < hubbard.lt);
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd gu = hubbard.vecGreenU[t];
-    const Eigen::MatrixXd gd = hubbard.vecGreenD[t];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     /**  gu(i,j) = < c_i c^+_j >
      *  guc(i,j) = < c^+_i c_j > */
@@ -161,14 +161,14 @@ void measure::eqtimeMeasure::analyse_equal_time_Stats(const std::string &obs) {
     obs_mean_eqtime[obs] = 0;
     obs_err_eqtime[obs] = 0;
 
-    for (int i = 0; i < nbin; ++i) {
-        obs_mean_eqtime[obs] += obs_bin_eqtime[obs][i];
-        obs_err_eqtime[obs] += pow(obs_bin_eqtime[obs][i], 2);
+    for (int bin = 0; bin < nbin; ++bin) {
+        obs_mean_eqtime[obs] += obs_bin_eqtime[obs][bin];
+        obs_err_eqtime[obs] += pow(obs_bin_eqtime[obs][bin], 2);
     }
 
     obs_mean_eqtime[obs] /= nbin;
     obs_err_eqtime[obs] /= nbin;
-    obs_err_eqtime[obs] = pow(obs_err_eqtime[obs]-pow(obs_mean_eqtime[obs], 2), 0.5) / pow(nbin - 1, 0.5);
+    obs_err_eqtime[obs] = pow(obs_err_eqtime[obs] - pow(obs_mean_eqtime[obs], 2), 0.5) / pow(nbin - 1, 0.5);
 }
 
 void measure::eqtimeMeasure::analyseStats() {

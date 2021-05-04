@@ -1,5 +1,4 @@
 #include "hubbard.h"
-#include "SvdStack.hpp"
 #include "StableGreens.hpp"
 
 /** TODO:
@@ -9,7 +8,7 @@
  *   4. check greens (done, unnecessary)
  *   6. detQMC class (done)
  *   7. check-board decomposition (missing)
- *   8. time-displaced dynamical measurements: Green_t0/0t (done)
+ *   8. time-displaced dynamical measurements: green_t0/0t (done)
  *   9. attractive interaction U < 0 (done)
  *   10. ...
  */
@@ -26,7 +25,7 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     this->dtau = beta / lt;
     this->Uint = Uint;
     this->alpha = acosh(exp(0.5 * dtau * abs(Uint)));
-    this->u_is_attractive = (Uint <= 0);
+    this->u_is_attractive = (Uint < 0.0);
 
     // unnecessary, only used to generate expK
     this->t = t;
@@ -39,32 +38,32 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     s.resize(ls, lt);
     exppdtK.resize(ls, ls);
     expmdtK.resize(ls, ls);
-    GreenU.resize(ls, ls);
-    GreenD.resize(ls, ls);
-    Green_t0_up.resize(ls, ls);
-    Green_t0_dn.resize(ls, ls);
-    Green_0t_up.resize(ls, ls);
-    Green_0t_dn.resize(ls, ls);
+    green_tt_up.resize(ls, ls);
+    green_tt_dn.resize(ls, ls);
+    green_t0_up.resize(ls, ls);
+    green_t0_dn.resize(ls, ls);
+    green_0t_up.resize(ls, ls);
+    green_0t_dn.resize(ls, ls);
 
     stackLeftU = new SvdStack(ls, lt);
     stackLeftD = new SvdStack(ls, lt);
     stackRightU = new SvdStack(ls, lt);
     stackRightD = new SvdStack(ls, lt);
 
-    vecGreenU.reserve(lt);
-    vecGreenD.reserve(lt);
-    vecGreen_t0_up.reserve(lt);
-    vecGreen_t0_dn.reserve(lt);
-    vecGreen_0t_up.reserve(lt);
-    vecGreen_0t_dn.reserve(lt);
+    vec_green_tt_up.reserve(lt);
+    vec_green_tt_dn.reserve(lt);
+    vec_green_t0_up.reserve(lt);
+    vec_green_t0_dn.reserve(lt);
+    vec_green_0t_up.reserve(lt);
+    vec_green_0t_dn.reserve(lt);
 
     for (int l = 0; l < lt; ++l) {
-        vecGreenU.emplace_back(ls, ls);
-        vecGreenD.emplace_back(ls, ls);
-        vecGreen_t0_up.emplace_back(ls, ls);
-        vecGreen_t0_dn.emplace_back(ls, ls);
-        vecGreen_0t_up.emplace_back(ls, ls);
-        vecGreen_0t_dn.emplace_back(ls, ls);
+        vec_green_tt_up.emplace_back(ls, ls);
+        vec_green_tt_dn.emplace_back(ls, ls);
+        vec_green_t0_up.emplace_back(ls, ls);
+        vec_green_t0_dn.emplace_back(ls, ls);
+        vec_green_0t_up.emplace_back(ls, ls);
+        vec_green_0t_dn.emplace_back(ls, ls);
     }
 
     // set field config to random
@@ -84,7 +83,7 @@ void Hubbard::initRandom() {
     std::bernoulli_distribution dist(0.5);
     for(int i = 0; i < ls; ++i) {
         for(int l = 0; l < lt; ++l) {
-            s(i,l) = dist(gen)? +1.0:-1.0;
+            s(i, l) = dist(gen)? +1.0:-1.0;
         }
     }
 }
@@ -97,11 +96,11 @@ void Hubbard::make_expdtK() {
     Eigen::MatrixXd K = Eigen::MatrixXd::Zero(ls, ls);
     for(int x = 0; x < ll; ++x) {
         for(int y = 0; y < ll; ++y) {
-            K(x + ll*y, ((x+1)%ll) + ll*y) = -t;
-            K(((x+1)%ll) + ll*y, x + ll*y) = -t;
-            K(x + ll*y, x + ll*((y+1)%ll)) = -t;
-            K(x + ll*((y+1)%ll), x + ll*y) = -t;
-            if (x==y) { K(x, y) = - mu;}
+            K(x + ll * y, ((x + 1) % ll) + ll * y) = -t;
+            K(((x + 1) % ll) + ll * y, x + ll * y) = -t;
+            K(x + ll * y, x + ll * ((y + 1) % ll)) = -t;
+            K(x + ll * ((y + 1) % ll), x + ll * y) = -t;
+            if (x == y) { K(x, y) = - mu;}
         }
     }
     expmdtK = (-dtau * K).exp();
@@ -121,7 +120,7 @@ Eigen::MatrixXd Hubbard::make_Bl(int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        r.row(i) *= exp(+ Sigma * alpha * s(i,tau));
+        r.row(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
     return r;
 }
@@ -140,7 +139,7 @@ void Hubbard::multB_fromL(Eigen::MatrixXd& A, int l, int sigma) {
     const int Sigma = (u_is_attractive)? 1 : sigma;
     A = expmdtK * A;
     for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(+ Sigma * alpha * s(i,tau));
+        A.row(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
 }
 
@@ -157,7 +156,7 @@ void Hubbard::multB_fromR(Eigen::MatrixXd& A, int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(+ Sigma * alpha * s(i,tau));
+        A.col(i) *= exp(+ Sigma * alpha * s(i, tau));
     }
     A = A * expmdtK;
 }
@@ -175,7 +174,7 @@ void Hubbard::multinvB_fromL(Eigen::MatrixXd &A, int l, int sigma) {
     const int tau = (l==0)? lt-1 : l-1;
     const int Sigma = (u_is_attractive)? 1 : sigma;
     for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(- Sigma * alpha * s(i,tau));
+        A.row(i) *= exp(- Sigma * alpha * s(i, tau));
     }
     A = exppdtK * A;
 }
@@ -194,7 +193,7 @@ void Hubbard::multinvB_fromR(Eigen::MatrixXd &A, int l, int sigma) {
     const int Sigma = (u_is_attractive)? 1 : sigma;
     A = A * exppdtK;
     for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(- Sigma * alpha * s(i,tau));
+        A.col(i) *= exp(- Sigma * alpha * s(i, tau));
     }
 }
 
@@ -202,7 +201,7 @@ void Hubbard::Metropolis_update(int l) {
     /*
      * Update a HS field at space-time position (i,l) for all i with Metropolis
      * probability, and - if the update is accepted - perform a
-     * in-place update of the Green's function.
+     * in-place update of the green's function.
      * Record the updated green's function at the end of function.
      */
     assert(current_tau == l);
@@ -213,12 +212,12 @@ void Hubbard::Metropolis_update(int l) {
         // radio of flipping aux field s(i,l)
         double p;
         if (!u_is_attractive) {
-            p = (1 + (1 - GreenU(i,i)) * (exp(-2 * alpha * s(i,tau)) - 1))
-                       * (1 + (1 - GreenD(i,i)) * (exp(+2 * alpha * s(i,tau)) - 1));
+            p = (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1))
+                       * (1 + (1 - green_tt_dn(i, i)) * (exp(+2 * alpha * s(i, tau)) - 1));
         }
         else {
-            p = exp(2 * alpha * s(i, tau))  * (1 + (1 - GreenU(i,i)) * (exp(-2 * alpha * s(i,tau)) - 1))
-                       * (1 + (1 - GreenD(i,i)) * (exp(-2 * alpha * s(i,tau)) - 1));
+            p = exp(2 * alpha * s(i, tau))  * (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1))
+                       * (1 + (1 - green_tt_dn(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
         }
 
         if(std::bernoulli_distribution(std::min(1.0, p))(gen)) {
@@ -228,50 +227,52 @@ void Hubbard::Metropolis_update(int l) {
              *  Here we use the sparseness of matrix \delta */
             // update greens function (which is wrapped such that the update is at timeslice 0 of g)
             // with a number of arithmetic operations proportional to N^2
-            double factorU = (exp(-2*alpha*s(i,tau))-1)/(1 + (1-GreenU(i,i))*(exp(-2*alpha*s(i,tau))-1));
-            GreenU -= factorU * GreenU.col(i) * (Eigen::VectorXd::Unit(ls,i).transpose() - GreenU.row(i));
+            double factorU = (exp(-2 * alpha * s(i, tau)) - 1) / (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
+            green_tt_up -= factorU * green_tt_up.col(i) * (Eigen::VectorXd::Unit(ls, i).transpose() - green_tt_up.row(i));
 
-            double factorD = (!u_is_attractive)? (exp(+2*alpha*s(i,tau))-1)/(1 + (1-GreenD(i,i))*(exp(+2*alpha*s(i,tau))-1)) : factorU;
-            GreenD -= factorD * GreenD.col(i) * (Eigen::VectorXd::Unit(ls,i).transpose() - GreenD.row(i));
+            double factorD = (!u_is_attractive)? (exp(+2 * alpha * s(i, tau)) - 1) / (1 + (1 - green_tt_dn(i, i)) * (exp(+2 * alpha * s(i, tau)) - 1)) : factorU;
+            green_tt_dn -= factorD * green_tt_dn.col(i) * (Eigen::VectorXd::Unit(ls, i).transpose() - green_tt_dn.row(i));
 
             // flip aux field
-            s(i,tau) = -s(i,tau);
+            s(i, tau) = -s(i, tau);
         }
     }
 
     // record equal-time green function of current time
-    vecGreenU[tau] = GreenU;
-    vecGreenD[tau] = GreenD;
+    vec_green_tt_up[tau] = green_tt_up;
+    vec_green_tt_dn[tau] = green_tt_dn;
 }
 
 void Hubbard::wrap_north(int l) {
     /*
-     * Propagate the Green's function from the current time slice l
+     * Propagate the green's function from the current time slice l
      * upward to the time slice l+1:
      * G(l+1) = B_{l+1} G(l) B_{l+1}^{-1}
      * for both spin-1/2 state. Change green's functions in place.
      */
     assert(l >= 0 && l <= lt);
 
-    multB_fromL(GreenU, (l+1)%lt, +1);
-    multinvB_fromR(GreenU, (l+1)%lt, +1);
-    multB_fromL(GreenD, (l+1)%lt, -1);
-    multinvB_fromR(GreenD, (l+1)%lt, -1);
+    const int tau = (l == lt)? 1 : l + 1;
+    multB_fromL(green_tt_up, tau, +1);
+    multinvB_fromR(green_tt_up, tau, +1);
+    multB_fromL(green_tt_dn, tau, -1);
+    multinvB_fromR(green_tt_dn, tau, -1);
 }
 
 void Hubbard::wrap_south(int l) {
     /*
-     * Propagate the Green's function from the current time slice l
+     * Propagate the green's function from the current time slice l
      * downward to the time slice l-1:
      * G(l-1) = B_{l}^{-1} G(l) B_{l}
      * for both spin-1/2 state. Change green's functions in place.
      */
     assert(l >= 0 && l <= lt);
 
-    multB_fromR(GreenU, l, +1);
-    multinvB_fromL(GreenU, l, +1);
-    multB_fromR(GreenD, l, -1);
-    multinvB_fromL(GreenD, l, -1);
+    const int tau = (l == 0)? lt : l;
+    multB_fromR(green_tt_up, tau, +1);
+    multinvB_fromL(green_tt_up, tau, +1);
+    multB_fromR(green_tt_dn, tau, -1);
+    multinvB_fromL(green_tt_dn, tau, -1);
 }
 
 void Hubbard::initStacks(int istab) {
@@ -291,7 +292,7 @@ void Hubbard::initStacks(int istab) {
         tmpU = make_Bl(l, +1).transpose() * tmpU;
         tmpD = make_Bl(l, -1).transpose() * tmpD;
         // stabilize every istab steps with svd decomposition
-        if ((l-1) % istab == 0) {
+        if ((l - 1) % istab == 0) {
             stackRightU->push(tmpU);
             stackRightD->push(tmpD);
             tmpU = Eigen::MatrixXd::Identity(ls, ls);
@@ -300,8 +301,8 @@ void Hubbard::initStacks(int istab) {
     }
 
     // initialize green function at l = 0
-    compute_Green_eqtime(stackLeftU, stackRightU, GreenU);
-    compute_Green_eqtime(stackLeftD, stackRightD, GreenD);
+    compute_Green_eqtime(stackLeftU, stackRightU, green_tt_up);
+    compute_Green_eqtime(stackLeftD, stackRightD, green_tt_dn);
 }
 
 void Hubbard::sweep_0_to_beta(int istab) {
@@ -312,10 +313,10 @@ void Hubbard::sweep_0_to_beta(int istab) {
      */
     current_tau++;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
+    int nlen = (lt % istab == 0)? lt/istab : lt/istab  +1;
     assert(current_tau == 1);
     assert(stackLeftU->empty() && stackLeftD->empty());
-    assert(stackRightU->len==nlen && stackRightD->len==nlen);
+    assert(stackRightU->len == nlen && stackRightD->len == nlen);
 
     // temporary matrices
     Eigen::MatrixXd tmpU = Eigen::MatrixXd::Identity(ls, ls);
@@ -324,7 +325,7 @@ void Hubbard::sweep_0_to_beta(int istab) {
     // sweep up from 0 to beta
     for (int l = 1; l <= lt; ++l) {
         // wrap green function to current time slice l
-        wrap_north(l-1);
+        wrap_north(l - 1);
 
         // update aux field and record new greens
         Metropolis_update(l);
@@ -339,11 +340,24 @@ void Hubbard::sweep_0_to_beta(int istab) {
             stackLeftU->push(tmpU);
             stackLeftD->push(tmpD);
 
+            Eigen::MatrixXd tmp_green_tt_up = Eigen::MatrixXd::Zero(ls, ls);
+            Eigen::MatrixXd tmp_green_tt_dn = Eigen::MatrixXd::Zero(ls, ls);
+            double tmp_wrap_error_tt_up = 0.0;
+            double tmp_wrap_error_tt_dn = 0.0;
+
             // compute fresh greens every istab steps: g = (1 + stackLeft * stackRight^T)^-1
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
-            compute_Green_eqtime(stackLeftU, stackRightU, GreenU);
-            compute_Green_eqtime(stackLeftD, stackRightD, GreenD);
+            compute_Green_eqtime(stackLeftU, stackRightU, tmp_green_tt_up);
+            compute_Green_eqtime(stackLeftD, stackRightD, tmp_green_tt_dn);
+
+            // calculate wrap error
+            matrix_compare_error(tmp_green_tt_up, green_tt_up, tmp_wrap_error_tt_up);
+            matrix_compare_error(tmp_green_tt_dn, green_tt_dn, tmp_wrap_error_tt_dn);
+            max_wrap_error_equal = std::max(max_wrap_error_equal, std::max(tmp_wrap_error_tt_up, tmp_wrap_error_tt_dn));
+
+            green_tt_up = tmp_green_tt_up;
+            green_tt_dn = tmp_green_tt_dn;
 
             tmpU = Eigen::MatrixXd::Identity(ls, ls);
             tmpD = Eigen::MatrixXd::Identity(ls, ls);
@@ -354,8 +368,8 @@ void Hubbard::sweep_0_to_beta(int istab) {
     }
 
     // end with fresh green functions
-    vecGreenU[lt-1] = GreenU;
-    vecGreenD[lt-1] = GreenD;
+    vec_green_tt_up[lt-1] = green_tt_up;
+    vec_green_tt_dn[lt-1] = green_tt_dn;
 }
 
 void Hubbard::sweep_beta_to_0(int istab) {
@@ -366,10 +380,10 @@ void Hubbard::sweep_beta_to_0(int istab) {
      */
     current_tau--;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
+    int nlen = (lt % istab == 0)? lt/istab : lt/istab + 1;
     assert(current_tau == lt);
     assert(stackRightU->empty() && stackRightD->empty());
-    assert(stackLeftU->len==nlen && stackLeftD->len==nlen);
+    assert(stackLeftU->len == nlen && stackLeftD->len == nlen);
 
     // temporary matrices
     Eigen::MatrixXd tmpU = Eigen::MatrixXd::Identity(ls, ls);
@@ -377,6 +391,32 @@ void Hubbard::sweep_beta_to_0(int istab) {
 
     // sweep down from beta to 0
     for (int l = lt; l >= 1; --l) {
+        if (l % istab == 0 && l != lt) {
+            // update udv stacks
+            stackLeftU->pop();
+            stackLeftD->pop();
+            stackRightU->push(tmpU);
+            stackRightD->push(tmpD);
+
+            Eigen::MatrixXd tmp_green_tt_up = Eigen::MatrixXd::Zero(ls, ls);
+            Eigen::MatrixXd tmp_green_tt_dn = Eigen::MatrixXd::Zero(ls, ls);
+            double tmp_wrap_error_tt_up = 0.0;
+            double tmp_wrap_error_tt_dn = 0.0;
+
+            compute_Green_eqtime(stackLeftU, stackRightU, tmp_green_tt_up);
+            compute_Green_eqtime(stackLeftD, stackRightD, tmp_green_tt_dn);
+
+            // calculate wrap error
+            matrix_compare_error(tmp_green_tt_up, green_tt_up, tmp_wrap_error_tt_up);
+            matrix_compare_error(tmp_green_tt_dn, green_tt_dn, tmp_wrap_error_tt_dn);
+            max_wrap_error_equal = std::max(max_wrap_error_equal, std::max(tmp_wrap_error_tt_up, tmp_wrap_error_tt_dn));
+
+            green_tt_up = tmp_green_tt_up;
+            green_tt_dn = tmp_green_tt_dn;
+
+            tmpU = Eigen::MatrixXd::Identity(ls, ls);
+            tmpD = Eigen::MatrixXd::Identity(ls, ls);
+        }
 
         // update aux field and record new greens
         Metropolis_update(l);
@@ -384,48 +424,43 @@ void Hubbard::sweep_beta_to_0(int istab) {
         tmpU = make_Bl(l, +1).transpose() * tmpU;
         tmpD = make_Bl(l, -1).transpose() * tmpD;
 
-        if ((l-1) % istab == 0) {
-            // update udv stacks
-            stackLeftU->pop();
-            stackLeftD->pop();
-            stackRightU->push(tmpU);
-            stackRightD->push(tmpD);
-
-            compute_Green_eqtime(stackLeftU, stackRightU, GreenU);
-            compute_Green_eqtime(stackLeftD, stackRightD, GreenD);
-
-            tmpU = Eigen::MatrixXd::Identity(ls, ls);
-            tmpD = Eigen::MatrixXd::Identity(ls, ls);
-        }
-        else
-            wrap_south(l);
+        wrap_south(l);
 
         current_tau--;
     }
 
+    // at l = 0
+    stackLeftU->pop();
+    stackLeftD->pop();
+    stackRightU->push(tmpU);
+    stackRightD->push(tmpD);
+
+    compute_Green_eqtime(stackLeftU, stackRightU, green_tt_up);
+    compute_Green_eqtime(stackLeftD, stackRightD, green_tt_dn);
+
     // end with fresh green functions
-    vecGreenU[lt-1] = GreenU;
-    vecGreenD[lt-1] = GreenD;
+    vec_green_tt_up[lt-1] = green_tt_up;
+    vec_green_tt_dn[lt-1] = green_tt_dn;
 }
 
 void Hubbard::sweep_0_to_beta_displaced(int istab) {
     /*
      *  Calculate time-displaced green function, while the aux field remains unchanged.
      *  For l = 1,2...,lt, recompute SvdStacks every istab time slices.
-     *  Data is to be stored in vecGreen_t0/0t_up and vecGreen_t0/0t_dn.
+     *  Data is to be stored in vec_green_t0/0t_up and vec_green_t0/0t_dn.
      */
     current_tau++;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab+1;
+    int nlen = (lt % istab == 0)? lt/istab : lt/istab + 1;
     assert(current_tau == 1);
     assert(stackLeftU->empty() && stackLeftD->empty());
-    assert(stackRightU->len==nlen && stackRightD->len==nlen);
+    assert(stackRightU->len == nlen && stackRightD->len == nlen);
 
-    // initialize: at l = 0, gt0 = g00, g0t = -(1 - g00) (for convenience)
-    Green_t0_up = GreenU;
-    Green_t0_dn = GreenD;
-    Green_0t_up = - (Eigen::MatrixXd::Identity(ls, ls) - GreenU);
-    Green_0t_dn = - (Eigen::MatrixXd::Identity(ls, ls) - GreenD);
+    // initialize: at l = 0, gt0 = g00, g0t = g00 - 1
+    green_t0_up = green_tt_up;
+    green_t0_dn = green_tt_dn;
+    green_0t_up = green_tt_up - Eigen::MatrixXd::Identity(ls, ls);
+    green_0t_dn = green_tt_dn - Eigen::MatrixXd::Identity(ls, ls);
 
     // temporary matrices
     Eigen::MatrixXd tmpU = Eigen::MatrixXd::Identity(ls, ls);
@@ -435,15 +470,15 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
     for (int l = 1; l <= lt; ++l) {
         
         // calculate and record time-displaced green functions at different time slices
-        multB_fromL(Green_t0_up, l, +1);
-        multB_fromL(Green_t0_dn, l, -1);
-        vecGreen_t0_up[l-1] = Green_t0_up;
-        vecGreen_t0_dn[l-1] = Green_t0_dn;
+        multB_fromL(green_t0_up, l, +1);
+        multB_fromL(green_t0_dn, l, -1);
+        vec_green_t0_up[l-1] = green_t0_up;
+        vec_green_t0_dn[l-1] = green_t0_dn;
 
-        multinvB_fromR(Green_0t_up, l, +1);
-        multinvB_fromR(Green_0t_dn, l, -1);
-        vecGreen_0t_up[l-1] = Green_0t_up;
-        vecGreen_0t_dn[l-1] = Green_0t_dn;
+        multinvB_fromR(green_0t_up, l, +1);
+        multinvB_fromR(green_0t_dn, l, -1);
+        vec_green_0t_up[l-1] = green_0t_up;
+        vec_green_0t_dn[l-1] = green_0t_dn;
 
         multB_fromL(tmpU, l, +1);
         multB_fromL(tmpD, l, -1);
@@ -455,16 +490,39 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
             stackLeftU->push(tmpU);
             stackLeftD->push(tmpD);
 
+            Eigen::MatrixXd tmp_green_t0_up = Eigen::MatrixXd::Zero(ls, ls);
+            Eigen::MatrixXd tmp_green_t0_dn = Eigen::MatrixXd::Zero(ls, ls);
+            Eigen::MatrixXd tmp_green_0t_up = Eigen::MatrixXd::Zero(ls, ls);
+            Eigen::MatrixXd tmp_green_0t_dn = Eigen::MatrixXd::Zero(ls, ls);
+            double tmp_wrap_error_t0_up = 0.0;
+            double tmp_wrap_error_t0_dn = 0.0;
+            double tmp_wrap_error_0t_up = 0.0;
+            double tmp_wrap_error_0t_dn = 0.0;
+
             // compute fresh greens every istab steps
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
-            compute_Green_displaced(stackLeftU, stackRightU, Green_t0_up, Green_0t_up);
-            compute_Green_displaced(stackLeftD, stackRightD, Green_t0_dn, Green_0t_dn);
+            compute_Green_displaced(stackLeftU, stackRightU, tmp_green_t0_up, tmp_green_0t_up);
+            compute_Green_displaced(stackLeftD, stackRightD, tmp_green_t0_dn, tmp_green_0t_dn);
 
-            vecGreen_t0_up[l-1] = Green_t0_up;
-            vecGreen_t0_dn[l-1] = Green_t0_dn;
-            vecGreen_0t_up[l-1] = Green_0t_up;
-            vecGreen_0t_dn[l-1] = Green_0t_dn;
+            // calculate wrap error
+            matrix_compare_error(tmp_green_t0_up, green_t0_up, tmp_wrap_error_t0_up);
+            matrix_compare_error(tmp_green_t0_dn, green_t0_dn, tmp_wrap_error_t0_dn);
+            max_wrap_error_displaced = std::max(max_wrap_error_displaced, std::max(tmp_wrap_error_t0_up, tmp_wrap_error_t0_dn));
+
+            matrix_compare_error(tmp_green_0t_up, green_0t_up, tmp_wrap_error_0t_up);
+            matrix_compare_error(tmp_green_t0_dn, green_t0_dn, tmp_wrap_error_t0_dn);
+            max_wrap_error_displaced = std::max(max_wrap_error_displaced, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
+
+            green_t0_up = tmp_green_t0_up;
+            green_t0_dn = tmp_green_t0_dn;
+            green_0t_up = tmp_green_0t_up;
+            green_0t_dn = tmp_green_0t_dn;
+
+            vec_green_t0_up[l-1] = green_t0_up;
+            vec_green_t0_dn[l-1] = green_t0_dn;
+            vec_green_0t_up[l-1] = green_0t_up;
+            vec_green_0t_dn[l-1] = green_0t_dn;
 
             tmpU = Eigen::MatrixXd::Identity(ls, ls);
             tmpD = Eigen::MatrixXd::Identity(ls, ls);

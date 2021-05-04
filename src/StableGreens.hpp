@@ -9,13 +9,34 @@
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
-#include "SvdStack.hpp"
+#include "SvdStack.h"
+
+
+void matrix_compare_error(const Eigen::MatrixXd &umat, const Eigen::MatrixXd &vmat, double &error) {
+    /*
+     *  Subroutine to return the difference between two same-size matrices.
+     *  Input: umat, vmat
+     *  Output: the maximum difference -> error
+     */
+    assert(umat.rows() == vmat.rows());
+    assert(umat.cols() == vmat.cols());
+    assert(umat.rows() == umat.cols());
+
+    const int ndim = (int)umat.rows();
+    double tmp_error = 0.0;
+    for (int i = 0; i < ndim; ++i) {
+        for (int j = 0; j < ndim; ++j) {
+            tmp_error = std::max(tmp_error, std::abs(umat(i, j) - vmat(i, j)));
+        }
+    }
+    error = tmp_error;
+}
 
 void div_dvec_max_min(const Eigen::VectorXd &dvec, Eigen::VectorXd &dmax, Eigen::VectorXd &dmin) {
     /*
      *  Subroutine to perform the decomposition of a vector, dvec = dmax * dmin,
-     *  to ensure all elements greater than one are in dmax,
-     *  and all elements less than one are in dmin.
+     *  to ensure all elements that greater than one are in dmax,
+     *  and all elements that less than one are in dmin.
      *  Input: dvec
      *  Output: dmax, dmin
      */
@@ -54,9 +75,9 @@ void mult_v_invd_u(const Eigen::MatrixXd &vmat, const Eigen::VectorXd &dvec, con
         for (int j = 0; j < ndim; ++j) {
             double ztmp = 0.0;
             for (int k = 0; k < ndim; ++k) {
-                ztmp += vmat(j,k) * umat(k,i) / dvec(k);
+                ztmp += vmat(j, k) * umat(k, i) / dvec(k);
             }
-            zmat(j,i) = ztmp;
+            zmat(j, i) = ztmp;
         }
     }
 }
@@ -80,9 +101,9 @@ void mult_v_d_u(const Eigen::MatrixXd &vmat, const Eigen::VectorXd &dvec, const 
         for (int j = 0; j < ndim; ++j) {
             double ztmp = 0.0;
             for (int k = 0; k < ndim; ++k) {
-                ztmp += vmat(j,k) * umat(k,i) * dvec(k);
+                ztmp += vmat(j, k) * umat(k, i) * dvec(k);
             }
-            zmat(j,i) = ztmp;
+            zmat(j, i) = ztmp;
         }
     }
 }
@@ -141,7 +162,7 @@ void compute_Green_b0(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const 
     gt0 = H.fullPivHouseholderQr().solve(Ss.asDiagonal() * V.transpose());
 }
 
-void compute_Green_eqtime(const SvdStack *left, const SvdStack *right, Eigen::MatrixXd &gtt) {
+void compute_Green_eqtime(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gtt) {
     /*
      *  returns (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
      *  note: (1 + left * right^T)^-1 = (1 + (USV^T)_left * (VSU^T)_right)^-1
@@ -150,13 +171,13 @@ void compute_Green_eqtime(const SvdStack *left, const SvdStack *right, Eigen::Ma
     const int ndim = left->n;
 
     /* at l = 0 */
-    if(left->empty()) {
+    if (left->empty()) {
         compute_Green_00_bb(right->matrixV(), right->singularValues(), right->matrixU(), gtt);
         return;
     }
 
     /* at l = lt */
-    if(right->empty()) {
+    if (right->empty()) {
         compute_Green_00_bb(left->matrixU(), left->singularValues(), left->matrixV(), gtt);
         return;
     }
@@ -188,8 +209,8 @@ void compute_Green_eqtime(const SvdStack *left, const SvdStack *right, Eigen::Ma
     // Btmp = dlmin * (vl^T * vr) * drmin
     for (int j = 0; j < ndim; ++j) {
         for (int i = 0; i < ndim; ++i) {
-            Atmp(i,j) = Atmp(i,j) / (dlmax(i) * drmax(j));
-            Btmp(i,j) = Btmp(i,j) * dlmin(i) * drmin(j);
+            Atmp(i, j) = Atmp(i, j) / (dlmax(i) * drmax(j));
+            Btmp(i, j) = Btmp(i, j) * dlmin(i) * drmin(j);
         }
     }
 
@@ -200,7 +221,7 @@ void compute_Green_eqtime(const SvdStack *left, const SvdStack *right, Eigen::Ma
     mult_v_invd_u(Atmp, dlmax, ul.transpose(), gtt);
 }
 
-void compute_Green_displaced(const SvdStack *left, const SvdStack *right, Eigen::MatrixXd &gt0, Eigen::MatrixXd &g0t) {
+void compute_Green_displaced(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gt0, Eigen::MatrixXd &g0t) {
     /*
      *  returns time-displaced Greens function in a stable manner,
      *  with method of MGS factorization
@@ -259,8 +280,8 @@ void compute_Green_displaced(const SvdStack *left, const SvdStack *right, Eigen:
     // Btmp = dlmin * (vl^T * vr) * drmin
     for (int j = 0; j < ndim; ++j) {
         for (int i = 0; i < ndim; ++i) {
-            Atmp(i,j) = Atmp(i,j) / (dlmax(i) * drmax(j));
-            Btmp(i,j) = Btmp(i,j) * dlmin(i) * drmin(j);
+            Atmp(i, j) = Atmp(i, j) / (dlmax(i) * drmax(j));
+            Btmp(i, j) = Btmp(i, j) * dlmin(i) * drmin(j);
         }
     }
     tmp = Atmp + Btmp;
@@ -276,8 +297,8 @@ void compute_Green_displaced(const SvdStack *left, const SvdStack *right, Eigen:
     // Ytmp = drmin * (ur^T * ul) * dlmin
     for (int j = 0; j < ndim; ++j) {
         for (int i = 0; i < ndim; ++i) {
-            Xtmp(i,j) = Xtmp(i,j) / (drmax(i) * dlmax(j));
-            Ytmp(i,j) = Ytmp(i,j) * drmin(i) * dlmin(j);
+            Xtmp(i, j) = Xtmp(i, j) / (drmax(i) * dlmax(j));
+            Ytmp(i, j) = Ytmp(i, j) * drmin(i) * dlmin(j);
         }
     }
     tmp = Xtmp + Ytmp;

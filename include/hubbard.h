@@ -21,14 +21,13 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cassert>
 
+#include "SvdStack.h"
 #include "eqtimeMeasure.h"
 #include "dynamicMeasure.h"
 
 
 // random engine
 static std::default_random_engine gen(time(nullptr));
-
-struct SvdStack;
 
 class Hubbard {
 
@@ -43,23 +42,26 @@ public:
     int nwrap{10};
     int current_tau{0};
 
+    double max_wrap_error_equal{0.0};
+    double max_wrap_error_displaced{0.0};
+
     // aux field and kinetic matrix expK
     Eigen::MatrixXd s, expmdtK, exppdtK;
 
     // equal-time greens function for both spin-1/2 states
     // critical quantities in DQMC simulation
-    Eigen::MatrixXd GreenU, GreenD;
-    std::vector<Eigen::MatrixXd> vecGreenU, vecGreenD;
+    Eigen::MatrixXd green_tt_up, green_tt_dn;
+    std::vector<Eigen::MatrixXd> vec_green_tt_up, vec_green_tt_dn;
 
     // time-displaced greens function for dynamic measurements
     // Matsubara greens function: G(\tau, 0) and G(0, \tau).
     // Gij(\tau, 0) = < ci(\tau) * cj^+ (0) >
-    Eigen::MatrixXd Green_t0_up, Green_t0_dn;
-    std::vector<Eigen::MatrixXd> vecGreen_t0_up, vecGreen_t0_dn;
+    Eigen::MatrixXd green_t0_up, green_t0_dn;
+    std::vector<Eigen::MatrixXd> vec_green_t0_up, vec_green_t0_dn;
 
     // Gij(0, \tau) = - < cj^+(\tau) * ci(0) >
-    Eigen::MatrixXd Green_0t_up, Green_0t_dn;
-    std::vector<Eigen::MatrixXd> vecGreen_0t_up, vecGreen_0t_dn;
+    Eigen::MatrixXd green_0t_up, green_0t_dn;
+    std::vector<Eigen::MatrixXd> vec_green_0t_up, vec_green_0t_dn;
 
     // aux SvdStack class for stable multiplication
     SvdStack *stackLeftU{};

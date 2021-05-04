@@ -5,10 +5,16 @@ DQMC-Hubbard Model
 
 C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to half-filled Hubbard model.
 
+Prerequisite
+------------
+1. g++ and cmake installed.
+2. Eigen library, linked to Intel MKL.
+3. BLAS and Lapack for SVD stabilization.
+
 Accomplished
 ------------
 1. Cyclic update (sweep back and forth).
-2. Stable sweeping process with high computational efficiency (linked to intel MKL library).
+2. Stable sweeping process with high computational efficiency.
 3. Support equal-time and time-displaced measurements of physical quantities.
 4. Support attractive and repulsive hubbard interaction.
 5. Program works well in condition of moderate model parameters. 

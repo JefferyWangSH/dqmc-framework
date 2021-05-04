@@ -36,21 +36,22 @@ namespace measure{
         double obs_mean_rho_s = 0.0;                        // obs_mean_rho_s <type double>
         double obs_err_rho_s = 0.0;                         // obs_err_rho_s <type double>
 
-        Eigen::MatrixXd obs_bin_gt0_up[200][250];           // obs_bin_gt0_up [bin][tau] <type Eigen::MatrixXd>
-        Eigen::MatrixXd obs_bin_g0t_up[200][250];           // obs_bin_g0t_up [bin][tau] <type Eigen::MatrixXd>
-        Eigen::MatrixXd obs_bin_gtt_up[200][250];           // obs_bin_gtt_up [bin][tau] <type Eigen::MatrixXd>
-        Eigen::MatrixXd obs_bin_gt0_dn[200][250];           // obs_bin_gt0_dn [bin][tau] <type Eigen::MatrixXd>
-        Eigen::MatrixXd obs_bin_g0t_dn[200][250];           // obs_bin_g0t_dn [bin][tau] <type Eigen::MatrixXd>
-        Eigen::MatrixXd obs_bin_gtt_dn[200][250];           // obs_bin_gtt_dn [bin][tau] <type Eigen::MatrixXd>
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gt0_up;       // data [bin][tau] <type Eigen::MatrixXd>
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_g0t_up;
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gtt_up;
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gt0_dn;
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_g0t_dn;
+        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gtt_dn;
 
         // temporary parameters
         int n_time_displaced = 0;
-        Eigen::MatrixXd tmp_gt0_tau_up[250];
-        Eigen::MatrixXd tmp_g0t_tau_up[250];
-        Eigen::MatrixXd tmp_gtt_tau_up[250];
-        Eigen::MatrixXd tmp_gt0_tau_dn[250];
-        Eigen::MatrixXd tmp_g0t_tau_dn[250];
-        Eigen::MatrixXd tmp_gtt_tau_dn[250];
+        std::vector<Eigen::MatrixXd> tmp_gt0_tau_up;        // data[tau] <type Eigen::MatrixXd>
+        std::vector<Eigen::MatrixXd> tmp_g0t_tau_up;
+        std::vector<Eigen::MatrixXd> tmp_gtt_tau_up;
+        std::vector<Eigen::MatrixXd> tmp_gt0_tau_dn;
+        std::vector<Eigen::MatrixXd> tmp_g0t_tau_dn;
+        std::vector<Eigen::MatrixXd> tmp_gtt_tau_dn;
+
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
@@ -65,6 +66,7 @@ namespace measure{
         void initial(const Hubbard &hubbard);
 
         /* clear temporary parameters */
+        void clear();
         void clear(const Hubbard &hubbard);
 
         /* time-displaced measurements */
