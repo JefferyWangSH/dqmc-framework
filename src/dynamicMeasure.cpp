@@ -212,36 +212,39 @@ void measure::dynamicMeasure::analyse_Rho_S(const int &bin, const Hubbard &hubba
         const Eigen::MatrixXd gtt_dn = obs_bin_gtt_dn[bin][l];
         const Eigen::MatrixXd g00_dn = obs_bin_gtt_dn[bin][hubbard.lt - 1];
 
-        for (int x1 = 0; x1 < hubbard.ll; ++x1) {
-            for (int y1 = 0; y1 < hubbard.ll; ++y1) {
-                const int i1 = x1 + hubbard.ll * y1;
-                const int j1 = (x1 + 1) % hubbard.ll + hubbard.ll * y1;
+        for (int xi = 0; xi < hubbard.ll; ++xi) {
+            for (int yi = 0; yi < hubbard.ll; ++yi) {
+                const int i = xi + hubbard.ll * yi;
+                const int ipx = (xi + 1) % hubbard.ll + hubbard.ll * yi;
 
-                for (int x2 = 0; x2 < hubbard.ll; ++x2) {
-                    for (int y2 = 0; y2 < hubbard.ll; ++y2) {
-                        /* for a given site l(x, y) and time-slice tau
-                         * the current-current correlation: \Gamma_xx (l, \tau) = < jx(l, \tau) * jx(0, 0) > */
-                        const int i2 = x2 + hubbard.ll * y2;
-                        const int j2 = (x2 + 1) % hubbard.ll + hubbard.ll * y2;
-                        const Eigen::VectorXd r = (Eigen::VectorXd(2) << (x1 - x2), (y1 - y2)).finished();
+                for (int xj = 0; xj < hubbard.ll; ++xj) {
+                    for (int yj = 0; yj < hubbard.ll; ++yj) {
+                        /* for a given site l and time-slice tau
+                         * the current-current correlation Jx-Jx: \Gamma_xx (l, \tau) = < jx(l, \tau) * jx(0, 0) > */
+                        const int j = xj + hubbard.ll * yj;
+                        const int jpx = (xj + 1) % hubbard.ll + hubbard.ll * yj;
+                        const Eigen::VectorXd r = (Eigen::VectorXd(2) << (xi - xj), (yi - yj)).finished();
                         const double factor = cos(r.dot(qx)) - cos(r.dot(qy));
 
-                        tmp_fourier -= hubbard.t * hubbard.t * factor * (
-                                + (gtt_up(i2, j2) - gtt_up(j2, i2)) * (g00_up(i1, j1) - g00_up(j1, i1))
-                                + (gtt_up(i2, j2) - gtt_up(j2, i2)) * (g00_dn(i1, j1) - g00_up(j1, i1))
-                                + (gtt_dn(i2, j2) - gtt_up(j2, i2)) * (g00_up(i1, j1) - g00_up(j1, i1))
-                                + (gtt_dn(i2, j2) - gtt_up(j2, i2)) * (g00_dn(i1, j1) - g00_up(j1, i1))
-                                - g0t_up(i1, j2) * gt0_up(i2, j1) - g0t_up(j1, i2) * gt0_up(j2, i1)
-                                + g0t_up(j1, j2) * gt0_up(i2, i1) + g0t_up(i1, i2) * gt0_up(j2 ,j1)
-                                - g0t_dn(i1, j2) * gt0_dn(i2, j1) - g0t_dn(j1, i2) * gt0_dn(j2, i1)
-                                + g0t_dn(j1, j2) * gt0_dn(i2, i1) + g0t_dn(i1, i2) * gt0_dn(j2 ,j1)
-                        );
+                        const double delta_tau_i_j = (l == 0 && i == j)? 1 : 0;
+                        const double delta_tau_i_jpx = (l == 0 && i == jpx)? 1 : 0;
+                        const double delta_tau_ipx_j = (l == 0 && ipx == j)? 1 : 0;
+
+                        tmp_fourier += hubbard.lt * hubbard.lt * factor * (
+                                - ( gtt_up(ipx, i) - gtt_up(i, ipx) + gtt_dn(ipx, i) - gtt_dn(i, ipx) ) *
+                                  ( g00_up(jpx, j) - g00_up(j, jpx) + g00_dn(jpx, j) - g00_dn(j, jpx) )
+
+                                + gt0_up(ipx, jpx) * ( delta_tau_i_j - g0t_up(j, i) ) + gt0_dn(ipx, jpx) * ( delta_tau_i_j - g0t_dn(j, i))
+                                - gt0_up(ipx, j) * ( delta_tau_i_jpx - g0t_up(jpx, i) ) + gt0_dn(ipx, j) * ( delta_tau_i_jpx - g0t_dn(jpx, i))
+                                - gt0_up(i, jpx) * ( delta_tau_ipx_j - g0t_up(j, ipx) ) + gt0_dn(i, jpx) * ( delta_tau_ipx_j - g0t_dn(j, ipx))
+                                + gt0_up(i, j) * ( delta_tau_i_j - g0t_up(jpx, ipx) ) + gt0_dn(i, j) * ( delta_tau_i_j - g0t_dn(jpx, ipx))
+                                );
                     }
                 }
             }
         }
-        tmp_fourier /= hubbard.ls;                                  // todo: check factor ls
-        tmp_rho_s += tmp_fourier * hubbard.beta / hubbard.lt;       // todo: check factor beta / lt
+        tmp_fourier /= hubbard.ls * hubbard.ls;
+        tmp_rho_s += tmp_fourier / hubbard.lt;
     }
 
     obs_bin_rho_s[bin] = tmp_rho_s / 4;

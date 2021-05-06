@@ -67,7 +67,7 @@ void measure::eqtimeMeasure::meas_Momentum_Dist(const Hubbard &hubbard, const in
             }
         }
     }
-    MomentumDist += 1 - tmpfourier/2/hubbard.ls;
+    MomentumDist += 1 - tmpfourier / 2 / hubbard.ls;
 }
 
 void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const int &t) {
@@ -78,7 +78,7 @@ void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const 
     double  onsitecorr = 0.0;
 
     for (int i = 0; i < ls; ++i) {
-        onsitecorr += gu(i, i) + gd(i, i) - 2 * gu(i,i) * gd(i,i);
+        onsitecorr += gu(i, i) + gd(i, i) - 2 * gu(i, i) * gd(i, i);
     }
     localSpinCorr += onsitecorr / ls;
 }
@@ -98,11 +98,11 @@ void measure::eqtimeMeasure::meas_Struct_Factor(const Hubbard &hubbard, const in
     // get guc and gdc
     for (int i = 0; i < ls; ++i) {
         for (int j = 0; j < ls; ++j) {
-            guc(j,i) = - gu(i,j);
-            gdc(j,i) = - gd(i,j);
+            guc(j, i) = - gu(i, j);
+            gdc(j, i) = - gd(i, j);
         }
-        guc(i,i)++;
-        gdc(i,i)++;
+        guc(i, i)++;
+        gdc(i, i)++;
     }
 
     // loop for site i, j

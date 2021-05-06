@@ -15,7 +15,8 @@
  *   8. attractive interaction U < 0 (done)
  *   9. openmp parallel programming (missing)
  *   10. determine the critical temperature of superconducting transition (missing)
- *   11. ...
+ *   11. read aux field configurations from input file (missing)
+ *   12. ...
  */
 
 
