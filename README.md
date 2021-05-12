@@ -11,18 +11,14 @@ Prerequisite
 2. Eigen library, linked to Intel MKL.
 3. `mkl_lapacke.h` for SVD stabilization.
 
-Accomplished
-------------
-1. Cyclic update (sweep back and forth).
+Features
+--------
+1. Cyclic update ( sweep back and forth ).
 2. Stable sweeping process with high computational efficiency.
-3. Support equal-time and time-displaced measurements of physical quantities.
+3. Support equal-time and time-displaced measurements of physical quantities. \
+   &nbsp;&nbsp; e.g. helicity module of superconductor, dynamic green's function for `SAC`.
 4. Support attractive and repulsive hubbard interaction.
-5. Program works well in condition of moderate model parameters. 
-
-TODO
-----
-1. Extract fermion spectrum function by numerical analytic continuation (e.g. Stochastic Analytic Continuation, `SAC`).
-2. Determine the critical temperature of superconducting transition in negative-U cases.
+5. Program works well in condition of moderate model parameters.
 
 References
 ----------

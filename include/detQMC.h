@@ -57,8 +57,11 @@ public:
     /* set up bool parameters */
     void set_bool_Params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic);
 
-    /* FIXME: set up momentum q, modified to allow sequence of q */
+    /* set up lattice momentum q for momentum measurements */
     void set_Momentum_q(double qx, double qy);
+
+    /* read aux field configurations from input file */
+    void read_Aux_Field_Configs(const std::string &filename);
 
     /* print out simulation params on the command console */
     void printParams();
@@ -76,9 +79,12 @@ public:
     void printStats();
 
     /* write results of measurements to file */
-    void output_Stats_eqtime(const std::string& filename, bool bool_Append);
+    void output_Stats_eqtime(const std::string &filename, bool bool_Append);
 
-    void output_Stats_dynamic(const std::string& filename, bool bool_Append);
+    void output_Stats_dynamic(const std::string &filename, bool bool_Append);
+
+    /* output aux field configurations to file */
+    void output_Aux_Field_Configs(const std::string &filename);
 
 private:
 

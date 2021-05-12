@@ -2,34 +2,74 @@
 #include "ProgressBar.hpp"
 #include <cmath>
 
-void detQMC::set_Model_Params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap) {
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
+void detQMC::set_Model_Params(int _ll, int _lt, double _beta, double _t, double _Uint, double _mu, int _nwrap) {
     // half-filled case only, free of sign problem
-    assert(mu == 0);
-    Hubbard newHubb(ll, lt, beta, t, Uint, mu, nwrap);
+    assert(_mu == 0);
+    Hubbard newHubb(_ll, _lt, _beta, _t, _Uint, _mu, nwrap);
     hubb = newHubb;
-    this->nwrap = nwrap;
+    this->nwrap = _nwrap;
 }
 
-void detQMC::set_MC_Params(int nwarm, int nbin, int nsweep, int nBetweenBins) {
-    this->nwarm = nwarm;
-    this->nsweep = nsweep;
-    this->nBetweenBins = nBetweenBins;
-    this->nbin = nbin;
+void detQMC::set_MC_Params(int _nwarm, int _nbin, int _nsweep, int _nBetweenBins) {
+    this->nwarm = _nwarm;
+    this->nsweep = _nsweep;
+    this->nBetweenBins = _nBetweenBins;
+    this->nbin = _nbin;
 
-    eqtimeMeasure.resize(nbin);
-    dynamicMeasure.resize(nbin);
+    eqtimeMeasure.resize(_nbin);
+    dynamicMeasure.resize(_nbin);
 }
 
-void detQMC::set_bool_Params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic) {
-    this->bool_warm_up = bool_warm_up;
-    this->bool_measure_eqtime = bool_measure_eqtime;
-    this->bool_measure_dynamic = bool_measure_dynamic;
+void detQMC::set_bool_Params(bool _bool_warm_up, bool _bool_measure_eqtime, bool _bool_measure_dynamic) {
+    this->bool_warm_up = _bool_warm_up;
+    this->bool_measure_eqtime = _bool_measure_eqtime;
+    this->bool_measure_dynamic = _bool_measure_dynamic;
 }
 
 void detQMC::set_Momentum_q(double qx, double qy) {
     q = (Eigen::VectorXd(2) << qx, qy).finished();
     eqtimeMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
     dynamicMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
+}
+
+void detQMC::read_Aux_Field_Configs(const std::string &filename) {
+    // model params should be set up ahead
+
+    std::ifstream infile;
+    infile.open(filename, std::ios::in);
+
+    if (!infile.is_open()) {
+        std::cerr << "fail to open file " + filename + " !" << std::endl;
+        exit(1);
+    }
+
+    std::string line;
+    int lt = 0;
+    int ls = 0;
+    while(getline(infile, line)) {
+        std::vector<std::string> data;
+        boost::split(data, line, boost::is_any_of(" "), boost::token_compress_on);
+        data.erase(std::remove(std::begin(data), std::end(data), ""), std::end(data));
+
+        int l = boost::lexical_cast<int>(data[0]);
+        int i = boost::lexical_cast<int>(data[1]);
+        hubb.s(i, l) = boost::lexical_cast<double>(data[2]);
+        lt = std::max(lt, l);
+        ls = std::max(ls, i);
+    }
+    assert(lt + 1 == hubb.lt);
+    assert(ls + 1 == hubb.ls);
+    infile.close();
+
+    /* initial greens and svd stacks for old configs */
+    hubb.stackLeftU = new SvdStack(hubb.ls, hubb.lt);
+    hubb.stackLeftD = new SvdStack(hubb.ls, hubb.lt);
+    hubb.stackRightU = new SvdStack(hubb.ls, hubb.lt);
+    hubb.stackRightD = new SvdStack(hubb.ls, hubb.lt);
+    hubb.initStacks(nwrap);
 }
 
 void detQMC::printParams() {
@@ -156,7 +196,7 @@ void detQMC::sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic) {
 
     // sweep back from beta to 0
     hubb.sweep_beta_to_0(nwrap);
-    // todo: hubb.sweep_beta_to_0_displaced
+    // FIXME: hubb.sweep_beta_to_0_displaced
     if (bool_eqtime) {
         eqtimeMeasure.measure_equal_time(hubb);
     }
@@ -276,6 +316,21 @@ void detQMC::output_Stats_dynamic(const std::string& filename, bool bool_Append)
         outfile.close();
         std::cout << "  Dynamic data has been written into file: " << filename << std::endl;
         std::cout << "==============================================================================" << std::endl << std::endl;
+    }
+}
+
+void detQMC::output_Aux_Field_Configs(const std::string &filename) {
+    std::ofstream outfile;
+    outfile.open(filename, std::ios::out | std::ios::trunc);
+
+    outfile << std::setiosflags(std::ios::right);
+    for (int l = 0; l < hubb.lt; ++l) {
+        for (int i = 0; i < hubb.ls; ++i) {
+            outfile << std::setw(15) << l
+                    << std::setw(15) << i
+                    << std::setw(15) << hubb.s(i, l)
+                    << std::endl;
+        }
     }
 }
 

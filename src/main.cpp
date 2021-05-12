@@ -14,7 +14,7 @@
  *   7. ******** Modify command console output ******** (done)
  *   8. attractive interaction U < 0 (done)
  *   9. openmp parallel programming (missing)
- *   10. determine the critical temperature of superconducting transition (missing)
+ *   10. determine the critical temperature of superconducting transition (done)
  *   11. read aux field configurations from input file (missing)
  *   12. ...
  */
@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
+    /*
     std::vector<double> list_u = { -4.0, };
 
     for (auto uint : list_u) {
@@ -127,9 +128,9 @@ int main(int argc, char* argv[]) {
 
         dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
     }
+    */
 
-
-    /** Measure observable quantities in momentum space */
+    /** Measure observable quantities in momentum space ( fermi surface ) */
     /*
     dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
     dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
@@ -188,17 +189,96 @@ int main(int argc, char* argv[]) {
     }
     */
 
+    /** Measure dynamical green's function */
 
-    /** Measure observable quantities over temperature T */
+    dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
+
+    dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
+
+    dqmc.set_bool_Params(bool_warm_up, false, bool_measure_dynamic);
+
+    dqmc.set_Momentum_q(M_PI/2, M_PI/2);
+
+    dqmc.printParams();
+
+    dqmc.initialMeasure();
+
+    dqmc.runQMC(bool_display_process);
+
+    dqmc.analyseStats();
+
+    dqmc.printStats();
+
+    std::stringstream ss;
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << beta;
+    std::string str_beta = ss.str();
+    ss.str("");
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+    std::string str_l = ss.str();
+    ss.str("");
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
+    std::string str_lt = ss.str();
+    ss.str("");
+    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
+    std::string str_u = ss.str();
+    ss.str("");
+    std::string filename = "../results/gt_l" + str_l + "_lt" + str_lt + "_u" + str_u + "_b" + str_beta + "_k_pi2pi2.txt";
+
+    std::ofstream outfile;
+    outfile.open(filename, std::ios::out | std::ios::trunc);
+
+    outfile << std::setiosflags(std::ios::right);
+    for (int l = 1; l <= lt; ++l) {
+        outfile << std::setw(15) << l
+                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[l-1]
+                << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[l-1]
+                << std::endl;
+    }
+    outfile.close();
+
+
+    /** Measure helicity modules over temperature T */
     /*
-    for (double T = 0.2; T <= 0.2; T += 0.2) {
-        bool_append = true;
+    std::vector<double> list_beta = { 12.0, };
 
-        dqmc.set_Model_Params(ll, lt, 1/T, t, u, mu, nwrap);
+    for (auto Beta : list_beta) {
+
+        lt = (int)(Beta / 0.05);
+
+        dqmc.set_Model_Params(ll, lt, Beta, t, u, mu, nwrap);
 
         dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
 
-        dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+        std::stringstream ss;
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << Beta;
+        std::string str_beta = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+        std::string str_l = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
+        std::string str_lt = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
+        std::string str_u = ss.str();
+        ss.str("");
+
+        const std::string fileConfigs = "../results/rhos_L_" + str_l + "/config_L_" + str_l + "_lt_" + str_lt + "_u_" + str_u + "_b_" + str_beta + ".txt";
+        std::ifstream infile;
+        infile.open(fileConfigs, std::ios::in);
+
+        if (!infile.is_open()) {
+            std::cerr << "fail to open file " + fileConfigs + ", start simulation with random configs." << std::endl;
+            bool_warm_up = true;
+        }
+        else {
+            infile.close();
+            dqmc.read_Aux_Field_Configs(fileConfigs);
+            std::cerr << "old configuration is read from " + fileConfigs +", no need to warm up." << std::endl;
+            bool_warm_up = false;
+        }
+
+        dqmc.set_bool_Params(bool_warm_up, false, bool_measure_dynamic);
 
         dqmc.set_Momentum_q(M_PI, M_PI);
 
@@ -206,15 +286,36 @@ int main(int argc, char* argv[]) {
 
         dqmc.initialMeasure();
 
-        dqmc.runQMC(false);
+        dqmc.runQMC(bool_display_process);
 
         dqmc.analyseStats();
 
         dqmc.printStats();
 
-        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
+        dqmc.output_Aux_Field_Configs(fileConfigs);
 
-        dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
+        bool_append = true;
+        std::string filename = "../results/rhos_L_" + str_l + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
+        std::string filename_bins = "../results/rhos_L_" + str_l + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
+
+        std::ofstream outfile;
+        outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
+        outfile << std::setiosflags(std::ios::right)
+                << std::setw(15) << Beta
+                << std::setw(15) << 1 / Beta
+                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_rho_s
+                << std::setw(15) << dqmc.dynamicMeasure.obs_err_rho_s
+                << std::endl;
+        outfile.close();
+
+        outfile.open(filename_bins, std::ios::out | std::ios::app);
+        for (int bin = 0; bin < nbin; ++bin) {
+            outfile << std::setiosflags(std::ios::right)
+                    << std::setw(15) << bin + 1
+                    << std::setw(15) << dqmc.dynamicMeasure.obs_bin_rho_s[bin]
+                    << std::endl;
+        }
+        outfile.close();
     }
     */
 

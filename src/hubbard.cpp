@@ -5,7 +5,7 @@
  *   1. cyclic sweeping (done)
  *   2. chemical potential mu (done)
  *   3. stable multiplication of ill-conditioned matrices (done)
- *   4. check greens (done, unnecessary)
+ *   4. check wrap error of green's function (done)
  *   6. detQMC class (done)
  *   7. check-board decomposition (missing)
  *   8. time-displaced dynamical measurements: green_t0/0t (done)

@@ -36,3 +36,10 @@
 .idea/
 build/
 cmake-build-debug/
+results/rhos_L_6/
+results/rhos_L_8/
+results/critical-temperature/*.txt
+results/double-occu-over-Temp/*.txt
+results/double-occu-over-U/*.txt
+results/fermi-surface/*.txt
+
