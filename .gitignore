@@ -33,13 +33,16 @@
 
 # Personal folders and files
 .git/
-.idea/
+
 build/
 cmake-build-debug/
-results/rhos_L_6/
-results/rhos_L_8/
-results/critical-temperature/*.txt
-results/double-occu-over-Temp/*.txt
-results/double-occu-over-U/*.txt
-results/fermi-surface/*.txt
+.idea/
 
+results/data/
+
+results/critical-temperature/*.txt
+results/critical-temperature/*.png
+results/equal-time-measurments/*.txt
+results/equal-time-measurments/*.png
+results/fermi-surface/*.txt
+results/fermi-surface/*.png

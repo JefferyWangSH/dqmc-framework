@@ -230,7 +230,7 @@ void measure::dynamicMeasure::analyse_Rho_S(const int &bin, const Hubbard &hubba
                         const double delta_tau_i_jpx = (l == 0 && i == jpx)? 1 : 0;
                         const double delta_tau_ipx_j = (l == 0 && ipx == j)? 1 : 0;
 
-                        tmp_fourier += hubbard.lt * hubbard.lt * factor * (
+                        tmp_fourier += hubbard.t * hubbard.t * factor * (
                                 - ( gtt_up(ipx, i) - gtt_up(i, ipx) + gtt_dn(ipx, i) - gtt_dn(i, ipx) ) *
                                   ( g00_up(jpx, j) - g00_up(j, jpx) + g00_dn(jpx, j) - g00_dn(j, jpx) )
 
@@ -244,7 +244,7 @@ void measure::dynamicMeasure::analyse_Rho_S(const int &bin, const Hubbard &hubba
             }
         }
         tmp_fourier /= hubbard.ls * hubbard.ls;
-        tmp_rho_s += tmp_fourier / hubbard.lt;
+        tmp_rho_s += tmp_fourier * hubbard.lt;      //FIXME: why this work?
     }
 
     obs_bin_rho_s[bin] = tmp_rho_s / 4;
