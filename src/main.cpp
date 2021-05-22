@@ -100,11 +100,10 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    /*
-    std::vector<double> list_u = { -4.0, };
+    std::vector<double> list_u = { 8.0, };
 
     for (auto uint : list_u) {
-        bool_append = false;
+        bool_append = true;
 
         dqmc.set_Model_Params(ll, lt, beta, t, uint, mu, nwrap);
 
@@ -112,7 +111,7 @@ int main(int argc, char* argv[]) {
 
         dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
-        dqmc.set_Momentum_q(M_PI / 2, M_PI / 2);
+        dqmc.set_Momentum_q(M_PI, M_PI);
 
         dqmc.printParams();
 
@@ -124,73 +123,87 @@ int main(int argc, char* argv[]) {
 
         dqmc.printStats();
 
+        std::stringstream ss;
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+        std::string str_l = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
+        std::string str_beta = ss.str();
+        ss.str("");
+        filename_eqtime = "../results/eqtime_L" + str_l + "_beta" + str_beta + "_repulsive.txt";
+
         dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
 
         dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
     }
-    */
+
 
     /** Measure observable quantities in momentum space ( fermi surface ) */
     /*
-    dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
-    dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
+    std::vector<double> list_u = { -4.0, -2.0, -1.0, };
 
-    std::stringstream ss;
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
-    std::string str_l = ss.str();
-    ss.str("");
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
-    std::string str_beta = ss.str();
-    ss.str("");
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
-    std::string str_u = ss.str();
-    ss.str("");
-    std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
+    for (auto uint : list_u) {
 
-    for (int i = 0; i <= ll; ++i) {
-        // crystal momentum qx
-        const double qx = M_PI - 2 * M_PI / ll * i;
+        dqmc.set_Model_Params(ll, lt, beta, t, uint, mu, nwrap);
+        dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
 
-        // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
-        for (int j = 0; j <= ll - i; ++j) {
-            // crystal momentum qy
-            const double qy = M_PI - 2 * M_PI / ll * j;
+        std::stringstream ss;
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+        std::string str_l = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
+        std::string str_beta = ss.str();
+        ss.str("");
+        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << uint;
+        std::string str_u = ss.str();
+        ss.str("");
+        std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
 
-            dqmc.set_Momentum_q(qx, qy);
+        for (int i = 0; i <= ll; ++i) {
+            // crystal momentum qx
+            const double qx = M_PI - 2 * M_PI / ll * i;
 
-            // warm up only one time
-            bool_warm_up = (i == 0 && j == 0);
+            // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
+            for (int j = 0; j <= ll - i; ++j) {
+                // crystal momentum qy
+                const double qy = M_PI - 2 * M_PI / ll * j;
 
-            dqmc.set_bool_Params(bool_warm_up, false, true);
+                dqmc.set_Momentum_q(qx, qy);
 
-            dqmc.printParams();
+                // warm up only one time
+                bool_warm_up = (i == 0 && j == 0);
 
-            dqmc.initialMeasure();
+                dqmc.set_bool_Params(bool_warm_up, false, true);
 
-            dqmc.runQMC(bool_display_process);
+                dqmc.printParams();
 
-            dqmc.analyseStats();
+                dqmc.initialMeasure();
 
-            dqmc.printStats();
+                dqmc.runQMC(bool_display_process);
 
-            bool_append = !(i == 0 && j == 0);
-            std::ofstream outfile;
-            outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
-            outfile << std::setiosflags(std::ios::right)
-                    << std::setw(15) << i
-                    << std::setw(15) << j
-                    << std::setw(15) << qx
-                    << std::setw(15) << qy
-                    << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
-                    << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[ceil(lt/2)]
-                    << std::endl;
-            outfile.close();
+                dqmc.analyseStats();
+
+                dqmc.printStats();
+
+                bool_append = !(i == 0 && j == 0);
+                std::ofstream outfile;
+                outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
+                outfile << std::setiosflags(std::ios::right)
+                        << std::setw(15) << i
+                        << std::setw(15) << j
+                        << std::setw(15) << qx
+                        << std::setw(15) << qy
+                        << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
+                        << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[ceil(lt/2)]
+                        << std::endl;
+                outfile.close();
+            }
         }
     }
     */
 
-    /** Measure dynamical green's function */
-
+    /** Measure dynamic green's function */
+    /*
     dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
 
     dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
@@ -235,11 +248,11 @@ int main(int argc, char* argv[]) {
                 << std::endl;
     }
     outfile.close();
-
+    */
 
     /** Measure helicity modules over temperature T */
     /*
-    std::vector<double> list_beta = { 12.0, };
+    std::vector<double> list_beta = { 5.0, 5.0, 5.0, 8.0, };
 
     for (auto Beta : list_beta) {
 
@@ -263,7 +276,7 @@ int main(int argc, char* argv[]) {
         std::string str_u = ss.str();
         ss.str("");
 
-        const std::string fileConfigs = "../results/rhos_L_" + str_l + "/config_L_" + str_l + "_lt_" + str_lt + "_u_" + str_u + "_b_" + str_beta + ".txt";
+        const std::string fileConfigs = "../results/rhos_L_" + str_l + "_u_" + str_u +"/config_L_" + str_l + "_lt_" + str_lt + "_b_" + str_beta + ".txt";
         std::ifstream infile;
         infile.open(fileConfigs, std::ios::in);
 
@@ -295,8 +308,8 @@ int main(int argc, char* argv[]) {
         dqmc.output_Aux_Field_Configs(fileConfigs);
 
         bool_append = true;
-        std::string filename = "../results/rhos_L_" + str_l + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
-        std::string filename_bins = "../results/rhos_L_" + str_l + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
+        std::string filename = "../results/rhos_L_" + str_l + "_u_" + str_u + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
+        std::string filename_bins = "../results/rhos_L_" + str_l  + "_u_" + str_u + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
 
         std::ofstream outfile;
         outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
@@ -318,6 +331,5 @@ int main(int argc, char* argv[]) {
         outfile.close();
     }
     */
-
     return 0;
 }

@@ -36,19 +36,24 @@ def readDate(filename):
     return arr
 
 
-def plotFigure(arr):
+def plotFigure(arr, figname, interpolation, title):
 
-    plt.imshow(arr, interpolation='none', origin='lower', vmin=0, vmax=0.5)
+    plt.imshow(arr, interpolation=interpolation, origin='lower', vmin=0, vmax=0.5, cmap='viridis')
     # interpolation: none, nearest, bilinear, bicubic, spline16, spline36, hanning, hamming, hermite,
     #                kaiser, quadric, catrom, gaussian, bessel, mitchell, sinc, lanczos.
 
     plt.colorbar()
     plt.xticks(())
     plt.yticks(())
+    plt.title(title, y=-0.22, fontsize=20)
+
+    plt.savefig(figname)
     plt.show()
 
 
 if __name__ == "__main__":
 
-    arr = readDate('fermi_surface_L8_beta4_u0.0.txt')
-    plotFigure(arr)
+    arr = readDate('fermi_surface_L8_beta4_u-1.0.txt')
+
+    plotFigure(arr, figname="fermi_surface_L8_b4_u-1.0.pdf", interpolation="none", title="${\\mathrm{U} = -1.0}$\n")
+    plotFigure(arr, figname="fermi_surface_L8_b4_u-1.0_ip.pdf", interpolation="hamming", title="${\\mathrm{U} = -1.0}$\n")
