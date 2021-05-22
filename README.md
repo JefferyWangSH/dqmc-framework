@@ -21,8 +21,16 @@ Features
 
 References
 ----------
-1. James Gubernatis, Naoki Kawashima, Philipp Werner, Quantum Monte Carlo Methods: Algorithms for Lattice Models, *Cambridge University Press, 2016*. [DOI](https://doi.org/10.1017/CBO9780511902581)
-2. H. FehskeR. SchneiderA. Weiße, Computational Many-Particle Physics, *Springer, 2008*. [DOI](https://doi.org/10.1007/978-3-540-74686-7)
-3. Douglas J. Scalapino, Steven R. White, and Shoucheng Zhang, Insulator, metal, or superconductor: The criteria, *Phys. Rev. B 47, 7995.* [DOI](https://doi.org/10.1103/PhysRevB.47.7995)
-4. Xiao Yan Xu, Kai Sun, Yoni Schattner, Erez Berg, and Zi Yang Meng, Non-Fermi Liquid at (2 + 1) D Ferromagnetic Quantum Critical Point, *Phys. Rev. X 7, 031058*. [DOI](https://doi.org/10.1103/PhysRevX.7.031058)
+1. James Gubernatis, Naoki Kawashima, Philipp Werner  
+Quantum Monte Carlo Methods: Algorithms for Lattice Models  
+*Cambridge University Press, 2016*. [DOI](https://doi.org/10.1017/CBO9780511902581)
+2. H. FehskeR. SchneiderA. Weiße  
+Computational Many-Particle Physics  
+*Springer, 2008*. [DOI](https://doi.org/10.1007/978-3-540-74686-7)
+3. Douglas J. Scalapino, Steven R. White, and Shoucheng Zhang  
+Insulator, metal, or superconductor: The criteria  
+*Phys. Rev. B 47, 7995.* [DOI](https://doi.org/10.1103/PhysRevB.47.7995)
+4. Xiao Yan Xu, Kai Sun, Yoni Schattner, Erez Berg, and Zi Yang Meng  
+Non-Fermi Liquid at (2 + 1) D Ferromagnetic Quantum Critical Point  
+*Phys. Rev. X 7, 031058*. [DOI](https://doi.org/10.1103/PhysRevX.7.031058)
    
