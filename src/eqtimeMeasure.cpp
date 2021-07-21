@@ -11,6 +11,7 @@ void measure::eqtimeMeasure::initial() {
     obs_bin_eqtime["StructFactor"].reserve(nbin);
     obs_bin_eqtime["MomentumDist"].reserve(nbin);
     obs_bin_eqtime["localSpinCorr"].reserve(nbin);
+    obs_bin_eqtime["AverageSign"].reserve(nbin);
 }
 
 void measure::eqtimeMeasure::clear() {
@@ -20,6 +21,7 @@ void measure::eqtimeMeasure::clear() {
     StructFactor = 0.0;
     MomentumDist = 0.0;
     localSpinCorr = 0.0;
+    AverageSign = 0.0;
 }
 
 void measure::eqtimeMeasure::meas_Double_Occu(const Hubbard &hubbard, const int &t) {
@@ -29,7 +31,7 @@ void measure::eqtimeMeasure::meas_Double_Occu(const Hubbard &hubbard, const int 
 
     for (int i = 0; i < hubbard.ls; ++i) {
         const double doubleoccu = (1 - gu(i,i)) * (1 - gd(i,i));
-        DoubleOccu += doubleoccu;
+        DoubleOccu += hubbard.config_sign * doubleoccu;
     }
 }
 
@@ -43,7 +45,7 @@ void measure::eqtimeMeasure::meas_Kinetic_Energy(const Hubbard &hubbard, const i
         for (int y = 0; y < ll; ++y) {
             const double kinetic = 2 * hubbard.t * (gu(x + ll*y, ((x+1)%ll) + ll*y) + gu(x + ll*y, x + ll*((y+1)%ll)))
                                    + 2 * hubbard.t * (gd(x + ll*y, ((x+1)%ll) + ll*y) + gd(x + ll*y, x + ll*((y+1)%ll)));
-            KineticEnergy += kinetic;
+            KineticEnergy += hubbard.config_sign * kinetic;
         }
     }
 }
@@ -67,7 +69,7 @@ void measure::eqtimeMeasure::meas_Momentum_Dist(const Hubbard &hubbard, const in
             }
         }
     }
-    MomentumDist += 1 - tmpfourier / 2 / hubbard.ls;
+    MomentumDist += hubbard.config_sign * (1 - 0.5 * tmpfourier / hubbard.ls);
 }
 
 void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const int &t) {
@@ -120,7 +122,7 @@ void measure::eqtimeMeasure::meas_Struct_Factor(const Hubbard &hubbard, const in
                             + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
                             - gdc(i, i) * guc(j, j) - guc(i, i) * gdc(j, j)
                             );
-                    StructFactor += structfactor;
+                    StructFactor += hubbard.config_sign * structfactor;
                 }
             }
         }
@@ -129,21 +131,23 @@ void measure::eqtimeMeasure::meas_Struct_Factor(const Hubbard &hubbard, const in
 
 void measure::eqtimeMeasure::measure_equal_time(const Hubbard &hubbard) {
     for (int t = 0; t < hubbard.lt; ++t) {
-        n_equal_time++;
         meas_Double_Occu(hubbard, t);
         meas_Kinetic_Energy(hubbard, t);
         meas_Struct_Factor(hubbard, t, q);
         meas_Momentum_Dist(hubbard, t, q);
         meas_local_Spin_Corr(hubbard, t);
     }
+    AverageSign += hubbard.config_sign;
+    n_equal_time++;
 }
 
 void measure::eqtimeMeasure::normalizeStats(const Hubbard &hubbard) {
-    DoubleOccu /= hubbard.ls * n_equal_time;
-    KineticEnergy /= hubbard.ls * n_equal_time;
-    StructFactor /= hubbard.ls * hubbard.ls * n_equal_time;
-    MomentumDist /= n_equal_time;
-    localSpinCorr /= n_equal_time;
+    AverageSign /= n_equal_time;
+    DoubleOccu /= hubbard.ls * hubbard.lt * n_equal_time * AverageSign;
+    KineticEnergy /= hubbard.ls * hubbard.lt * n_equal_time * AverageSign;
+    StructFactor /= hubbard.ls * hubbard.ls * hubbard.lt * n_equal_time * AverageSign;
+    MomentumDist /= hubbard.lt * n_equal_time * AverageSign;
+    localSpinCorr /= hubbard.lt * n_equal_time * AverageSign;
 }
 
 void measure::eqtimeMeasure::write_Stats_to_bins(int bin) {
@@ -152,6 +156,7 @@ void measure::eqtimeMeasure::write_Stats_to_bins(int bin) {
     obs_bin_eqtime["StructFactor"][bin] = StructFactor;
     obs_bin_eqtime["MomentumDist"][bin] = MomentumDist;
     obs_bin_eqtime["localSpinCorr"][bin] = localSpinCorr;
+    obs_bin_eqtime["AverageSign"][bin] = AverageSign;
 }
 
 void measure::eqtimeMeasure::analyse_equal_time_Stats(const std::string &obs) {
@@ -177,4 +182,5 @@ void measure::eqtimeMeasure::analyseStats() {
     analyse_equal_time_Stats("StructFactor");
     analyse_equal_time_Stats("MomentumDist");
     analyse_equal_time_Stats("localSpinCorr");
+    analyse_equal_time_Stats("AverageSign");
 }

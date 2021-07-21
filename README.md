@@ -3,7 +3,7 @@ DQMC-Hubbard Model
 
 [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
 
-C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to half-filled Hubbard model.
+C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to half-filled Hubbard model. Some preliminary supports for doped cases are also realized by simplily reweighing configuration wights.
 
 Prerequisite
 ------------
@@ -17,7 +17,8 @@ Features
 2. Stable sweeping process with high computational efficiency.
 3. Support equal-time and time-displaced measurements of physical quantities. e.g. helicity module of superconductor, dynamic green's function for `SAC`.
 4. Support attractive and repulsive hubbard interaction.
-5. Program works well in condition of moderate model parameters.
+5. Support slightly doping away from half-filled case.
+6. Program works well in condition of moderate model parameters.
 
 References
 ----------

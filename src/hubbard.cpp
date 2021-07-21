@@ -10,7 +10,8 @@
  *   7. check-board decomposition (missing)
  *   8. time-displaced dynamical measurements: green_t0/0t (done)
  *   9. attractive interaction U < 0 (done)
- *   10. ...
+ *   10. reweighing for doped case (missing)
+ *   11. ...
  */
 
 
@@ -219,9 +220,11 @@ void Hubbard::Metropolis_update(int l) {
             p = exp(2 * alpha * s(i, tau))  * (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1))
                        * (1 + (1 - green_tt_dn(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
         }
+        // keep track of sign problem
+        config_sign = (p >= 0)? 1.0:-1.0;
+        p = abs(p);
 
         if(std::bernoulli_distribution(std::min(1.0, p))(gen)) {
-
             /** reference:
              *  Quantum Monte Carlo Methods (Algorithms for Lattice Models) Determinant method
              *  Here we use the sparseness of matrix \delta */

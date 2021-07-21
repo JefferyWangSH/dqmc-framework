@@ -9,14 +9,15 @@
  *   2. equal-time measurements of momentum distribution and spin-spin correlation (done)
  *   3. bin measurements (done)
  *   4. time-displaced green function and measurements (done)
+ *   5. ******** Modify command console output ******** (done)
+ *   6. attractive interaction U < 0 (done)
+ *   7. determine the critical temperature of superconducting transition (done)
+ *   8. openmp parallel programming (missing)
  *   5. Stochastic Analytic Continuation (SAC) to obtain fermion spectrum function (missing)
  *   6. Check-board decomposition (missing)
- *   7. ******** Modify command console output ******** (done)
- *   8. attractive interaction U < 0 (done)
- *   9. openmp parallel programming (missing)
- *   10. determine the critical temperature of superconducting transition (done)
  *   11. read aux field configurations from input file (missing)
- *   12. ...
+ *   12. reweighing for doped case (missing)
+ *   13. ...
  */
 
 
@@ -100,7 +101,7 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    std::vector<double> list_u = { 8.0, };
+    std::vector<double> list_u = { 4.0, };
 
     for (auto uint : list_u) {
         bool_append = true;

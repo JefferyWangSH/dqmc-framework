@@ -6,8 +6,6 @@
 #include <boost/lexical_cast.hpp>
 
 void detQMC::set_Model_Params(int _ll, int _lt, double _beta, double _t, double _Uint, double _mu, int _nwrap) {
-    // half-filled case only, free of sign problem
-    assert(_mu == 0);
     Hubbard newHubb(_ll, _lt, _beta, _t, _Uint, _mu, nwrap);
     hubb = newHubb;
     this->nwrap = _nwrap;
@@ -196,7 +194,7 @@ void detQMC::sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic) {
 
     // sweep back from beta to 0
     hubb.sweep_beta_to_0(nwrap);
-    // FIXME: hubb.sweep_beta_to_0_displaced
+    // todo: hubb.sweep_beta_to_0_displaced
     if (bool_eqtime) {
         eqtimeMeasure.measure_equal_time(hubb);
     }
@@ -232,7 +230,9 @@ void detQMC::printStats() {
                   << "    local Spin corr:  " << eqtimeMeasure.obs_mean_eqtime["localSpinCorr"]
                   << "    err: " << eqtimeMeasure.obs_err_eqtime["localSpinCorr"] << std::endl
                   << "    Structure Factor: " << eqtimeMeasure.obs_mean_eqtime["StructFactor"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["StructFactor"] << std::endl;
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["StructFactor"] << std::endl
+                  << "    Average Sign:     " << eqtimeMeasure.obs_mean_eqtime["AverageSign"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["AverageSign"] << std::endl;
         std::cout.precision(-1);
     }
 

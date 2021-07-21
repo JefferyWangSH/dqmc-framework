@@ -42,6 +42,8 @@ public:
     int nwrap{10};
     int current_tau{0};
 
+    double config_sign{0.0};
+
     double max_wrap_error_equal{0.0};
     double max_wrap_error_displaced{0.0};
 

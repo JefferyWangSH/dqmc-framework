@@ -36,6 +36,7 @@ namespace measure{
         double StructFactor = 0.0;
         double MomentumDist = 0.0;
         double localSpinCorr = 0.0;
+        double AverageSign = 0.0;
 
         // for equal-time measurements
         std::map<std::string, std::vector<double>> obs_bin_eqtime;
