@@ -75,6 +75,9 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
 
     // initialize udv stacks for sweep use, stabilize every nwrap slices
     initStacks(nwrap);
+
+    // determine sign of current configuration
+    config_sign = (green_tt_up.determinant() * green_tt_dn.determinant() >= 0)? +1.0 : -1.0;
 }
 
 void Hubbard::initRandom() {
@@ -97,11 +100,11 @@ void Hubbard::make_expdtK() {
     Eigen::MatrixXd K = Eigen::MatrixXd::Zero(ls, ls);
     for(int x = 0; x < ll; ++x) {
         for(int y = 0; y < ll; ++y) {
+            K(x + ll * y, x + ll * y) = -mu;
             K(x + ll * y, ((x + 1) % ll) + ll * y) = -t;
             K(((x + 1) % ll) + ll * y, x + ll * y) = -t;
             K(x + ll * y, x + ll * ((y + 1) % ll)) = -t;
             K(x + ll * ((y + 1) % ll), x + ll * y) = -t;
-            if (x == y) { K(x, y) = - mu;}
         }
     }
     expmdtK = (-dtau * K).exp();
@@ -203,12 +206,12 @@ void Hubbard::Metropolis_update(int l) {
      * Update a HS field at space-time position (i,l) for all i with Metropolis
      * probability, and - if the update is accepted - perform a
      * in-place update of the green's function.
-     * Record the updated green's function at the end of function.
+     * Record the updated green's function at the life end of function.
      */
     assert(current_tau == l);
     assert(l >= 0 && l <= lt);
 
-    const int tau = (l==0)? lt-1 : l-1;
+    const int tau = (l == 0)? lt-1 : l-1;
     for (int i = 0; i < ls; ++i) {
         // radio of flipping aux field s(i,l)
         double p;
@@ -220,11 +223,8 @@ void Hubbard::Metropolis_update(int l) {
             p = exp(2 * alpha * s(i, tau))  * (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1))
                        * (1 + (1 - green_tt_dn(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
         }
-        // keep track of sign problem
-        config_sign = (p >= 0)? 1.0:-1.0;
-        p = abs(p);
 
-        if(std::bernoulli_distribution(std::min(1.0, p))(gen)) {
+        if(std::bernoulli_distribution(std::min(1.0, abs(p)))(gen)) {
             /** reference:
              *  Quantum Monte Carlo Methods (Algorithms for Lattice Models) Determinant method
              *  Here we use the sparseness of matrix \delta */
@@ -238,6 +238,9 @@ void Hubbard::Metropolis_update(int l) {
 
             // flip aux field
             s(i, tau) = -s(i, tau);
+
+            // keep track of sign problem
+            config_sign = (p >= 0)? +config_sign : -config_sign;
         }
     }
 
@@ -278,11 +281,11 @@ void Hubbard::wrap_south(int l) {
     multinvB_fromL(green_tt_dn, tau, -1);
 }
 
-void Hubbard::initStacks(int istab) {
+void Hubbard::initStacks(int is_stable) {
     /*
      *  initialize udv stacks for sweep use
      *  sweep process will start from 0 to beta, so we initialize stackRight here.
-     *  stabilize the process every istab steps
+     *  stabilize the process every is_stable steps
      */
     assert(stackLeftU->empty() && stackLeftD->empty());
     assert(stackRightU->empty() && stackRightD->empty());
@@ -290,12 +293,12 @@ void Hubbard::initStacks(int istab) {
     Eigen::MatrixXd tmpU = Eigen::MatrixXd::Identity(ls, ls);
     Eigen::MatrixXd tmpD = Eigen::MatrixXd::Identity(ls, ls);
 
-    // initial udv stacks for sweep use
+    // initial udv stacks for sweeping use
     for (int l = lt; l >= 1; --l) {
         tmpU = make_Bl(l, +1).transpose() * tmpU;
         tmpD = make_Bl(l, -1).transpose() * tmpD;
-        // stabilize every istab steps with svd decomposition
-        if ((l - 1) % istab == 0) {
+        // stabilize every is_stable steps with svd decomposition
+        if ((l - 1) % is_stable == 0) {
             stackRightU->push(tmpU);
             stackRightD->push(tmpD);
             tmpU = Eigen::MatrixXd::Identity(ls, ls);
@@ -308,15 +311,15 @@ void Hubbard::initStacks(int istab) {
     compute_Green_eqtime(stackLeftD, stackRightD, green_tt_dn);
 }
 
-void Hubbard::sweep_0_to_beta(int istab) {
+void Hubbard::sweep_0_to_beta(int is_stable) {
     /*
      *  Update the space-time lattice of aux fields.
      *  For l = 1,2...,lt  flip fields and propagate green's functions
-     *  Stabilize every istab time slices
+     *  Stabilize every is_stable time slices
      */
     current_tau++;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab  +1;
+    int nlen = (lt % is_stable == 0)? lt/is_stable : lt/is_stable  +1;
     assert(current_tau == 1);
     assert(stackLeftU->empty() && stackLeftD->empty());
     assert(stackRightU->len == nlen && stackRightD->len == nlen);
@@ -336,7 +339,7 @@ void Hubbard::sweep_0_to_beta(int istab) {
         tmpU = make_Bl(l, +1) * tmpU;
         tmpD = make_Bl(l, -1) * tmpD;
 
-        if (l % istab == 0 || l == lt) {
+        if (l % is_stable == 0 || l == lt) {
             // wrap greens function
             stackRightU->pop();
             stackRightD->pop();
@@ -348,7 +351,7 @@ void Hubbard::sweep_0_to_beta(int istab) {
             double tmp_wrap_error_tt_up = 0.0;
             double tmp_wrap_error_tt_dn = 0.0;
 
-            // compute fresh greens every istab steps: g = (1 + stackLeft * stackRight^T)^-1
+            // compute fresh greens every is_stable steps: g = (1 + stackLeft * stackRight^T)^-1
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
             compute_Green_eqtime(stackLeftU, stackRightU, tmp_green_tt_up);
@@ -366,7 +369,7 @@ void Hubbard::sweep_0_to_beta(int istab) {
             tmpD = Eigen::MatrixXd::Identity(ls, ls);
         }
 
-        // finally stop at l = lt + 1
+        // in the end stop at l = lt + 1
         current_tau++;
     }
 
@@ -375,15 +378,15 @@ void Hubbard::sweep_0_to_beta(int istab) {
     vec_green_tt_dn[lt-1] = green_tt_dn;
 }
 
-void Hubbard::sweep_beta_to_0(int istab) {
+void Hubbard::sweep_beta_to_0(int is_stable) {
     /*
      *  Update the space-time lattice of aux fields.
      *  For l=lt,lt-1,...,1  flip fields and propagate green's functions
-     *  Stabilize every istab time slices
+     *  Stabilize every is_stable time slices
      */
     current_tau--;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab + 1;
+    int nlen = (lt % is_stable == 0)? lt/is_stable : lt/is_stable + 1;
     assert(current_tau == lt);
     assert(stackRightU->empty() && stackRightD->empty());
     assert(stackLeftU->len == nlen && stackLeftD->len == nlen);
@@ -394,7 +397,7 @@ void Hubbard::sweep_beta_to_0(int istab) {
 
     // sweep down from beta to 0
     for (int l = lt; l >= 1; --l) {
-        if (l % istab == 0 && l != lt) {
+        if (l % is_stable == 0 && l != lt) {
             // update udv stacks
             stackLeftU->pop();
             stackLeftD->pop();
@@ -446,15 +449,15 @@ void Hubbard::sweep_beta_to_0(int istab) {
     vec_green_tt_dn[lt-1] = green_tt_dn;
 }
 
-void Hubbard::sweep_0_to_beta_displaced(int istab) {
+void Hubbard::sweep_0_to_beta_displaced(int is_stable) {
     /*
      *  Calculate time-displaced green function, while the aux field remains unchanged.
-     *  For l = 1,2...,lt, recompute SvdStacks every istab time slices.
+     *  For l = 1,2...,lt, recompute SvdStacks every is_stable time slices.
      *  Data is to be stored in vec_green_t0/0t_up and vec_green_t0/0t_dn.
      */
     current_tau++;
 
-    int nlen = (lt % istab == 0)? lt/istab : lt/istab + 1;
+    int nlen = (lt % is_stable == 0)? lt/is_stable : lt/is_stable + 1;
     assert(current_tau == 1);
     assert(stackLeftU->empty() && stackLeftD->empty());
     assert(stackRightU->len == nlen && stackRightD->len == nlen);
@@ -486,7 +489,7 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
         multB_fromL(tmpU, l, +1);
         multB_fromL(tmpD, l, -1);
 
-        if (l % istab == 0 || l == lt) {
+        if (l % is_stable == 0 || l == lt) {
             // wrap greens function
             stackRightU->pop();
             stackRightD->pop();
@@ -502,7 +505,7 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
             double tmp_wrap_error_0t_up = 0.0;
             double tmp_wrap_error_0t_dn = 0.0;
 
-            // compute fresh greens every istab steps
+            // compute fresh greens every is_stable steps
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
             compute_Green_displaced(stackLeftU, stackRightU, tmp_green_t0_up, tmp_green_0t_up);
@@ -531,7 +534,7 @@ void Hubbard::sweep_0_to_beta_displaced(int istab) {
             tmpD = Eigen::MatrixXd::Identity(ls, ls);
         }
 
-        // finally stop at l = lt + 1
+        // in the end stop at l = lt + 1
         current_tau++;
     }
 }

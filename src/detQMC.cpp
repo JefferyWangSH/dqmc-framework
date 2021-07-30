@@ -231,7 +231,7 @@ void detQMC::printStats() {
                   << "    err: " << eqtimeMeasure.obs_err_eqtime["localSpinCorr"] << std::endl
                   << "    Structure Factor: " << eqtimeMeasure.obs_mean_eqtime["StructFactor"]
                   << "    err: " << eqtimeMeasure.obs_err_eqtime["StructFactor"] << std::endl
-                  << "    Average Sign:     " << eqtimeMeasure.obs_mean_eqtime["AverageSign"]
+                  << "    Average Sign (abs):  " << abs(eqtimeMeasure.obs_mean_eqtime["AverageSign"])
                   << "    err: " << eqtimeMeasure.obs_err_eqtime["AverageSign"] << std::endl;
         std::cout.precision(-1);
     }

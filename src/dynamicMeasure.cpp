@@ -171,8 +171,8 @@ void measure::dynamicMeasure::write_Stats_to_bins(const int &bin, const Hubbard 
 
 void measure::dynamicMeasure::analyse_Dynamical_Corr(const int &bin, const Hubbard &hubbard) {
     for (int l = 0; l < hubbard.lt; ++l) {
-        /* factor 2 comes from two spin states */
-        const Eigen::MatrixXd gt0 = (obs_bin_gt0_up[bin][l] + obs_bin_gt0_dn[bin][l]) / 2;
+        /* factor 0.5 comes from two spin states */
+        const Eigen::MatrixXd gt0 = 0.5 * (obs_bin_gt0_up[bin][l] + obs_bin_gt0_dn[bin][l]);
         double tmpFourier = 0.0;
 
         for (int xi = 0; xi < hubbard.ll; ++xi) {

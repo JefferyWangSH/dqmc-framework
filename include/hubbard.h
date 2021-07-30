@@ -77,13 +77,13 @@ public:
     Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap);
 
     /** sweep the space-time lattice from 0 to beta */
-    void sweep_0_to_beta(int istab);
+    void sweep_0_to_beta(int is_stable);
 
     /** sweep the space-time lattice from beta to 0 */
-    void sweep_beta_to_0(int istab);
+    void sweep_beta_to_0(int is_stable);
 
     /** sweep from beta to 0 to calculate time-displaced green functions */
-    void sweep_0_to_beta_displaced(int istab);
+    void sweep_0_to_beta_displaced(int is_stable);
 
     // friend class
     friend class detQMC;
@@ -99,7 +99,7 @@ private:
     void make_expdtK();
 
     /** initialize udv stacks for sweep use */
-    void initStacks(int istab);
+    void initStacks(int is_stable);
 
     /** compute B matrix with slice l ans spin sigma given*/
     Eigen::MatrixXd make_Bl(int l, int sigma);

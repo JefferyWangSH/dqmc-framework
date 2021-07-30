@@ -82,7 +82,7 @@ void measure::eqtimeMeasure::meas_local_Spin_Corr(const Hubbard &hubbard, const 
     for (int i = 0; i < ls; ++i) {
         onsitecorr += gu(i, i) + gd(i, i) - 2 * gu(i, i) * gd(i, i);
     }
-    localSpinCorr += onsitecorr / ls;
+    localSpinCorr += hubbard.config_sign * onsitecorr / ls;
 }
 
 void measure::eqtimeMeasure::meas_Struct_Factor(const Hubbard &hubbard, const int &t, const Eigen::VectorXd &p) {
