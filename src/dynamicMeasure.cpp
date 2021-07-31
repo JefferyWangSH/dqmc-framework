@@ -11,6 +11,7 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
 
     obs_bin_g_kt.reserve(nbin);
     obs_bin_rho_s.reserve(nbin);
+    obs_bin_sign.reserve(nbin);
 
     obs_bin_gt0_up.reserve(nbin);
     obs_bin_g0t_up.reserve(nbin);
@@ -19,10 +20,10 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
     obs_bin_g0t_dn.reserve(nbin);
     obs_bin_gtt_dn.reserve(nbin);
 
-
     for (int bin = 0; bin < nbin; ++bin) {
         obs_bin_g_kt.emplace_back(hubbard.lt, 0.0);
         obs_bin_rho_s.emplace_back(0.0);
+        obs_bin_sign.emplace_back(0.0);
 
         obs_bin_gt0_up.emplace_back(hubbard.lt, Eigen::MatrixXd::Zero(hubbard.ls, hubbard.ls));
         obs_bin_g0t_up.emplace_back(hubbard.lt, Eigen::MatrixXd::Zero(hubbard.ls, hubbard.ls));
@@ -34,6 +35,10 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
 
     obs_mean_rho_s = 0.0;
     obs_err_rho_s = 0.0;
+    
+    obs_mean_sign = 0.0;
+    obs_err_sign = 0.0;
+    tmp_sign = 0.0;
 
     obs_mean_g_kt.reserve(hubbard.lt);
     obs_err_g_kt.reserve(hubbard.lt);
@@ -62,6 +67,7 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
     obs_mean_g_kt.shrink_to_fit();
     obs_err_g_kt.shrink_to_fit();
     obs_bin_rho_s.shrink_to_fit();
+    obs_bin_sign.shrink_to_fit();
 
     obs_bin_gt0_up.shrink_to_fit();
     obs_bin_g0t_up.shrink_to_fit();
@@ -97,6 +103,7 @@ void measure::dynamicMeasure::initial(const Hubbard &hubbard) {
 void measure::dynamicMeasure::clear() {
     obs_bin_g_kt.clear();
     obs_bin_rho_s.clear();
+    obs_bin_sign.clear();
 
     obs_bin_gt0_up.clear();
     obs_bin_g0t_up.clear();
@@ -107,6 +114,11 @@ void measure::dynamicMeasure::clear() {
 
     obs_mean_g_kt.clear();
     obs_err_g_kt.clear();
+
+    obs_mean_rho_s = 0.0;
+    obs_err_rho_s = 0.0;
+    obs_mean_sign = 0.0;
+    obs_err_sign = 0.0;
 
     tmp_gt0_tau_up.clear();
     tmp_g0t_tau_up.clear();
@@ -125,6 +137,7 @@ void measure::dynamicMeasure::clear(const Hubbard &hubbard) {
     assert(tmp_gtt_tau_dn.size() == hubbard.lt);
 
     n_time_displaced = 0;
+    tmp_sign = 0.0;
     for (int l = 0; l < hubbard.lt; ++l) {
         tmp_gt0_tau_up[l].setZero(hubbard.ls, hubbard.ls);
         tmp_g0t_tau_up[l].setZero(hubbard.ls, hubbard.ls);
@@ -138,13 +151,14 @@ void measure::dynamicMeasure::clear(const Hubbard &hubbard) {
 void measure::dynamicMeasure::measure_time_displaced(const Hubbard &hubbard) {
     n_time_displaced++;
     for (int l = 0; l < hubbard.lt; ++l) {
-        tmp_gt0_tau_up[l] += hubbard.vec_green_t0_up[l];
-        tmp_g0t_tau_up[l] += hubbard.vec_green_0t_up[l];
-        tmp_gtt_tau_up[l] += hubbard.vec_green_tt_up[l];
-        tmp_gt0_tau_dn[l] += hubbard.vec_green_t0_dn[l];
-        tmp_g0t_tau_dn[l] += hubbard.vec_green_0t_dn[l];
-        tmp_gtt_tau_dn[l] += hubbard.vec_green_tt_dn[l];
+        tmp_gt0_tau_up[l] += hubbard.config_sign * hubbard.vec_green_t0_up[l];
+        tmp_g0t_tau_up[l] += hubbard.config_sign * hubbard.vec_green_0t_up[l];
+        tmp_gtt_tau_up[l] += hubbard.config_sign * hubbard.vec_green_tt_up[l];
+        tmp_gt0_tau_dn[l] += hubbard.config_sign * hubbard.vec_green_t0_dn[l];
+        tmp_g0t_tau_dn[l] += hubbard.config_sign * hubbard.vec_green_0t_dn[l];
+        tmp_gtt_tau_dn[l] += hubbard.config_sign * hubbard.vec_green_tt_dn[l];
     }
+    tmp_sign += hubbard.config_sign;
 }
 
 void measure::dynamicMeasure::normalizeStats(const Hubbard &hubbard) {
@@ -156,17 +170,20 @@ void measure::dynamicMeasure::normalizeStats(const Hubbard &hubbard) {
         tmp_g0t_tau_dn[l] /= n_time_displaced;
         tmp_gtt_tau_dn[l] /= n_time_displaced;
     }
+    tmp_sign /= n_time_displaced;
 }
 
 void measure::dynamicMeasure::write_Stats_to_bins(const int &bin, const Hubbard &hubbard) {
+    // TODO: CHECK IT OUT
     for (int l = 0; l < hubbard.lt; ++l) {
-        obs_bin_gt0_up[bin][l] = tmp_gt0_tau_up[l];
-        obs_bin_g0t_up[bin][l] = tmp_g0t_tau_up[l];
-        obs_bin_gtt_up[bin][l] = tmp_gtt_tau_up[l];
-        obs_bin_gt0_dn[bin][l] = tmp_gt0_tau_dn[l];
-        obs_bin_g0t_dn[bin][l] = tmp_g0t_tau_dn[l];
-        obs_bin_gtt_dn[bin][l] = tmp_gtt_tau_dn[l];
+        obs_bin_gt0_up[bin][l] = tmp_gt0_tau_up[l] / tmp_sign;
+        obs_bin_g0t_up[bin][l] = tmp_g0t_tau_up[l] / tmp_sign;
+        obs_bin_gtt_up[bin][l] = tmp_gtt_tau_up[l] / tmp_sign;
+        obs_bin_gt0_dn[bin][l] = tmp_gt0_tau_dn[l] / tmp_sign;
+        obs_bin_g0t_dn[bin][l] = tmp_g0t_tau_dn[l] / tmp_sign;
+        obs_bin_gtt_dn[bin][l] = tmp_gtt_tau_dn[l] / tmp_sign;
     }
+    obs_bin_sign[bin] = tmp_sign;
 }
 
 void measure::dynamicMeasure::analyse_Dynamical_Corr(const int &bin, const Hubbard &hubbard) {
@@ -247,7 +264,7 @@ void measure::dynamicMeasure::analyse_Rho_S(const int &bin, const Hubbard &hubba
         tmp_rho_s += tmp_fourier * hubbard.lt;      //FIXME: why this work?
     }
 
-    obs_bin_rho_s[bin] = tmp_rho_s / 4;
+    obs_bin_rho_s[bin] = 0.25 * tmp_rho_s;
 }
 
 void measure::dynamicMeasure::analyse_timeDisplaced_Stats(const Hubbard &hubbard) {
@@ -260,6 +277,8 @@ void measure::dynamicMeasure::analyse_timeDisplaced_Stats(const Hubbard &hubbard
     }
     obs_mean_rho_s = 0.0;
     obs_err_rho_s = 0.0;
+    obs_mean_sign = 0.0;
+    obs_err_sign = 0.0;
 
     // analyse statistics
     for (int bin = 0; bin < nbin; ++bin) {
@@ -275,8 +294,13 @@ void measure::dynamicMeasure::analyse_timeDisplaced_Stats(const Hubbard &hubbard
         }
         obs_mean_rho_s += obs_bin_rho_s[bin];
         obs_err_rho_s += obs_bin_rho_s[bin] * obs_bin_rho_s[bin];
+        obs_mean_sign += obs_bin_sign[bin];
+        obs_err_sign += obs_bin_sign[bin] * obs_bin_sign[bin];
     }
 
+    obs_mean_sign /= nbin;
+    obs_err_sign /= nbin;
+    obs_err_sign = pow(obs_err_sign - pow(obs_mean_sign, 2), 0.5) / pow(nbin - 1, 0.5);
     for (int l = 0; l < hubbard.lt; ++l) {
         obs_mean_g_kt[l] /= nbin;
         obs_err_g_kt[l] /= nbin;

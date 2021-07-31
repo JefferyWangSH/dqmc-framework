@@ -4,7 +4,7 @@
 #include <boost/program_options.hpp>
 
 /**
- *  todo:
+ *  TODO:
  *   1. get params from command lines, using boost (done)
  *   2. equal-time measurements of momentum distribution and spin-spin correlation (done)
  *   3. bin measurements (done)
@@ -13,12 +13,14 @@
  *   6. attractive interaction U < 0 (done)
  *   7. determine the critical temperature of superconducting transition (done)
  *   8. openmp parallel programming (missing)
- *   5. Stochastic Analytic Continuation (SAC) to obtain fermion spectrum function (missing)
- *   6. Check-board decomposition (missing)
+ *   9. Stochastic Analytic Continuation (SAC) to obtain fermion spectrum function (missing)
+ *   10. Check-board decomposition (missing)
  *   11. read aux field configurations from input file (missing)
  *   12. reweighing for doped case (missing)
  *   13. new feature in standard of c++20, modify message output using std::format() (missing)
- *   13. ...
+ *   14. log output (missing)
+ *   15. simulate with bash script (missing)
+ *   16. ...
  */
 
 

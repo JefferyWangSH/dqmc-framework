@@ -194,7 +194,7 @@ void detQMC::sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic) {
 
     // sweep back from beta to 0
     hubb.sweep_beta_to_0(nwrap);
-    // todo: hubb.sweep_beta_to_0_displaced
+    // TODO: hubb.sweep_beta_to_0_displaced
     if (bool_eqtime) {
         eqtimeMeasure.measure_equal_time(hubb);
     }
@@ -221,18 +221,18 @@ void detQMC::printStats() {
         std::cout.precision(8);
         std::cout << std::endl;
         std::cout << "  Equal-time Measurements: " << std::endl
-                  << "    Double occu:      " << eqtimeMeasure.obs_mean_eqtime["DoubleOccu"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["DoubleOccu"] << std::endl
-                  << "    Kinetic energy:   " << eqtimeMeasure.obs_mean_eqtime["KineticEnergy"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["KineticEnergy"] << std::endl
-                  << "    Momentum dist:    " << eqtimeMeasure.obs_mean_eqtime["MomentumDist"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["MomentumDist"] << std::endl
-                  << "    local Spin corr:  " << eqtimeMeasure.obs_mean_eqtime["localSpinCorr"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["localSpinCorr"] << std::endl
-                  << "    Structure Factor: " << eqtimeMeasure.obs_mean_eqtime["StructFactor"]
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["StructFactor"] << std::endl
-                  << "    Average Sign (abs):  " << abs(eqtimeMeasure.obs_mean_eqtime["AverageSign"])
-                  << "    err: " << eqtimeMeasure.obs_err_eqtime["AverageSign"] << std::endl;
+                  << "    Double Occupancy:        " << eqtimeMeasure.obs_mean_eqtime["double_occupancy"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["double_occupancy"] << std::endl
+                  << "    Kinetic Energy:          " << eqtimeMeasure.obs_mean_eqtime["kinetic_energy"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["kinetic_energy"] << std::endl
+                  << "    Momentum Distribution:   " << eqtimeMeasure.obs_mean_eqtime["momentum_distribution"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["momentum_distribution"] << std::endl
+                  << "    Local Spin Correlation:  " << eqtimeMeasure.obs_mean_eqtime["local_spin_correlation"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["local_spin_correlation"] << std::endl
+                  << "    Structure Factor:        " << eqtimeMeasure.obs_mean_eqtime["structure_factor"]
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["structure_factor"] << std::endl
+                  << "    Average Sign (abs):      " << abs(eqtimeMeasure.obs_mean_eqtime["average_sign"])
+                  << "    err: " << eqtimeMeasure.obs_err_eqtime["average_sign"] << std::endl;
         std::cout.precision(-1);
     }
 
@@ -244,7 +244,9 @@ void detQMC::printStats() {
                   << "    Correlation G(k, beta/2):   " << dynamicMeasure.obs_mean_g_kt[ceil(hubb.lt/2.0)]
                   << "    err: " << dynamicMeasure.obs_err_g_kt[ceil(hubb.lt/2.0)] << std::endl
                   << "    Helicity modules \\Rho_s:   " << dynamicMeasure.obs_mean_rho_s
-                  << "    err: " << dynamicMeasure.obs_err_rho_s << std::endl;
+                  << "    err: " << dynamicMeasure.obs_err_rho_s << std::endl
+                  << "    Average Sign (abs):         " << abs(dynamicMeasure.obs_mean_sign)
+                  << "    err: " << dynamicMeasure.obs_err_sign << std::endl;
         std::cout.precision(-1);
     }
 
@@ -266,16 +268,16 @@ void detQMC::output_Stats_eqtime(const std::string &filename, bool bool_Append) 
         outfile << std::setiosflags(std::ios::right)
                 << std::setw(15) << hubb.Uint / hubb.t
                 << std::setw(15) << hubb.beta
-                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["DoubleOccu"]
-                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["KineticEnergy"]
-                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["StructFactor"]
-                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["MomentumDist"]
-                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["localSpinCorr"]
-                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["DoubleOccu"]
-                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["KineticEnergy"]
-                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["StructFactor"]
-                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["MomentumDist"]
-                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["localSpinCorr"]
+                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["double_occupancy"]
+                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["kinetic_energy"]
+                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["structure_factor"]
+                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["momentum_distribution"]
+                << std::setw(15) << eqtimeMeasure.obs_mean_eqtime["local_spin_correlation"]
+                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["double_occupancy"]
+                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["kinetic_energy"]
+                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["structure_factor"]
+                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["momentum_distribution"]
+                << std::setw(15) << eqtimeMeasure.obs_err_eqtime["local_spin_correlation"]
                 << std::setw(15) << eqtimeMeasure.q(0)
                 << std::setw(15) << eqtimeMeasure.q(1)
                 << std::endl;

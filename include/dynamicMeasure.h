@@ -43,15 +43,20 @@ namespace measure{
         std::vector<std::vector<Eigen::MatrixXd>> obs_bin_g0t_dn;
         std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gtt_dn;
 
+        // sign problem
+        double obs_mean_sign = 0.0;
+        double obs_err_sign = 0.0;
+        std::vector<double> obs_bin_sign;
+
         // temporary parameters
         int n_time_displaced = 0;
+        double tmp_sign = 0.0;
         std::vector<Eigen::MatrixXd> tmp_gt0_tau_up;        // data[tau] <type Eigen::MatrixXd>
         std::vector<Eigen::MatrixXd> tmp_g0t_tau_up;
         std::vector<Eigen::MatrixXd> tmp_gtt_tau_up;
         std::vector<Eigen::MatrixXd> tmp_gt0_tau_dn;
         std::vector<Eigen::MatrixXd> tmp_g0t_tau_dn;
         std::vector<Eigen::MatrixXd> tmp_gtt_tau_dn;
-
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);

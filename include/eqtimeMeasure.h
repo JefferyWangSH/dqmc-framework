@@ -31,12 +31,12 @@ namespace measure{
 
         // temporary parameters
         int n_equal_time = 0;
-        double DoubleOccu = 0.0;
-        double KineticEnergy = 0.0;
-        double StructFactor = 0.0;
-        double MomentumDist = 0.0;
-        double localSpinCorr = 0.0;
-        double AverageSign = 0.0;
+        double double_occupancy = 0.0;
+        double kinetic_energy = 0.0;
+        double structure_factor = 0.0;
+        double momentum_distribution = 0.0;
+        double local_spin_correlation = 0.0;
+        double average_sign = 0.0;
 
         // for equal-time measurements
         std::map<std::string, std::vector<double>> obs_bin_eqtime;
