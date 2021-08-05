@@ -22,16 +22,17 @@
 #include <cassert>
 
 #include "SvdStack.h"
+#include "CheckerBoard.h"
 #include "eqtimeMeasure.h"
 #include "dynamicMeasure.h"
 
 
 // random engine
-static std::default_random_engine gen(time(nullptr));
+static std::default_random_engine random_seed_generate(time(nullptr));
 
 class Hubbard {
 
-public:
+private:
     // model params
     int ll{4}, ls{16}, lt{80};
     double beta{4.0}, dtau{0.1};
@@ -47,10 +48,14 @@ public:
     double max_wrap_error_equal{0.0};
     double max_wrap_error_displaced{0.0};
 
-    // aux field and kinetic matrix expK
-    Eigen::MatrixXd s, expmdtK, exppdtK;
+    // aux boson field 's'
+    Eigen::MatrixXd s;
 
-    // equal-time greens function for both spin-1/2 states
+    // checkerboard class for hopping matrix fabrication
+    bool is_checkerboard = true;
+    CheckerBoard checkerboard;
+
+    // equal-time greens function for both spin up and down states
     // critical quantities in DQMC simulation
     Eigen::MatrixXd green_tt_up, green_tt_dn;
     std::vector<Eigen::MatrixXd> vec_green_tt_up, vec_green_tt_dn;
@@ -74,7 +79,8 @@ public:
 public:
     /** construction */
     Hubbard() = default;
-    Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap);
+
+    Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard);
 
     /** sweep the space-time lattice from 0 to beta */
     void sweep_0_to_beta(int is_stable);
@@ -87,34 +93,34 @@ public:
 
     // friend class
     friend class detQMC;
+    friend class CheckerBoard;
     friend class measure::eqtimeMeasure;
     friend class measure::dynamicMeasure;
 
 
 private:
     /** randomly initialize aux field */
-    void initRandom();
-
-    /** compute exp of Kinetic matrix K */
-    void make_expdtK();
+    void init_field_to_random();
 
     /** initialize udv stacks for sweep use */
-    void initStacks(int is_stable);
+    void init_stacks(int is_stable);
 
-    /** compute B matrix with slice l ans spin sigma given*/
-    Eigen::MatrixXd make_Bl(int l, int sigma);
+//    /** compute B matrix with slice l and spin sigma given */
+//    Eigen::MatrixXd make_B_l(int l, int sigma);
 
     /** multiply B matrix in place */
-    void multB_fromL(Eigen::MatrixXd& A, int l, int sigma);
+    void mult_B_from_left(Eigen::MatrixXd &A, int l, int sigma);
 
-    void multB_fromR(Eigen::MatrixXd& A, int l, int sigma);
+    void mult_B_from_right(Eigen::MatrixXd &A, int l, int sigma);
 
-    void multinvB_fromL(Eigen::MatrixXd& A, int l, int sigma);
+    void mult_invB_from_left(Eigen::MatrixXd &A, int l, int sigma);
 
-    void multinvB_fromR(Eigen::MatrixXd& A, int l, int sigma);
+    void mult_invB_from_right(Eigen::MatrixXd &A, int l, int sigma);
+
+    void mult_transB_from_left(Eigen::MatrixXd &A, int l, int sigma);
 
     /** update the aux field at time slice l with Metropolis algorithm */
-    void Metropolis_update(int l);
+    void metropolis_update(int l);
 
     /** propagate the green's function from l to l+1 */
     void wrap_north(int l);

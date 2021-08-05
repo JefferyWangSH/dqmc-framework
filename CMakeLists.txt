@@ -9,6 +9,8 @@ set(SOURCES
         src/hubbard.cpp
         src/detQMC.cpp
         src/SvdStack.cpp
+        src/CheckerBoard.cpp
+        src/BMatrixMult.hpp
         src/StableGreens.hpp
         src/ProgressBar.hpp
         src/eqtimeMeasure.cpp
