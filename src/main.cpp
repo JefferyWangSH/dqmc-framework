@@ -2,6 +2,7 @@
 #include "detQMC.h"
 
 #include <boost/program_options.hpp>
+//#include <boost/format.hpp>
 
 /**
  *  TODO:
@@ -12,15 +13,14 @@
  *   5. ******** Modify command console output ******** (done)
  *   6. attractive interaction U < 0 (done)
  *   7. determine the critical temperature of superconducting transition (done)
- *   8. openmp parallel programming (missing)
- *   9. Stochastic Analytic Continuation (SAC) to obtain fermion spectrum function (missing)
- *   10. Check-board decomposition (missing)
- *   11. read aux field configurations from input file (missing)
- *   12. reweighing for doped case (missing)
- *   13. new feature in standard of c++20, modify message output using std::format() (missing)
- *   14. log output (missing)
- *   15. simulate with bash script (missing)
- *   16. ...
+ *   8. reweighing for doped case (done)
+ *   9. read aux field configurations from input file (done)
+ *   10. checkerboard decomposition (missing)
+ *   11. openmp parallel sampling (missing)
+ *   12. new feature in standard of c++20, modify message output using std::format() (missing)
+ *   13. log output (missing)
+ *   14. simulate with bash script (missing)
+ *   15. ...
  */
 
 
@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
     double t = 1.0;
     double u = -4.0;
     double mu = 0.0;
+    bool bool_checkerboard = true;
 
     int nwrap = 10;
     int nwarm = (int)(4 * ll * ll * beta);
@@ -65,6 +66,7 @@ int main(int argc, char* argv[]) {
             ("u", boost::program_options::value<double>(&u)->default_value(-4.0),
                     "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
             ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
+            ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(true), "whether to perform checkerboard break-up, default: true")
             ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
             ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
             ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
@@ -104,236 +106,259 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    std::vector<double> list_u = { 4.0, };
-
-    for (auto uint : list_u) {
-        bool_append = true;
-
-        dqmc.set_Model_Params(ll, lt, beta, t, uint, mu, nwrap);
-
-        dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
-
-        dqmc.set_bool_Params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-
-        dqmc.set_Momentum_q(M_PI, M_PI);
-
-        dqmc.printParams();
-
-        dqmc.initialMeasure();
-
-        dqmc.runQMC(bool_display_process);
-
-        dqmc.analyseStats();
-
-        dqmc.printStats();
-
-        std::stringstream ss;
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
-        std::string str_l = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
-        std::string str_beta = ss.str();
-        ss.str("");
-        filename_eqtime = "../results/eqtime_L" + str_l + "_beta" + str_beta + "_repulsive.txt";
-
-        dqmc.output_Stats_eqtime(filename_eqtime, bool_append);
-
-        dqmc.output_Stats_dynamic(filename_dynamic, bool_append);
-    }
+//    std::vector<double> list_u = { 3.0, };
+//
+//    for (auto uint : list_u) {
+//        bool_append = true;
+//
+//        dqmc.set_model_params(ll, lt, beta, t, uint, mu, nwrap, bool_checkerboard);
+//
+//        dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//
+//        dqmc.set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+//
+//        dqmc.set_lattice_momentum(M_PI, M_PI);
+//
+//        dqmc.print_params();
+//
+//        dqmc.init_measure();
+//
+//        dqmc.run_QMC(bool_display_process);
+//
+//        dqmc.analyse_stats();
+//
+//        dqmc.print_stats();
+//
+//        std::stringstream ss;
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+//        std::string str_l = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
+//        std::string str_beta = ss.str();
+//        ss.str("");
+//        filename_eqtime = "../results/eqtime_L" + str_l + "_beta" + str_beta + "_repulsive.txt";
+//
+//        dqmc.file_output_stats_eqtime(filename_eqtime, bool_append);
+//
+//        dqmc.file_output_stats_dynamic(filename_dynamic, bool_append);
+//    }
 
 
     /** Measure observable quantities in momentum space ( fermi surface ) */
-    /*
-    std::vector<double> list_u = { -4.0, -2.0, -1.0, };
-
-    for (auto uint : list_u) {
-
-        dqmc.set_Model_Params(ll, lt, beta, t, uint, mu, nwrap);
-        dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
-
-        std::stringstream ss;
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
-        std::string str_l = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
-        std::string str_beta = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << uint;
-        std::string str_u = ss.str();
-        ss.str("");
-        std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
-
-        for (int i = 0; i <= ll; ++i) {
-            // crystal momentum qx
-            const double qx = M_PI - 2 * M_PI / ll * i;
-
-            // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
-            for (int j = 0; j <= ll - i; ++j) {
-                // crystal momentum qy
-                const double qy = M_PI - 2 * M_PI / ll * j;
-
-                dqmc.set_Momentum_q(qx, qy);
-
-                // warm up only one time
-                bool_warm_up = (i == 0 && j == 0);
-
-                dqmc.set_bool_Params(bool_warm_up, false, true);
-
-                dqmc.printParams();
-
-                dqmc.initialMeasure();
-
-                dqmc.runQMC(bool_display_process);
-
-                dqmc.analyseStats();
-
-                dqmc.printStats();
-
-                bool_append = !(i == 0 && j == 0);
-                std::ofstream outfile;
-                outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
-                outfile << std::setiosflags(std::ios::right)
-                        << std::setw(15) << i
-                        << std::setw(15) << j
-                        << std::setw(15) << qx
-                        << std::setw(15) << qy
-                        << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
-                        << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[ceil(lt/2)]
-                        << std::endl;
-                outfile.close();
-            }
-        }
-    }
-    */
+//
+//    std::vector<double> list_u = { -4.0, -2.0, -1.0, };
+//
+//    for (auto uint : list_u) {
+//
+//        dqmc.set_model_params(ll, lt, beta, t, uint, mu, nwrap, bool_checkerboard);
+//        dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//
+//        std::stringstream ss;
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+//        std::string str_l = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
+//        std::string str_beta = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << uint;
+//        std::string str_u = ss.str();
+//        ss.str("");
+//        std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
+//
+//        for (int i = 0; i <= ll; ++i) {
+//            // crystal momentum qx
+//            const double qx = M_PI - 2 * M_PI / ll * i;
+//
+//            // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
+//            for (int j = 0; j <= ll - i; ++j) {
+//                // crystal momentum qy
+//                const double qy = M_PI - 2 * M_PI / ll * j;
+//
+//                dqmc.set_lattice_momentum(qx, qy);
+//
+//                // warm up only one time
+//                bool_warm_up = (i == 0 && j == 0);
+//
+//                dqmc.set_controlling_params(bool_warm_up, false, true);
+//
+//                dqmc.print_params();
+//
+//                dqmc.init_measure();
+//
+//                dqmc.run_QMC(bool_display_process);
+//
+//                dqmc.analyse_stats();
+//
+//                dqmc.print_stats();
+//
+//                bool_append = !(i == 0 && j == 0);
+//                std::ofstream outfile;
+//                outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
+//                outfile << std::setiosflags(std::ios::right)
+//                        << std::setw(15) << i
+//                        << std::setw(15) << j
+//                        << std::setw(15) << qx
+//                        << std::setw(15) << qy
+//                        << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
+//                        << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[ceil(lt/2)]
+//                        << std::endl;
+//                outfile.close();
+//            }
+//        }
+//    }
 
     /** Measure dynamic green's function */
-    /*
-    dqmc.set_Model_Params(ll, lt, beta, t, u, mu, nwrap);
+//
+//    dqmc.set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
+//
+//    dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//
+//    dqmc.set_controlling_params(bool_warm_up, false, bool_measure_dynamic);
+//
+//    dqmc.set_lattice_momentum(M_PI/2, M_PI/2);
+//
+//    dqmc.print_params();
+//
+//    dqmc.init_measure();
+//
+//    dqmc.run_QMC(bool_display_process);
+//
+//    dqmc.analyse_stats();
+//
+//    dqmc.print_stats();
+//
+//    std::stringstream ss;
+//    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << beta;
+//    std::string str_beta = ss.str();
+//    ss.str("");
+//    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+//    std::string str_l = ss.str();
+//    ss.str("");
+//    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
+//    std::string str_lt = ss.str();
+//    ss.str("");
+//    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
+//    std::string str_u = ss.str();
+//    ss.str("");
+//    std::string filename = "../results/gt_l" + str_l + "_lt" + str_lt + "_u" + str_u + "_b" + str_beta + "_k_pi2pi2.txt";
+//
+//    std::ofstream outfile;
+//    outfile.open(filename, std::ios::out | std::ios::trunc);
+//
+//    outfile << std::setiosflags(std::ios::right);
+//    for (int l = 1; l <= lt; ++l) {
+//        outfile << std::setw(15) << l
+//                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[l-1]
+//                << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[l-1]
+//                << std::endl;
+//    }
+//    outfile.close();
 
-    dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
-
-    dqmc.set_bool_Params(bool_warm_up, false, bool_measure_dynamic);
-
-    dqmc.set_Momentum_q(M_PI/2, M_PI/2);
-
-    dqmc.printParams();
-
-    dqmc.initialMeasure();
-
-    dqmc.runQMC(bool_display_process);
-
-    dqmc.analyseStats();
-
-    dqmc.printStats();
-
-    std::stringstream ss;
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << beta;
-    std::string str_beta = ss.str();
-    ss.str("");
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
-    std::string str_l = ss.str();
-    ss.str("");
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
-    std::string str_lt = ss.str();
-    ss.str("");
-    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
-    std::string str_u = ss.str();
-    ss.str("");
-    std::string filename = "../results/gt_l" + str_l + "_lt" + str_lt + "_u" + str_u + "_b" + str_beta + "_k_pi2pi2.txt";
-
-    std::ofstream outfile;
-    outfile.open(filename, std::ios::out | std::ios::trunc);
-
-    outfile << std::setiosflags(std::ios::right);
-    for (int l = 1; l <= lt; ++l) {
-        outfile << std::setw(15) << l
-                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_g_kt[l-1]
-                << std::setw(15) << dqmc.dynamicMeasure.obs_err_g_kt[l-1]
-                << std::endl;
-    }
-    outfile.close();
-    */
 
     /** Measure helicity modules over temperature T */
-    /*
-    std::vector<double> list_beta = { 5.0, 5.0, 5.0, 8.0, };
+//
+//    std::vector<double> list_beta = { 5.0, 5.0, 5.0, 8.0, };
+//
+//    for (auto Beta : list_beta) {
+//
+//        lt = (int)(Beta / 0.05);
+//
+//        dqmc.set_model_params(ll, lt, Beta, t, u, mu, nwrap, bool_checkerboard);
+//
+//        dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//
+//        std::stringstream ss;
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << Beta;
+//        std::string str_beta = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
+//        std::string str_l = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
+//        std::string str_lt = ss.str();
+//        ss.str("");
+//        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
+//        std::string str_u = ss.str();
+//        ss.str("");
+//
+//        const std::string fileConfigs = "../results/rhos_L_" + str_l + "_u_" + str_u +"/config_L_" + str_l + "_lt_" + str_lt + "_b_" + str_beta + ".txt";
+//        std::ifstream infile;
+//        infile.open(fileConfigs, std::ios::in);
+//
+//        if (!infile.is_open()) {
+//            std::cerr << "fail to open file " + fileConfigs + ", start simulation with random configs." << std::endl;
+//            bool_warm_up = true;
+//        }
+//        else {
+//            infile.close();
+//            dqmc.read_aux_field_configs(fileConfigs);
+//            std::cerr << "old configuration is read from " + fileConfigs +", no need to warm up." << std::endl;
+//            bool_warm_up = false;
+//        }
+//
+//        dqmc.set_controlling_params(bool_warm_up, false, bool_measure_dynamic);
+//
+//        dqmc.set_lattice_momentum(M_PI, M_PI);
+//
+//        dqmc.print_params();
+//
+//        dqmc.init_measure();
+//
+//        dqmc.run_QMC(bool_display_process);
+//
+//        dqmc.analyse_stats();
+//
+//        dqmc.print_stats();
+//
+//        dqmc.file_output_aux_field_configs(fileConfigs);
+//
+//        bool_append = true;
+//        std::string filename = "../results/rhos_L_" + str_l + "_u_" + str_u + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
+//        std::string filename_bins = "../results/rhos_L_" + str_l  + "_u_" + str_u + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
+//
+//        std::ofstream outfile;
+//        outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
+//        outfile << std::setiosflags(std::ios::right)
+//                << std::setw(15) << Beta
+//                << std::setw(15) << 1 / Beta
+//                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_rho_s
+//                << std::setw(15) << dqmc.dynamicMeasure.obs_err_rho_s
+//                << std::endl;
+//        outfile.close();
+//
+//        outfile.open(filename_bins, std::ios::out | std::ios::app);
+//        for (int bin = 0; bin < nbin; ++bin) {
+//            outfile << std::setiosflags(std::ios::right)
+//                    << std::setw(15) << bin + 1
+//                    << std::setw(15) << dqmc.dynamicMeasure.obs_bin_rho_s[bin]
+//                    << std::endl;
+//        }
+//        outfile.close();
+//    }
 
-    for (auto Beta : list_beta) {
 
-        lt = (int)(Beta / 0.05);
+    // checkerboard test
+    std::chrono::steady_clock::time_point begin_t, end_t;
 
-        dqmc.set_Model_Params(ll, lt, Beta, t, u, mu, nwrap);
+    Hubbard hubbard1(20, 80, 4.0, 1.0, 4.0, 0.0, 10, true);
+    Hubbard hubbard2(20, 80, 4.0, 1.0, 4.0, 0.0, 10, false);
 
-        dqmc.set_MC_Params(nwarm, nbin, nsweep, nBetweenBins);
+    Eigen::MatrixXd test1 = Eigen::MatrixXd::Identity(hubbard1.ls, hubbard1.ls);
+    Eigen::MatrixXd test2 = Eigen::MatrixXd::Identity(hubbard2.ls, hubbard2.ls);
 
-        std::stringstream ss;
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << Beta;
-        std::string str_beta = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
-        std::string str_l = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << lt;
-        std::string str_lt = ss.str();
-        ss.str("");
-        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
-        std::string str_u = ss.str();
-        ss.str("");
-
-        const std::string fileConfigs = "../results/rhos_L_" + str_l + "_u_" + str_u +"/config_L_" + str_l + "_lt_" + str_lt + "_b_" + str_beta + ".txt";
-        std::ifstream infile;
-        infile.open(fileConfigs, std::ios::in);
-
-        if (!infile.is_open()) {
-            std::cerr << "fail to open file " + fileConfigs + ", start simulation with random configs." << std::endl;
-            bool_warm_up = true;
-        }
-        else {
-            infile.close();
-            dqmc.read_Aux_Field_Configs(fileConfigs);
-            std::cerr << "old configuration is read from " + fileConfigs +", no need to warm up." << std::endl;
-            bool_warm_up = false;
-        }
-
-        dqmc.set_bool_Params(bool_warm_up, false, bool_measure_dynamic);
-
-        dqmc.set_Momentum_q(M_PI, M_PI);
-
-        dqmc.printParams();
-
-        dqmc.initialMeasure();
-
-        dqmc.runQMC(bool_display_process);
-
-        dqmc.analyseStats();
-
-        dqmc.printStats();
-
-        dqmc.output_Aux_Field_Configs(fileConfigs);
-
-        bool_append = true;
-        std::string filename = "../results/rhos_L_" + str_l + "_u_" + str_u + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
-        std::string filename_bins = "../results/rhos_L_" + str_l  + "_u_" + str_u + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
-
-        std::ofstream outfile;
-        outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));
-        outfile << std::setiosflags(std::ios::right)
-                << std::setw(15) << Beta
-                << std::setw(15) << 1 / Beta
-                << std::setw(15) << dqmc.dynamicMeasure.obs_mean_rho_s
-                << std::setw(15) << dqmc.dynamicMeasure.obs_err_rho_s
-                << std::endl;
-        outfile.close();
-
-        outfile.open(filename_bins, std::ios::out | std::ios::app);
-        for (int bin = 0; bin < nbin; ++bin) {
-            outfile << std::setiosflags(std::ios::right)
-                    << std::setw(15) << bin + 1
-                    << std::setw(15) << dqmc.dynamicMeasure.obs_bin_rho_s[bin]
-                    << std::endl;
-        }
-        outfile.close();
+    begin_t = std::chrono::steady_clock::now();
+    for (int i = 0; i < 100; ++i) {
+        hubbard1.mult_B_from_left(test1, 0, +1);
     }
-    */
+    end_t = std::chrono::steady_clock::now();
+    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
+
+    begin_t = std::chrono::steady_clock::now();
+    for (int i = 0; i < 100; ++i) {
+        hubbard2.mult_B_from_left(test2, 0, +1);
+    }
+    end_t = std::chrono::steady_clock::now();
+    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
+
     return 0;
 }

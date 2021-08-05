@@ -15,10 +15,11 @@ Features
 --------
 1. Cyclic update ( sweep back and forth ).
 2. Stable sweeping process with high computational efficiency.
-3. Support equal-time and time-displaced measurements of physical quantities. e.g. helicity module of superconductor, dynamic green's function for `SAC`.
-4. Support attractive and repulsive hubbard interaction.
-5. Support slightly doping away from half-filled case.
-6. Program works well in condition of moderate model parameters.
+3. Support checkerboard break-ups with efficient linear algebra.
+4. Support equal-time and time-displaced measurements of physical quantities. e.g. superfluid density for superconductivity, and dynamical green's function for `SAC` calculation.
+5. Support attractive and repulsive hubbard interaction.
+6. Support slightly doping away from half-filled case.
+7. Program works well in condition of moderate model parameters.
 
 References
 ----------

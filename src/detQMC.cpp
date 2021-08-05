@@ -5,35 +5,35 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
-void detQMC::set_Model_Params(int _ll, int _lt, double _beta, double _t, double _Uint, double _mu, int _nwrap) {
-    Hubbard newHubb(_ll, _lt, _beta, _t, _Uint, _mu, nwrap);
-    hubb = newHubb;
+void detQMC::set_model_params(int _ll, int _lt, double _beta, double _t, double _uint, double _mu, int _nwrap, bool _is_checkerboard) {
+    Hubbard new_hubbard(_ll, _lt, _beta, _t, _uint, _mu, _nwrap, _is_checkerboard);
+    hubb = new_hubbard;
     this->nwrap = _nwrap;
 }
 
-void detQMC::set_MC_Params(int _nwarm, int _nbin, int _nsweep, int _nBetweenBins) {
+void detQMC::set_Monte_Carlo_params(int _nwarm, int _nbin, int _nsweep, int _n_between_bins) {
     this->nwarm = _nwarm;
     this->nsweep = _nsweep;
-    this->nBetweenBins = _nBetweenBins;
+    this->n_between_bins = _n_between_bins;
     this->nbin = _nbin;
 
     eqtimeMeasure.resize(_nbin);
     dynamicMeasure.resize(_nbin);
 }
 
-void detQMC::set_bool_Params(bool _bool_warm_up, bool _bool_measure_eqtime, bool _bool_measure_dynamic) {
+void detQMC::set_controlling_params(bool _bool_warm_up, bool _bool_measure_eqtime, bool _bool_measure_dynamic) {
     this->bool_warm_up = _bool_warm_up;
     this->bool_measure_eqtime = _bool_measure_eqtime;
     this->bool_measure_dynamic = _bool_measure_dynamic;
 }
 
-void detQMC::set_Momentum_q(double qx, double qy) {
+void detQMC::set_lattice_momentum(double qx, double qy) {
     q = (Eigen::VectorXd(2) << qx, qy).finished();
     eqtimeMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
     dynamicMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
 }
 
-void detQMC::read_Aux_Field_Configs(const std::string &filename) {
+void detQMC::read_aux_field_configs(const std::string &filename) {
     // model params should be set up ahead
 
     std::ifstream infile;
@@ -67,10 +67,10 @@ void detQMC::read_Aux_Field_Configs(const std::string &filename) {
     hubb.stackLeftD = new SvdStack(hubb.ls, hubb.lt);
     hubb.stackRightU = new SvdStack(hubb.ls, hubb.lt);
     hubb.stackRightD = new SvdStack(hubb.ls, hubb.lt);
-    hubb.initStacks(nwrap);
+    hubb.init_stacks(nwrap);
 }
 
-void detQMC::printParams() {
+void detQMC::print_params() {
     std::cout << std::endl;
     std::cout << "==============================================================================" << std::endl;
     std::cout << "  Simulation Parameters: " << std::endl
@@ -84,7 +84,7 @@ void detQMC::printParams() {
     std::cout << "==============================================================================" << std::endl;
 }
 
-void detQMC::initialMeasure() {
+void detQMC::init_measure() {
     // initialize bins of observables
     if (bool_measure_eqtime) {
         eqtimeMeasure.initial();
@@ -95,7 +95,7 @@ void detQMC::initialMeasure() {
     }
 }
 
-void detQMC::runQMC(bool bool_display_process) {
+void detQMC::run_QMC(bool bool_display_process) {
 
     // clear data
     if (bool_measure_eqtime) {
@@ -116,7 +116,7 @@ void detQMC::runQMC(bool bool_display_process) {
         progresscpp::ProgressBar progressBar(nwarm/2, 40, '#', '-');
 
         for (int nwm = 1; nwm <= nwarm/2; ++nwm) {
-            sweep_BackAndForth(false, false);
+            sweep_back_and_forth(false, false);
             ++progressBar;
 
             if ( nwm % 10 == 0 && bool_display_process) {
@@ -138,7 +138,7 @@ void detQMC::runQMC(bool bool_display_process) {
 
         for (int bin = 0; bin < nbin; ++bin) {
             for (int nsw = 1; nsw <= nsweep/2; ++nsw) {
-                sweep_BackAndForth(bool_measure_eqtime, bool_measure_dynamic);
+                sweep_back_and_forth(bool_measure_eqtime, bool_measure_dynamic);
                 ++progressBar;
 
                 if ( nsw % 10 == 0 && bool_display_process) {
@@ -161,8 +161,8 @@ void detQMC::runQMC(bool bool_display_process) {
             }
 
             // avoid correlation between bins
-            for (int n_bw = 0; n_bw < nBetweenBins; ++n_bw) {
-                sweep_BackAndForth(false, false);
+            for (int n_bw = 0; n_bw < n_between_bins; ++n_bw) {
+                sweep_back_and_forth(false, false);
             }
         }
 
@@ -178,7 +178,7 @@ void detQMC::runQMC(bool bool_display_process) {
     end_t = std::chrono::steady_clock::now();
 }
 
-void detQMC::sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic) {
+void detQMC::sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic) {
 
     // sweep forth from 0 to beta
     if (!bool_dynamic) {
@@ -200,7 +200,7 @@ void detQMC::sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic) {
     }
 }
 
-void detQMC::analyseStats() {
+void detQMC::analyse_stats() {
     if (bool_measure_eqtime) {
         eqtimeMeasure.analyseStats();
     }
@@ -210,10 +210,8 @@ void detQMC::analyseStats() {
     }
 }
 
-void detQMC::printStats() {
-
+void detQMC::print_stats() {
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count();
-
     const int minute = std::floor((double)time / 1000 / 60);
     const double sec = (double)time / 1000 - 60 * minute;
 
@@ -256,7 +254,7 @@ void detQMC::printStats() {
     std::cout << "==============================================================================" << std::endl;
 }
 
-void detQMC::output_Stats_eqtime(const std::string &filename, bool bool_Append) {
+void detQMC::file_output_stats_eqtime(const std::string &filename, bool bool_Append) {
     if (bool_measure_eqtime) {
         std::ofstream outfile;
         if (bool_Append) {
@@ -289,7 +287,7 @@ void detQMC::output_Stats_eqtime(const std::string &filename, bool bool_Append) 
     }
 }
 
-void detQMC::output_Stats_dynamic(const std::string& filename, bool bool_Append) {
+void detQMC::file_output_stats_dynamic(const std::string& filename, bool bool_Append) {
     if (bool_measure_dynamic) {
         std::ofstream outfile;
         if (bool_Append) {
@@ -321,7 +319,7 @@ void detQMC::output_Stats_dynamic(const std::string& filename, bool bool_Append)
     }
 }
 
-void detQMC::output_Aux_Field_Configs(const std::string &filename) {
+void detQMC::file_output_aux_field_configs(const std::string &filename) {
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::trunc);
 

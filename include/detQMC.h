@@ -22,7 +22,8 @@ private:
     // model parameters
     Hubbard hubb;
     int nwrap{10}, nwarm{300};
-    int nbin{20}, nsweep{100}, nBetweenBins{10};
+    int nbin{20}, nsweep{100}, n_between_bins{10};
+    bool is_checkerboard = true;
 
     // bool parameters to control thermalization and measurements
     bool bool_warm_up = true;
@@ -49,47 +50,47 @@ public:
     ~detQMC();
 
     /* set up model parameters */
-    void set_Model_Params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap);
+    void set_model_params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard);
 
     /* set up parameters for Monte Carlo simulation */
-    void set_MC_Params(int nwarm, int nbin, int nsweep, int nBetweenBins);
+    void set_Monte_Carlo_params(int nwarm, int nbin, int nsweep, int n_between_bins);
 
     /* set up bool parameters */
-    void set_bool_Params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic);
+    void set_controlling_params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic);
 
     /* set up lattice momentum q for momentum measurements */
-    void set_Momentum_q(double qx, double qy);
+    void set_lattice_momentum(double qx, double qy);
 
     /* read aux field configurations from input file */
-    void read_Aux_Field_Configs(const std::string &filename);
+    void read_aux_field_configs(const std::string &filename);
 
     /* print out simulation params on the command console */
-    void printParams();
+    void print_params();
 
     /* prepare for measuring */
-    void initialMeasure();
+    void init_measure();
 
     /* run a dqmc simulation */
-    void runQMC(bool bool_display_process);
+    void run_QMC(bool bool_display_process);
 
     /* analyse statistics from simulation */
-    void analyseStats();
+    void analyse_stats();
 
     /* print results of measurements on the command console */
-    void printStats();
+    void print_stats();
 
     /* write results of measurements to file */
-    void output_Stats_eqtime(const std::string &filename, bool bool_Append);
+    void file_output_stats_eqtime(const std::string &filename, bool bool_Append);
 
-    void output_Stats_dynamic(const std::string &filename, bool bool_Append);
+    void file_output_stats_dynamic(const std::string &filename, bool bool_Append);
 
     /* output aux field configurations to file */
-    void output_Aux_Field_Configs(const std::string &filename);
+    void file_output_aux_field_configs(const std::string &filename);
 
-private:
+public:
 
     /* process of back-and-forth sweep, meantime do the measurements */
-    void sweep_BackAndForth(bool bool_eqtime, bool bool_dynamic);
+    void sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic);
 };
 
 #endif //DQMC_HUBBARD_DETQMC_H

@@ -1,4 +1,5 @@
 #include "hubbard.h"
+#include "BMatrixMult.hpp"
 #include "StableGreens.hpp"
 
 /** TODO:
@@ -7,17 +8,16 @@
  *   3. stable multiplication of ill-conditioned matrices (done)
  *   4. check wrap error of green's function (done)
  *   6. detQMC class (done)
- *   7. check-board decomposition (missing)
+ *   7. checkerboard decomposition (missing)
  *   8. time-displaced dynamical measurements: green_t0/0t (done)
  *   9. attractive interaction U < 0 (done)
- *   10. reweighing for doped case (missing)
+ *   10. reweighing for doped case (done)
  *   11. ...
  */
 
 
-Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap)
+Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard)
 {
-
     this->ll = ll;
     this->ls = ll * ll;
     this->lt = lt;
@@ -27,8 +27,8 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     this->Uint = Uint;
     this->alpha = acosh(exp(0.5 * dtau * abs(Uint)));
     this->u_is_attractive = (Uint < 0.0);
+    this->is_checkerboard = is_checkerboard;
 
-    // unnecessary, only used to generate expK
     this->t = t;
     this->mu = mu;
 
@@ -37,8 +37,6 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
 
     // resize matrices and svdStacks
     s.resize(ls, lt);
-    exppdtK.resize(ls, ls);
-    expmdtK.resize(ls, ls);
     green_tt_up.resize(ls, ls);
     green_tt_dn.resize(ls, ls);
     green_t0_up.resize(ls, ls);
@@ -68,142 +66,34 @@ Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, double mu, 
     }
 
     // set field config to random
-    initRandom();
+    init_field_to_random();
 
-    // compute exp of Kinetic matrix K
-    make_expdtK();
+    // initialize checkerboard
+    this->checkerboard.init_from_model(*this);
+    this->is_checkerboard = this->checkerboard.is_checker_board();
 
     // initialize udv stacks for sweep use, stabilize every nwrap slices
-    initStacks(nwrap);
+    init_stacks(this->nwrap);
 
     // determine sign of current configuration
     config_sign = (green_tt_up.determinant() * green_tt_dn.determinant() >= 0)? +1.0 : -1.0;
 }
 
-void Hubbard::initRandom() {
+void Hubbard::init_field_to_random() {
     // set field configuration to random
     assert(s.rows() == ls && s.cols() == lt);
 
     std::bernoulli_distribution dist(0.5);
     for(int i = 0; i < ls; ++i) {
         for(int l = 0; l < lt; ++l) {
-            s(i, l) = dist(gen)? +1.0:-1.0;
+            s(i, l) = dist(random_seed_generate)? +1.0:-1.0;
         }
     }
 }
 
-void Hubbard::make_expdtK() {
-    // kinetic matrix K: depends on geometry and hopping
-    assert(expmdtK.cols() == ls && expmdtK.rows() == ls);
-    assert(exppdtK.cols() == ls && exppdtK.rows() == ls);
-
-    Eigen::MatrixXd K = Eigen::MatrixXd::Zero(ls, ls);
-    for(int x = 0; x < ll; ++x) {
-        for(int y = 0; y < ll; ++y) {
-            K(x + ll * y, x + ll * y) = -mu;
-            K(x + ll * y, ((x + 1) % ll) + ll * y) = -t;
-            K(((x + 1) % ll) + ll * y, x + ll * y) = -t;
-            K(x + ll * y, x + ll * ((y + 1) % ll)) = -t;
-            K(x + ll * ((y + 1) % ll), x + ll * y) = -t;
-        }
-    }
-    expmdtK = (-dtau * K).exp();
-    exppdtK = (+dtau * K).exp();
-}
-
-Eigen::MatrixXd Hubbard::make_Bl(int l, int sigma) {
+void Hubbard::metropolis_update(int l) {
     /*
-     *  Compute B matrix at time slice l for given spin-1/2 state.
-     *  definition of B(l, sigma):
-     *  B_l = exp(-\\Delta \\tau V^{\\sigma}(l)) * exp(-\\Delta \\tau K)
-     */
-    assert( l >= 0 && l <= lt);
-    assert( sigma == 1 || sigma == -1);
-
-    Eigen::MatrixXd r = expmdtK;
-    const int tau = (l==0)? lt-1 : l-1;
-    const int Sigma = (u_is_attractive)? 1 : sigma;
-    for (int i = 0; i < ls; ++i) {
-        r.row(i) *= exp(+ Sigma * alpha * s(i, tau));
-    }
-    return r;
-}
-
-void Hubbard::multB_fromL(Eigen::MatrixXd& A, int l, int sigma) {
-    /*
-     *  Multiply a dense matrix A from the left by B_l
-     *  A ->  B_l * A = exp(-\\Delta \\tau V^{\\sigma}(l)) * exp(-\\Delta \\tau K) * A
-     *  Matrix A is changed in place.
-     */
-    assert(A.rows() == ls && A.cols() == ls);
-    assert(l >= 0 && l <= lt);
-    assert( sigma == 1 || sigma == -1);
-
-    const int tau = (l==0)? lt-1 : l-1;
-    const int Sigma = (u_is_attractive)? 1 : sigma;
-    A = expmdtK * A;
-    for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(+ Sigma * alpha * s(i, tau));
-    }
-}
-
-void Hubbard::multB_fromR(Eigen::MatrixXd& A, int l, int sigma) {
-    /*
-     *  Multiply a dense matrix A from the right by B_l
-     *  A ->  A * B_l = A * exp(-\\Delta \\tau V^{\\sigma}(l)) * exp(-\\Delta \\tau K)
-     *  Matrix A is changed in place.
-     */
-    assert(A.rows() == ls && A.cols() == ls);
-    assert(l >= 0 && l <= lt);
-    assert( sigma == 1 || sigma == -1);
-
-    const int tau = (l==0)? lt-1 : l-1;
-    const int Sigma = (u_is_attractive)? 1 : sigma;
-    for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(+ Sigma * alpha * s(i, tau));
-    }
-    A = A * expmdtK;
-}
-
-void Hubbard::multinvB_fromL(Eigen::MatrixXd &A, int l, int sigma) {
-    /*
-     *  Multiply a dense matrix A from the left by B_l^{-1}
-     *  A -> B_{l}^{-1} * A = exp(+\\Delta \\tau K) * exp(+\\Delta \\tau V^{\\sigma}(l))  * A
-     *  Matrix A is changed in place.
-     */
-    assert(A.rows() == ls && A.cols() == ls);
-    assert(l >= 0 && l <= lt);
-    assert( sigma == 1 || sigma == -1);
-
-    const int tau = (l==0)? lt-1 : l-1;
-    const int Sigma = (u_is_attractive)? 1 : sigma;
-    for (int i = 0; i < ls; ++i) {
-        A.row(i) *= exp(- Sigma * alpha * s(i, tau));
-    }
-    A = exppdtK * A;
-}
-
-void Hubbard::multinvB_fromR(Eigen::MatrixXd &A, int l, int sigma) {
-    /*
-     *  Multiply a dense matrix A from the right by B_l^{-1}
-     *  A -> A * B_{l}^{-1} = A * exp(+\\Delta \\tau K) * exp(+\\Delta \\tau V^{\\sigma}(l))
-     *  Matrix A is changed in place.
-     */
-    assert(A.rows() == ls && A.cols() == ls);
-    assert(l >= 0 && l <= lt);
-    assert( sigma == 1 || sigma == -1);
-
-    const int tau = (l==0)? lt-1 : l-1;
-    const int Sigma = (u_is_attractive)? 1 : sigma;
-    A = A * exppdtK;
-    for (int i = 0; i < ls; ++i) {
-        A.col(i) *= exp(- Sigma * alpha * s(i, tau));
-    }
-}
-
-void Hubbard::Metropolis_update(int l) {
-    /*
-     * Update a HS field at space-time position (i,l) for all i with Metropolis
+     * Update the aux boson field 's' at space-time position (i,l) for all i with Metropolis
      * probability, and - if the update is accepted - perform a
      * in-place update of the green's function.
      * Record the updated green's function at the life end of function.
@@ -224,11 +114,11 @@ void Hubbard::Metropolis_update(int l) {
                        * (1 + (1 - green_tt_dn(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
         }
 
-        if(std::bernoulli_distribution(std::min(1.0, abs(p)))(gen)) {
+        if(std::bernoulli_distribution(std::min(1.0, abs(p)))(random_seed_generate)) {
             /** reference:
              *  Quantum Monte Carlo Methods (Algorithms for Lattice Models) Determinant method
              *  Here we use the sparseness of matrix \delta */
-            // update greens function (which is wrapped such that the update is at timeslice 0 of g)
+            // update greens function (which is wrapped such that the update is at time slice 0 of g)
             // with a number of arithmetic operations proportional to N^2
             double factorU = (exp(-2 * alpha * s(i, tau)) - 1) / (1 + (1 - green_tt_up(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
             green_tt_up -= factorU * green_tt_up.col(i) * (Eigen::VectorXd::Unit(ls, i).transpose() - green_tt_up.row(i));
@@ -259,10 +149,10 @@ void Hubbard::wrap_north(int l) {
     assert(l >= 0 && l <= lt);
 
     const int tau = (l == lt)? 1 : l + 1;
-    multB_fromL(green_tt_up, tau, +1);
-    multinvB_fromR(green_tt_up, tau, +1);
-    multB_fromL(green_tt_dn, tau, -1);
-    multinvB_fromR(green_tt_dn, tau, -1);
+    mult_B_from_left(green_tt_up, tau, +1);
+    mult_invB_from_right(green_tt_up, tau, +1);
+    mult_B_from_left(green_tt_dn, tau, -1);
+    mult_invB_from_right(green_tt_dn, tau, -1);
 }
 
 void Hubbard::wrap_south(int l) {
@@ -275,13 +165,13 @@ void Hubbard::wrap_south(int l) {
     assert(l >= 0 && l <= lt);
 
     const int tau = (l == 0)? lt : l;
-    multB_fromR(green_tt_up, tau, +1);
-    multinvB_fromL(green_tt_up, tau, +1);
-    multB_fromR(green_tt_dn, tau, -1);
-    multinvB_fromL(green_tt_dn, tau, -1);
+    mult_B_from_right(green_tt_up, tau, +1);
+    mult_invB_from_left(green_tt_up, tau, +1);
+    mult_B_from_right(green_tt_dn, tau, -1);
+    mult_invB_from_left(green_tt_dn, tau, -1);
 }
 
-void Hubbard::initStacks(int is_stable) {
+void Hubbard::init_stacks(int is_stable) {
     /*
      *  initialize udv stacks for sweep use
      *  sweep process will start from 0 to beta, so we initialize stackRight here.
@@ -295,8 +185,9 @@ void Hubbard::initStacks(int is_stable) {
 
     // initial udv stacks for sweeping use
     for (int l = lt; l >= 1; --l) {
-        tmpU = make_Bl(l, +1).transpose() * tmpU;
-        tmpD = make_Bl(l, -1).transpose() * tmpD;
+        mult_transB_from_left(tmpU, l, +1);
+        mult_transB_from_left(tmpD, l, -1);
+
         // stabilize every is_stable steps with svd decomposition
         if ((l - 1) % is_stable == 0) {
             stackRightU->push(tmpU);
@@ -334,10 +225,10 @@ void Hubbard::sweep_0_to_beta(int is_stable) {
         wrap_north(l - 1);
 
         // update aux field and record new greens
-        Metropolis_update(l);
+        metropolis_update(l);
 
-        tmpU = make_Bl(l, +1) * tmpU;
-        tmpD = make_Bl(l, -1) * tmpD;
+        mult_B_from_left(tmpU, l, +1);
+        mult_B_from_left(tmpD, l, -1);
 
         if (l % is_stable == 0 || l == lt) {
             // wrap greens function
@@ -425,10 +316,10 @@ void Hubbard::sweep_beta_to_0(int is_stable) {
         }
 
         // update aux field and record new greens
-        Metropolis_update(l);
+        metropolis_update(l);
 
-        tmpU = make_Bl(l, +1).transpose() * tmpU;
-        tmpD = make_Bl(l, -1).transpose() * tmpD;
+        mult_transB_from_left(tmpU, l, +1);
+        mult_transB_from_left(tmpD, l, -1);
 
         wrap_south(l);
 
@@ -476,18 +367,18 @@ void Hubbard::sweep_0_to_beta_displaced(int is_stable) {
     for (int l = 1; l <= lt; ++l) {
         
         // calculate and record time-displaced green functions at different time slices
-        multB_fromL(green_t0_up, l, +1);
-        multB_fromL(green_t0_dn, l, -1);
+        mult_B_from_left(green_t0_up, l, +1);
+        mult_B_from_left(green_t0_dn, l, -1);
         vec_green_t0_up[l-1] = green_t0_up;
         vec_green_t0_dn[l-1] = green_t0_dn;
 
-        multinvB_fromR(green_0t_up, l, +1);
-        multinvB_fromR(green_0t_dn, l, -1);
+        mult_invB_from_right(green_0t_up, l, +1);
+        mult_invB_from_right(green_0t_dn, l, -1);
         vec_green_0t_up[l-1] = green_0t_up;
         vec_green_0t_dn[l-1] = green_0t_dn;
 
-        multB_fromL(tmpU, l, +1);
-        multB_fromL(tmpD, l, -1);
+        mult_B_from_left(tmpU, l, +1);
+        mult_B_from_left(tmpD, l, -1);
 
         if (l % is_stable == 0 || l == lt) {
             // wrap greens function
