@@ -32,7 +32,7 @@ static std::default_random_engine random_seed_generate(time(nullptr));
 
 class Hubbard {
 
-public:
+private:
     // model params
     int ll{4}, ls{16}, lt{80};
     double beta{4.0}, dtau{0.1};
@@ -76,9 +76,6 @@ public:
     SvdStack *stackRightU{};
     SvdStack *stackRightD{};
 
-/** multiply B matrix in place */
-void mult_B_from_left(Eigen::MatrixXd &A, int l, int sigma);
-
 public:
     /** construction */
     Hubbard() = default;
@@ -96,16 +93,23 @@ public:
 
     // friend class
     friend class detQMC;
+    friend class CheckerBoard;
     friend class measure::eqtimeMeasure;
     friend class measure::dynamicMeasure;
 
 
-public:
+private:
     /** randomly initialize aux field */
     void init_field_to_random();
 
     /** initialize udv stacks for sweep use */
     void init_stacks(int is_stable);
+
+//    /** compute B matrix with slice l and spin sigma given */
+//    Eigen::MatrixXd make_B_l(int l, int sigma);
+
+    /** multiply B matrix in place */
+    void mult_B_from_left(Eigen::MatrixXd &A, int l, int sigma);
 
     void mult_B_from_right(Eigen::MatrixXd &A, int l, int sigma);
 

@@ -87,7 +87,7 @@ public:
     /* output aux field configurations to file */
     void file_output_aux_field_configs(const std::string &filename);
 
-public:
+private:
 
     /* process of back-and-forth sweep, meantime do the measurements */
     void sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic);

@@ -15,7 +15,7 @@
  *   7. determine the critical temperature of superconducting transition (done)
  *   8. reweighing for doped case (done)
  *   9. read aux field configurations from input file (done)
- *   10. checkerboard decomposition (missing)
+ *   10. checkerboard decomposition (done)
  *   11. openmp parallel sampling (missing)
  *   12. new feature in standard of c++20, modify message output using std::format() (missing)
  *   13. log output (missing)
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     double t = 1.0;
     double u = -4.0;
     double mu = 0.0;
-    bool bool_checkerboard = true;
+    bool bool_checkerboard = false;
 
     int nwrap = 10;
     int nwarm = (int)(4 * ll * ll * beta);
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
             ("u", boost::program_options::value<double>(&u)->default_value(-4.0),
                     "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
             ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
-            ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(true), "whether to perform checkerboard break-up, default: true")
+            ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(false), "whether to perform checkerboard break-up, default: false")
             ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
             ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
             ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
@@ -106,29 +106,29 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-//    std::vector<double> list_u = { 3.0, };
-//
-//    for (auto uint : list_u) {
-//        bool_append = true;
-//
-//        dqmc.set_model_params(ll, lt, beta, t, uint, mu, nwrap, bool_checkerboard);
-//
-//        dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
-//
-//        dqmc.set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-//
-//        dqmc.set_lattice_momentum(M_PI, M_PI);
-//
-//        dqmc.print_params();
-//
-//        dqmc.init_measure();
-//
-//        dqmc.run_QMC(bool_display_process);
-//
-//        dqmc.analyse_stats();
-//
-//        dqmc.print_stats();
-//
+    std::vector<double> list_u = { 3.0, };
+
+    for (auto uint : list_u) {
+        bool_append = true;
+
+        dqmc.set_model_params(ll, lt, beta, t, uint, mu, nwrap, bool_checkerboard);
+
+        dqmc.set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+
+        dqmc.set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+
+        dqmc.set_lattice_momentum(M_PI, M_PI);
+
+        dqmc.print_params();
+
+        dqmc.init_measure();
+
+        dqmc.run_QMC(bool_display_process);
+
+        dqmc.analyse_stats();
+
+        dqmc.print_stats();
+
 //        std::stringstream ss;
 //        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
 //        std::string str_l = ss.str();
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 //        dqmc.file_output_stats_eqtime(filename_eqtime, bool_append);
 //
 //        dqmc.file_output_stats_dynamic(filename_dynamic, bool_append);
-//    }
+    }
 
 
     /** Measure observable quantities in momentum space ( fermi surface ) */
@@ -337,28 +337,29 @@ int main(int argc, char* argv[]) {
 //    }
 
 
-    // checkerboard test
-    std::chrono::steady_clock::time_point begin_t, end_t;
+    /** Checkerboard Benchmark */
 
-    Hubbard hubbard1(20, 80, 4.0, 1.0, 4.0, 0.0, 10, true);
-    Hubbard hubbard2(20, 80, 4.0, 1.0, 4.0, 0.0, 10, false);
-
-    Eigen::MatrixXd test1 = Eigen::MatrixXd::Identity(hubbard1.ls, hubbard1.ls);
-    Eigen::MatrixXd test2 = Eigen::MatrixXd::Identity(hubbard2.ls, hubbard2.ls);
-
-    begin_t = std::chrono::steady_clock::now();
-    for (int i = 0; i < 100; ++i) {
-        hubbard1.mult_B_from_left(test1, 0, +1);
-    }
-    end_t = std::chrono::steady_clock::now();
-    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
-
-    begin_t = std::chrono::steady_clock::now();
-    for (int i = 0; i < 100; ++i) {
-        hubbard2.mult_B_from_left(test2, 0, +1);
-    }
-    end_t = std::chrono::steady_clock::now();
-    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
+//    std::chrono::steady_clock::time_point begin_t, end_t;
+//
+//    Hubbard hubbard1(20, 80, 4.0, 1.0, 4.0, 0.0, 10, true);
+//    Hubbard hubbard2(20, 80, 4.0, 1.0, 4.0, 0.0, 10, false);
+//
+//    Eigen::MatrixXd test1 = Eigen::MatrixXd::Identity(hubbard1.ls, hubbard1.ls);
+//    Eigen::MatrixXd test2 = Eigen::MatrixXd::Identity(hubbard2.ls, hubbard2.ls);
+//
+//    begin_t = std::chrono::steady_clock::now();
+//    for (int i = 0; i < 100; ++i) {
+//        hubbard1.mult_B_from_left(test1, 0, +1);
+//    }
+//    end_t = std::chrono::steady_clock::now();
+//    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
+//
+//    begin_t = std::chrono::steady_clock::now();
+//    for (int i = 0; i < 100; ++i) {
+//        hubbard2.mult_B_from_left(test2, 0, +1);
+//    }
+//    end_t = std::chrono::steady_clock::now();
+//    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
 
     return 0;
 }

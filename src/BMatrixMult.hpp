@@ -6,7 +6,7 @@
  *  This source file includes subroutines for multiplication of
  *  B matrices during configuration updates and green function fabrication.
  *  Both direct multiplication and checkerboard break-up
- *  algorithm (even lattice sizes) are supported.
+ *  algorithm (for even lattice sizes) are supported.
  */
 
 #include "hubbard.h"

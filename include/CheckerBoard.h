@@ -19,23 +19,30 @@
 class Hubbard;
 
 class CheckerBoard {
+
 public:
+    // lattice params
     int ll{}, ls{};
     double t{}, mu{};
     double dtau{};
 
+    // helper matrices for constructing exponent of hopping K
     Eigen::MatrixXd exp_dtK, inv_exp_dtK;
     Eigen::Matrix4d exp_dtK_reduced, inv_exp_dtK_reduced;
 
     bool is_checkerboard = true;
 
 public:
+    /** construction */
     CheckerBoard() = default;
 
+    /** return is_checkerboard */
     bool is_checker_board() const;
 
+    /** initialize from Hubbard class */
     void init_from_model(const Hubbard &hubbard);
 
+    /** high-efficient multiplication of hopping K */
     void mult_expK_from_left(Eigen::MatrixXd &A) const;
 
     void mult_inv_expK_from_left(Eigen::MatrixXd &A) const;
@@ -48,12 +55,16 @@ public:
 
 private:
 
+    /** checkout prerequisite */
     void check_checker_board();
 
+    /** generate exponent of hopping K by direct multiplication */
     void make_expK_direct();
 
+    /** generate exponent of hopping K by checkerboard break-ups */
     void make_expK_checkerboard();
 
+    /** multiplication of hopping K within single plaquette, labeled by site (x,y) */
     void mult_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const;
 
     void mult_inv_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const;

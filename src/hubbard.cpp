@@ -8,7 +8,7 @@
  *   3. stable multiplication of ill-conditioned matrices (done)
  *   4. check wrap error of green's function (done)
  *   6. detQMC class (done)
- *   7. checkerboard decomposition (missing)
+ *   7. checkerboard decomposition (done)
  *   8. time-displaced dynamical measurements: green_t0/0t (done)
  *   9. attractive interaction U < 0 (done)
  *   10. reweighing for doped case (done)

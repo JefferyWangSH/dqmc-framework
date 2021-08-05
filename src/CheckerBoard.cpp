@@ -51,6 +51,7 @@ void CheckerBoard::make_expK_direct() {
 }
 
 void CheckerBoard::make_expK_checkerboard() {
+    // construct exponent of hopping in a reduced sub Hilbert-space
     double ch, sh;
     Eigen::Matrix4d reduced_K;
 
@@ -60,6 +61,7 @@ void CheckerBoard::make_expK_checkerboard() {
                  ch * sh, ch * ch, sh * sh, ch * sh,
                  ch * sh, sh * sh, ch * ch, ch * sh,
                  sh * sh, ch * sh, ch * sh, ch * ch;
+    // factor 0.5 comes from the double counting of sites
     exp_dtK_reduced =  exp(0.5 * dtau * mu) * reduced_K;
 
     ch = cosh(-dtau * t);
@@ -76,7 +78,17 @@ int xy_to_label(int x, int y, int ll) {
 }
 
 // ref: Max H. Gerlach, 2017
-// (x,y) counts the upper left conner of a plaquette
+// (x,y) counts the upper left conner of a plaquette.
+// plaquette: labeled by site i (x, y), the upper-left conner
+//   i ---- j
+//   |      |
+//   |      |
+//   k ---- l
+// and the corresponding effective hopping matrix (4*4) reads
+//   0.0, 1.0, 1.0, 0.0,
+//   1.0, 0.0, 0.0, 1.0,
+//   1.0, 0.0, 0.0, 1.0,
+//   0.0, 1.0, 1.0, 0.0.
 
 void CheckerBoard::mult_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const {
     assert(A.rows() == ls && A.cols() == ls);
@@ -252,6 +264,7 @@ void CheckerBoard::mult_inv_expK_from_right(Eigen::MatrixXd &A) const {
 
 void CheckerBoard::mult_trans_expK_from_left(Eigen::MatrixXd &A) const {
     if (is_checkerboard) {
+        // FIXME: rewrite in a direct way
         A.transposeInPlace();
         mult_expK_from_right(A);
         A.transposeInPlace();
