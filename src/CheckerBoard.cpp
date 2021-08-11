@@ -183,15 +183,15 @@ void CheckerBoard::mult_expK_from_left(Eigen::MatrixXd &A) const {
         // checkerboard break-up only supported for even lattice sizes
         assert(ll % 2 == 0);
 
-        // board A
-        for (int x = 0; x < ll; x+=2) {
-            for (int y = 0; y < ll; y+=2) {
-                mult_expK_plaquette_from_left(A, x, y);
-            }
-        }
         // board B
         for (int x = 1; x < ll; x+=2) {
             for (int y = 1; y < ll; y+=2) {
+                mult_expK_plaquette_from_left(A, x, y);
+            }
+        }
+        // board A
+        for (int x = 0; x < ll; x+=2) {
+            for (int y = 0; y < ll; y+=2) {
                 mult_expK_plaquette_from_left(A, x, y);
             }
         }
@@ -246,15 +246,15 @@ void CheckerBoard::mult_inv_expK_from_right(Eigen::MatrixXd &A) const {
         // checkerboard break-up only supported for even lattice sizes
         assert(ll % 2 == 0);
 
-        // board A
-        for (int x = 0; x < ll; x+=2) {
-            for (int y = 0; y < ll; y+=2) {
-                mult_inv_expK_plaquette_from_right(A, x, y);
-            }
-        }
         // board B
         for (int x = 1; x < ll; x+=2) {
             for (int y = 1; y < ll; y+=2) {
+                mult_inv_expK_plaquette_from_right(A, x, y);
+            }
+        }
+        // board A
+        for (int x = 0; x < ll; x+=2) {
+            for (int y = 0; y < ll; y+=2) {
                 mult_inv_expK_plaquette_from_right(A, x, y);
             }
         }
