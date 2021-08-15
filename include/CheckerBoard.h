@@ -6,6 +6,10 @@
  *  This header file includes class and subroutines for multiplying hopping matrix expK to a dense matrix,
  *  with high computational efficiency by method of checkerboard break-up for even lattice sizes,
  *  and by direct multiplication for others.
+ *  Caution:
+ *    in practise, checkerboard algorithm is tested to perform more efficiently
+ *    only when lattice larger than 30*30,
+ *    because the direct multiplication is dramatically accelerated by MKL.
  */
 
 
