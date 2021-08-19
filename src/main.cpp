@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
     int nsweep = 100;
     int nBetweenBins = 10;
 
-    std::string filename_eqtime = "../results/meas-eqtime.txt";
-    std::string filename_dynamic = "../results/meas-dynamic.txt";
+    std::string filename_eqtime = "../results/meas-eqtime.dat";
+    std::string filename_dynamic = "../results/meas-dynamic.dat";
     bool bool_append = true;
     bool bool_display_process = true;
 
@@ -76,10 +76,10 @@ int main(int argc, char* argv[]) {
             ("app", boost::program_options::value<bool>(&bool_append)->default_value(true), "outfile mode: app or trunc, default: true")
             ("eqtime", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
             ("dynamic", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
-            ("oeq", boost::program_options::value<std::string>(&filename_eqtime)->default_value("../results/meas-eqtime.txt"),
-                    "output filename of equal-time data, default: ../results/meas-eqtime.txt")
-            ("ody", boost::program_options::value<std::string>(&filename_dynamic)->default_value("../results/meas-dynamic.txt"),
-                    "output filename of dynamic data, default: ../results/meas-dynamic.txt");
+            ("oeq", boost::program_options::value<std::string>(&filename_eqtime)->default_value("../results/meas-eqtime.dat"),
+                    "output filename of equal-time data, default: ../results/meas-eqtime.dat")
+            ("ody", boost::program_options::value<std::string>(&filename_dynamic)->default_value("../results/meas-dynamic.dat"),
+                    "output filename of dynamic data, default: ../results/meas-dynamic.dat");
 
     try {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     /** Measure observable quantities over interaction strength U */
 
-    std::vector<double> list_u = { 3.0, };
+    std::vector<double> list_u = { 4.0, };
 
     for (auto uint : list_u) {
         bool_append = true;
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 
         dqmc.set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 
-        dqmc.set_lattice_momentum(M_PI, M_PI);
+        dqmc.set_lattice_momentum(0.5, 0.5);
 
         dqmc.print_params();
 
@@ -129,6 +129,12 @@ int main(int argc, char* argv[]) {
 
         dqmc.print_stats();
 
+        dqmc.file_output_tau_seq("../results/tau.dat");
+
+        dqmc.file_output_stats_in_bins_dynamic("../results/g_bin.dat");
+
+        dqmc.file_output_stats_dynamic("../results/dynamic.dat", false);
+
 //        std::stringstream ss;
 //        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << ll;
 //        std::string str_l = ss.str();
@@ -136,7 +142,7 @@ int main(int argc, char* argv[]) {
 //        ss << std::setiosflags(std::ios::fixed) << std::setprecision(0) << beta;
 //        std::string str_beta = ss.str();
 //        ss.str("");
-//        filename_eqtime = "../results/eqtime_L" + str_l + "_beta" + str_beta + "_repulsive.txt";
+//        filename_eqtime = "../results/eqtime_L" + str_l + "_beta" + str_beta + "_repulsive.dat";
 //
 //        dqmc.file_output_stats_eqtime(filename_eqtime, bool_append);
 //
@@ -163,16 +169,16 @@ int main(int argc, char* argv[]) {
 //        ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << uint;
 //        std::string str_u = ss.str();
 //        ss.str("");
-//        std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".txt";
+//        std::string filename = "../results/fermi_surface_L" + str_l + "_beta" + str_beta + "_u" + str_u + ".dat";
 //
 //        for (int i = 0; i <= ll; ++i) {
 //            // crystal momentum qx
-//            const double qx = M_PI - 2 * M_PI / ll * i;
+//            const double qx = 1.0 - 2 * i / ll;
 //
 //            // time reverse symmetry: G(k, beta/2) = G(-k, beta/2)
 //            for (int j = 0; j <= ll - i; ++j) {
 //                // crystal momentum qy
-//                const double qy = M_PI - 2 * M_PI / ll * j;
+//                const double qy = 1.0 - 2 * j / ll;
 //
 //                dqmc.set_lattice_momentum(qx, qy);
 //
@@ -215,7 +221,7 @@ int main(int argc, char* argv[]) {
 //
 //    dqmc.set_controlling_params(bool_warm_up, false, bool_measure_dynamic);
 //
-//    dqmc.set_lattice_momentum(M_PI/2, M_PI/2);
+//    dqmc.set_lattice_momentum(0.5, 0.5);
 //
 //    dqmc.print_params();
 //
@@ -240,7 +246,7 @@ int main(int argc, char* argv[]) {
 //    ss << std::setiosflags(std::ios::fixed) << std::setprecision(1) << u;
 //    std::string str_u = ss.str();
 //    ss.str("");
-//    std::string filename = "../results/gt_l" + str_l + "_lt" + str_lt + "_u" + str_u + "_b" + str_beta + "_k_pi2pi2.txt";
+//    std::string filename = "../results/gt_l" + str_l + "_lt" + str_lt + "_u" + str_u + "_b" + str_beta + "_k_pi2pi2.dat";
 //
 //    std::ofstream outfile;
 //    outfile.open(filename, std::ios::out | std::ios::trunc);
@@ -281,7 +287,7 @@ int main(int argc, char* argv[]) {
 //        std::string str_u = ss.str();
 //        ss.str("");
 //
-//        const std::string fileConfigs = "../results/rhos_L_" + str_l + "_u_" + str_u +"/config_L_" + str_l + "_lt_" + str_lt + "_b_" + str_beta + ".txt";
+//        const std::string fileConfigs = "../results/rhos_L_" + str_l + "_u_" + str_u +"/config_L_" + str_l + "_lt_" + str_lt + "_b_" + str_beta + ".dat";
 //        std::ifstream infile;
 //        infile.open(fileConfigs, std::ios::in);
 //
@@ -298,7 +304,7 @@ int main(int argc, char* argv[]) {
 //
 //        dqmc.set_controlling_params(bool_warm_up, false, bool_measure_dynamic);
 //
-//        dqmc.set_lattice_momentum(M_PI, M_PI);
+//        dqmc.set_lattice_momentum(1.0, 1.0);
 //
 //        dqmc.print_params();
 //
@@ -313,8 +319,8 @@ int main(int argc, char* argv[]) {
 //        dqmc.file_output_aux_field_configs(fileConfigs);
 //
 //        bool_append = true;
-//        std::string filename = "../results/rhos_L_" + str_l + "_u_" + str_u + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".txt";
-//        std::string filename_bins = "../results/rhos_L_" + str_l  + "_u_" + str_u + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".txt";
+//        std::string filename = "../results/rhos_L_" + str_l + "_u_" + str_u + "/sc_rhos_L_" + str_l + "_u_" + str_u + ".dat";
+//        std::string filename_bins = "../results/rhos_L_" + str_l  + "_u_" + str_u + "/bins_L_" + str_l + "_u_" + str_u + "_b_" + str_beta + ".dat";
 //
 //        std::ofstream outfile;
 //        outfile.open(filename, std::ios::out | ((bool_append)? std::ios::app : std::ios::trunc));

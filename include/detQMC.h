@@ -49,6 +49,7 @@ public:
 
     ~detQMC();
 
+    /** Following functions aimed to set up params and initialization before DQMC calculation starts */
     /* set up model parameters */
     void set_model_params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard);
 
@@ -64,9 +65,8 @@ public:
     /* read aux field configurations from input file */
     void read_aux_field_configs(const std::string &filename);
 
-    /* print out simulation params on the command console */
-    void print_params();
 
+    /** Critical functions for DQMC calculations, including Monte Carlo updates and measurements **/
     /* prepare for measuring */
     void init_measure();
 
@@ -76,20 +76,31 @@ public:
     /* analyse statistics from simulation */
     void analyse_stats();
 
-    /* print results of measurements on the command console */
+
+    /** Output modules for the output of DQMC measuring results */
+    /* print simulation params onto terminal */
+    void print_params() const;
+
+    /* print measuring results onto terminal */
     void print_stats();
 
-    /* write results of measurements to file */
-    void file_output_stats_eqtime(const std::string &filename, bool bool_Append);
+    /* write sequences of imaginary-time tau into file */
+    void file_output_tau_seq(const std::string &filename) const;
 
-    void file_output_stats_dynamic(const std::string &filename, bool bool_Append);
+    /* write results of measurements, in terms of bins, into file */
+    void file_output_stats_in_bins_dynamic(const std::string &filename) const;
 
-    /* output aux field configurations to file */
-    void file_output_aux_field_configs(const std::string &filename);
+    /* write results of measurements, including means and errors, into file */
+    void file_output_stats_eqtime(const std::string &filename, bool bool_append);
+
+    void file_output_stats_dynamic(const std::string &filename, bool bool_append) const;
+
+    /* output aux field configurations into file */
+    void file_output_aux_field_configs(const std::string &filename) const;
 
 private:
 
-    /* process of back-and-forth sweep, meantime do the measurements */
+    /* process of Monte Carlo sweeping, and do the measurements if needed */
     void sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic);
 };
 

@@ -7,7 +7,7 @@
 
 void detQMC::set_model_params(int _ll, int _lt, double _beta, double _t, double _uint, double _mu, int _nwrap, bool _is_checkerboard) {
     Hubbard new_hubbard(_ll, _lt, _beta, _t, _uint, _mu, _nwrap, _is_checkerboard);
-    hubb = new_hubbard;
+    this->hubb = new_hubbard;
     this->nwrap = _nwrap;
 }
 
@@ -17,8 +17,8 @@ void detQMC::set_Monte_Carlo_params(int _nwarm, int _nbin, int _nsweep, int _n_b
     this->n_between_bins = _n_between_bins;
     this->nbin = _nbin;
 
-    eqtimeMeasure.resize(_nbin);
-    dynamicMeasure.resize(_nbin);
+    this->eqtimeMeasure.resize(_nbin);
+    this->dynamicMeasure.resize(_nbin);
 }
 
 void detQMC::set_controlling_params(bool _bool_warm_up, bool _bool_measure_eqtime, bool _bool_measure_dynamic) {
@@ -29,8 +29,8 @@ void detQMC::set_controlling_params(bool _bool_warm_up, bool _bool_measure_eqtim
 
 void detQMC::set_lattice_momentum(double qx, double qy) {
     q = (Eigen::VectorXd(2) << qx, qy).finished();
-    eqtimeMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
-    dynamicMeasure.q = (Eigen::VectorXd(2) << qx, qy).finished();
+    eqtimeMeasure.q = M_PI * (Eigen::VectorXd(2) << qx, qy).finished();
+    dynamicMeasure.q = M_PI * (Eigen::VectorXd(2) << qx, qy).finished();
 }
 
 void detQMC::read_aux_field_configs(const std::string &filename) {
@@ -68,20 +68,6 @@ void detQMC::read_aux_field_configs(const std::string &filename) {
     hubb.stackRightU = new SvdStack(hubb.ls, hubb.lt);
     hubb.stackRightD = new SvdStack(hubb.ls, hubb.lt);
     hubb.init_stacks(nwrap);
-}
-
-void detQMC::print_params() {
-    std::cout << std::endl;
-    std::cout << "==============================================================================" << std::endl;
-    std::cout << "  Simulation Parameters: " << std::endl
-              << "    ll:  " << hubb.ll << std::endl
-              << "    lt:  " << hubb.lt << std::endl
-              << "    beta: " << hubb.beta << std::endl
-              << "    U/t:  " << hubb.Uint / hubb.t << std::endl
-              << "    mu:   " << hubb.mu << std::endl
-              << "    q:    " << "(" << q(0) << ", "<< q(1) << ")" << std::endl
-              << "    nwrap:  " << nwrap << std::endl;
-    std::cout << "==============================================================================" << std::endl;
 }
 
 void detQMC::init_measure() {
@@ -210,6 +196,20 @@ void detQMC::analyse_stats() {
     }
 }
 
+void detQMC::print_params() const{
+    std::cout << std::endl;
+    std::cout << "==============================================================================" << std::endl;
+    std::cout << "  Simulation Parameters: " << std::endl
+    << "    ll:  " << hubb.ll << std::endl
+    << "    lt:  " << hubb.lt << std::endl
+    << "    beta: " << hubb.beta << std::endl
+    << "    U/t:  " << hubb.Uint / hubb.t << std::endl
+    << "    mu:   " << hubb.mu << std::endl
+    << "    q:    " << q(0) << " pi, "<< q(1) << " pi" << std::endl
+    << "    nwrap:  " << nwrap << std::endl;
+    std::cout << "==============================================================================" << std::endl;
+}
+
 void detQMC::print_stats() {
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count();
     const int minute = std::floor((double)time / 1000 / 60);
@@ -254,10 +254,41 @@ void detQMC::print_stats() {
     std::cout << "==============================================================================" << std::endl;
 }
 
-void detQMC::file_output_stats_eqtime(const std::string &filename, bool bool_Append) {
+void detQMC::file_output_tau_seq(const std::string &filename) const {
+    std::ofstream outfile;
+    outfile.open(filename, std::ios::out | std::ios::trunc);
+
+    outfile << std::setiosflags(std::ios::right)
+            << std::setw(7) << hubb.lt
+            << std::setw(7) << hubb.beta << std::endl;
+    for (int l = 0; l < hubb.lt; ++l){
+        outfile << std::setw(15) << l * hubb.dtau << std::endl;
+    }
+    outfile.close();
+}
+
+void detQMC::file_output_stats_in_bins_dynamic(const std::string &filename) const{
+    if (bool_measure_dynamic) {
+        std::ofstream outfile;
+        outfile.open(filename, std::ios::out | std::ios::trunc);
+        outfile.precision(15);
+
+        outfile << std::setiosflags(std::ios::right) << std::setw(10) << nbin << std::endl;
+        for (int bin = 0; bin < nbin; ++bin) {
+            outfile << std::setw(20) << bin << std::endl;
+            for (int l = 0; l < hubb.lt; ++l) {
+                const int tau = (l - 1 + hubb.lt) % hubb.lt;
+                outfile << std::setw(20) << dynamicMeasure.obs_bin_g_kt[bin][tau] << std::endl;
+            }
+        }
+        outfile.close();
+    }
+}
+
+void detQMC::file_output_stats_eqtime(const std::string &filename, bool bool_append) {
     if (bool_measure_eqtime) {
         std::ofstream outfile;
-        if (bool_Append) {
+        if (bool_append) {
             outfile.open(filename, std::ios::out | std::ios::app);
         }
         else {
@@ -287,10 +318,10 @@ void detQMC::file_output_stats_eqtime(const std::string &filename, bool bool_App
     }
 }
 
-void detQMC::file_output_stats_dynamic(const std::string& filename, bool bool_Append) {
+void detQMC::file_output_stats_dynamic(const std::string& filename, bool bool_append) const{
     if (bool_measure_dynamic) {
         std::ofstream outfile;
-        if (bool_Append) {
+        if (bool_append) {
             outfile.open(filename, std::ios::out | std::ios::app);
         }
         else {
@@ -298,13 +329,14 @@ void detQMC::file_output_stats_dynamic(const std::string& filename, bool bool_Ap
         }
 
         outfile << std::setiosflags(std::ios::right)
-                << "Momentum k: "<< "(" << q(0) << ", "<< q(1) << ")" << std::endl;
+                << "Momentum k: " << q(0) << " pi, "<< q(1) << " pi" << std::endl;
 
-        for (int l = 1; l <= hubb.lt; ++l) {
+        for (int l = 0; l < hubb.lt; ++l) {
+            const int tau = (l - 1 + hubb.lt) % hubb.lt;
             outfile << std::setw(15) << l
-                    << std::setw(15) << dynamicMeasure.obs_mean_g_kt[l-1]
-                    << std::setw(15) << dynamicMeasure.obs_err_g_kt[l-1]
-                    << std::setw(15) << dynamicMeasure.obs_err_g_kt[l-1] / dynamicMeasure.obs_mean_g_kt[l-1]
+                    << std::setw(15) << dynamicMeasure.obs_mean_g_kt[tau]
+                    << std::setw(15) << dynamicMeasure.obs_err_g_kt[tau]
+                    << std::setw(15) << dynamicMeasure.obs_err_g_kt[tau] / dynamicMeasure.obs_mean_g_kt[tau]
                     << std::endl;
         }
 
@@ -319,7 +351,7 @@ void detQMC::file_output_stats_dynamic(const std::string& filename, bool bool_Ap
     }
 }
 
-void detQMC::file_output_aux_field_configs(const std::string &filename) {
+void detQMC::file_output_aux_field_configs(const std::string &filename) const{
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::trunc);
 
