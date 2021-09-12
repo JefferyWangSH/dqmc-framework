@@ -3,24 +3,23 @@
 #pragma once
 
 /**
- *  This header file includes class and subroutines for multiplying hopping matrix expK to a dense matrix,
- *  with high computational efficiency by method of checkerboard break-up for even lattice sizes,
- *  and by direct multiplication for others.
- *  Caution:
- *    in practise, checkerboard algorithm is tested to perform more efficiently
- *    only when lattice larger than 30*30,
- *    because the direct multiplication is dramatically accelerated by MKL.
- */
+  *  This header file includes class and subroutines for multiplying hopping matrix expK to a dense matrix,
+  *  with high computational efficiency by method of checkerboard break-up for even lattice sizes,
+  *  and by direct multiplication for others.
+  *  Caution:
+  *    in practise, checkerboard algorithm is tested to perform more efficiently
+  *    only when lattice larger than 30*30,
+  *    because the direct multiplication is dramatically accelerated by MKL.
+  */
 
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
-
 #include <Eigen/Core>
 #include <unsupported/Eigen/MatrixFunctions>
 
 // forward declaration
-class Hubbard;
+namespace Model { class Hubbard; }
 
 class CheckerBoard {
 
@@ -37,6 +36,8 @@ public:
     bool is_checkerboard = true;
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     /** construction */
     CheckerBoard() = default;
 
@@ -44,7 +45,7 @@ public:
     bool is_checker_board() const;
 
     /** initialize from Hubbard class */
-    void init_from_model(const Hubbard &hubbard);
+    void init_from_model(const Model::Hubbard &hubbard);
 
     /** high-efficient multiplication of hopping K */
     void mult_expK_from_left(Eigen::MatrixXd &A) const;

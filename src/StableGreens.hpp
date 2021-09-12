@@ -3,9 +3,9 @@
 #pragma once
 
 /**
- *  This head file includes subroutines
- *  to help compute equal-time Greens function in a stable manner.
- */
+  *  This head file includes subroutines
+  *  to help compute equal-time Greens function in a stable manner.
+  */
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
@@ -18,9 +18,9 @@ void matrix_compare_error(const Eigen::MatrixXd &umat, const Eigen::MatrixXd &vm
      *  Input: umat, vmat
      *  Output: the maximum difference -> error
      */
-    assert(umat.rows() == vmat.rows());
-    assert(umat.cols() == vmat.cols());
-    assert(umat.rows() == umat.cols());
+    assert( umat.rows() == vmat.rows() );
+    assert( umat.cols() == vmat.cols() );
+    assert( umat.rows() == umat.cols() );
 
     const int ndim = (int)umat.rows();
     double tmp_error = 0.0;
@@ -41,12 +41,12 @@ void div_dvec_max_min(const Eigen::VectorXd &dvec, Eigen::VectorXd &dmax, Eigen:
      *  Output: dmax, dmin
      */
 
-    assert(dvec.size() == dmax.size());
-    assert(dvec.size() == dmin.size());
+    assert( dvec.size() == dmax.size() );
+    assert( dvec.size() == dmin.size() );
 
     const int ndim = (int)dvec.size();
     for (int i = 0; i < ndim; ++i) {
-        assert(dvec(i) >= 0);
+        assert( dvec(i) >= 0 );
         if (dvec(i) >= 1.0) {
             dmin(i) = 1.0; dmax(i) = dvec(i);
         }
@@ -62,12 +62,12 @@ void mult_v_invd_u(const Eigen::MatrixXd &vmat, const Eigen::VectorXd &dvec, con
      * Input: vmat, dvec, umat
      * Output: zmat
      */
-    assert(vmat.cols() == umat.cols());
-    assert(vmat.cols() == zmat.cols());
-    assert(vmat.rows() == umat.rows());
-    assert(vmat.rows() == zmat.rows());
-    assert(vmat.rows() == vmat.cols());
-    assert(vmat.cols() == dvec.size());
+    assert( vmat.cols() == umat.cols() );
+    assert( vmat.cols() == zmat.cols() );
+    assert( vmat.rows() == umat.rows() );
+    assert( vmat.rows() == zmat.rows() );
+    assert( vmat.rows() == vmat.cols() );
+    assert( vmat.cols() == dvec.size() );
 
     const int ndim = (int)vmat.rows();
 
@@ -88,12 +88,12 @@ void mult_v_d_u(const Eigen::MatrixXd &vmat, const Eigen::VectorXd &dvec, const 
      * Input: vmat, dvec, umat
      * Output: zmat
      */
-    assert(vmat.cols() == umat.cols());
-    assert(vmat.cols() == zmat.cols());
-    assert(vmat.rows() == umat.rows());
-    assert(vmat.rows() == zmat.rows());
-    assert(vmat.rows() == vmat.cols());
-    assert(vmat.cols() == dvec.size());
+    assert( vmat.cols() == umat.cols() );
+    assert( vmat.cols() == zmat.cols() );
+    assert( vmat.rows() == umat.rows() );
+    assert( vmat.rows() == zmat.rows() );
+    assert( vmat.rows() == vmat.cols() );
+    assert( vmat.cols() == dvec.size() );
 
     const int ndim = (int)vmat.rows();
 
@@ -118,7 +118,7 @@ void compute_Green_00_bb(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, con
     Eigen::VectorXd Sbi(S.size());
     Eigen::VectorXd Ss(S.size());
     for (int i = 0; i < S.size(); ++i) {
-        assert(S(i) >= 0);
+        assert( S(i) >= 0 );
         if(S(i) > 1) {
             Sbi(i) = 1.0/S(i); Ss(i) = 1.0;
         }
@@ -145,7 +145,7 @@ void compute_Green_b0(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const 
     Eigen::VectorXd Sbi(S.size());
     Eigen::VectorXd Ss(S.size());
     for (int i = 0; i < S.size(); ++i) {
-        assert(S(i) >= 0);
+        assert( S(i) >= 0 );
         if(S(i) > 1) {
             Sbi(i) = 1.0/S(i); Ss(i) = 1.0;
         }
@@ -226,7 +226,7 @@ void compute_Green_displaced(SvdStack *left, SvdStack *right, Eigen::MatrixXd &g
      *  returns time-displaced Greens function in a stable manner,
      *  with method of MGS factorization
      */
-    assert(left->n == right->n);
+    assert( left->n == right->n );
     const int ndim = left->n;
 
     /* at l = 0 */

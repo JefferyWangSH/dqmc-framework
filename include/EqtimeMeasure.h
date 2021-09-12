@@ -3,16 +3,16 @@
 #pragma once
 
 /**
- *  This head file includes module for equal-time measuring.
- *  Class: measure::eqtimeMeasure
- *  Measuring:
- *   1. Double occupancy D = < n_up*n_dn >
- *   2. Single particle kinetic energy
- *   3. Density-density correlation in momentum space
- *   4. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
- *   5. Magnetic struct factor, spin-spin correlation in momentum space
- *   6. ...
- */
+  *  This head file includes module for equal-time measuring.
+  *  Class: measure::eqtimeMeasure
+  *  Measuring:
+  *   1. Double occupancy D = < n_up*n_dn >
+  *   2. Single particle kinetic energy
+  *   3. Density-density correlation in momentum space
+  *   4. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
+  *   5. Magnetic struct factor, spin-spin correlation in momentum space
+  *   6. ...
+  */
 
 #include <map>
 #include <vector>
@@ -22,10 +22,12 @@
 #include <Eigen/Core>
 
 // forward declaration
-class Hubbard;
+namespace Model { class Hubbard; }
 
-namespace measure{
-    class eqtimeMeasure {
+
+namespace Measure{
+
+    class EqtimeMeasure {
     public:
         int nbin{20};
 
@@ -46,9 +48,13 @@ namespace measure{
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
 
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-        /* construct function */
-        eqtimeMeasure()  = default;
+        /* (de)construct functions */
+        EqtimeMeasure()  = default;
+        explicit EqtimeMeasure(const int& nbin);
+        ~EqtimeMeasure() = default;
 
         /* resize the size of bins */
         void resize(const int &nbin);
@@ -60,10 +66,10 @@ namespace measure{
         void clear();
 
         /* equal-time measurements */
-        void measure_equal_time(const Hubbard &hubbard);
+        void measure_equal_time(const Model::Hubbard &hubbard);
 
         /* normalize data from scratch */
-        void normalizeStats(const Hubbard &hubbard);
+        void normalizeStats(const Model::Hubbard &hubbard);
 
         /* bin measurements */
         void write_Stats_to_bins(int bin);
@@ -76,19 +82,19 @@ namespace measure{
 
     private:
         /** double occupation: D = < n_up*n_dn > */
-        void meas_Double_Occu(const Hubbard &hubbard, const int &t);
+        void meas_Double_Occu(const Model::Hubbard &hubbard, const int &t);
 
         /** single particle kinetic energy */
-        void meas_Kinetic_Energy(const Hubbard &hubbard, const int &t);
+        void meas_Kinetic_Energy(const Model::Hubbard &hubbard, const int &t);
 
         /** momentum distribution of electrons: fourier transformation of real-space electron distribution */
-        void meas_Momentum_Dist(const Hubbard &hubbard, const int &t, const Eigen::VectorXd& p);
+        void meas_Momentum_Dist(const Model::Hubbard &hubbard, const int &t, const Eigen::VectorXd& p);
 
         /** local spin correlation: magnetization C(0,0) = < (n_up - n_dn)^2 > */
-        void meas_local_Spin_Corr(const Hubbard &hubbard, const int &t);
+        void meas_local_Spin_Corr(const Model::Hubbard &hubbard, const int &t);
 
         /** magnetic struct factor: fourier transformation of real-space spin-spin correlation */
-        void meas_Struct_Factor(const Hubbard &hubbard, const int &t, const Eigen::VectorXd& p);
+        void meas_Struct_Factor(const Model::Hubbard &hubbard, const int &t, const Eigen::VectorXd& p);
     };
 }
 

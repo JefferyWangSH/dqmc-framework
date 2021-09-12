@@ -1,10 +1,10 @@
 #ifndef DQMC_HUBBARD_SVDSTACK_H
 #define DQMC_HUBBARD_SVDSTACK_H
 
-/*
- *  This head file includes svd and SvdStack class for stable multiplication of long chains of matrices.
- *  BLAS and LAPACK libraries are needed for the svd decomposition.
- */
+/**
+  *  This head file includes svd and SvdStack class for stable multiplication of long chains of matrices.
+  *  BLAS and LAPACK libraries are needed for the svd decomposition.
+  */
 
 #include <vector>
 
@@ -21,6 +21,7 @@ private:
     Eigen::MatrixXd v;
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     svd() = default;
     explicit svd(int n): u(), s(n), v(n, n) {}
 
@@ -31,18 +32,19 @@ public:
 
 
 /** UDV stack of a matrix product: U * D * V^T = ... A_2 * A_1 * A_0 */
-class SvdStack
-{
-public:
+class SvdStack {
 
+public:
     std::vector<svd> stack;
     int n{};
     Eigen::MatrixXd tmp{};
     int len = 0;
 
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     /* Construct functions */
     SvdStack() = default;
+
     SvdStack(int n, int l);
 
     void resize(int n, int l);

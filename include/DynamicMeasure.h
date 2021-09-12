@@ -3,13 +3,13 @@
 #pragma once
 
 /**
- *  This head file includes module for time-displaced (dynamic) measuring.
- *  Class: measure::dynamicMeasure
- *  Measuring:
- *   1. Dynamical correlation function of imaginary time: G(k, \tua) = < c(k, \tau) * c^+(k, 0) >
- *   2. Helicity modulus \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
- *   3. ...
- */
+  *  This head file includes module for time-displaced (dynamic) measuring.
+  *  Class: measure::dynamicMeasure
+  *  Measuring:
+  *   1. Dynamical correlation function of imaginary time: G(k, \tua) = < c(k, \tau) * c^+(k, 0) >
+  *   2. Helicity modulus \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
+  *   3. ...
+  */
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
@@ -17,10 +17,12 @@
 #include <vector>
 
 // forward declaration
-class Hubbard;
+namespace Model { class Hubbard; }
 
-namespace measure{
-    class dynamicMeasure {
+
+namespace Measure{
+
+    class DynamicMeasure {
     public:
         int nbin{20};
 
@@ -61,37 +63,42 @@ namespace measure{
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
 
-        /* construct function */
-        dynamicMeasure() = default;
+    public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        /* (de)construct functions */
+        DynamicMeasure() = default;
+        explicit DynamicMeasure(const int &nbin);
+        ~DynamicMeasure() = default;
 
         /* resize the size of bins */
         void resize(const int &nbin);
 
         /* prepare for measuring */
-        void initial(const Hubbard &hubbard);
+        void initial(const Model::Hubbard &hubbard);
 
         /* clear temporary parameters */
         void clear();
-        void clear(const Hubbard &hubbard);
+        void clear(const Model::Hubbard &hubbard);
 
         /* time-displaced measurements */
-        void measure_time_displaced(const Hubbard &hubbard);
+        void measure_time_displaced(const Model::Hubbard &hubbard);
 
         /* normalize data from scratch */
-        void normalizeStats(const Hubbard &hubbard);
+        void normalizeStats(const Model::Hubbard &hubbard);
 
         /* bin measurements */
-        void write_Stats_to_bins(const int &bin, const Hubbard &hubbard);
+        void write_Stats_to_bins(const int &bin, const Model::Hubbard &hubbard);
 
         /* analyse dynamical statistics */
-        void analyse_timeDisplaced_Stats(const Hubbard &hubbard);
+        void analyse_timeDisplaced_Stats(const Model::Hubbard &hubbard);
 
     private:
         /** dynamical correlation function in momentum space < c(k,tau) * c^+(k,0) > */
-        void analyse_Dynamical_Corr(const int &bin, const Hubbard &hubbard);
+        void analyse_Dynamical_Corr(const int &bin, const Model::Hubbard &hubbard);
 
         /** helicity modules \rho_s */
-        void analyse_Rho_S(const int &bin, const Hubbard &hubbard);
+        void analyse_Rho_S(const int &bin, const Model::Hubbard &hubbard);
     };
 }
 
