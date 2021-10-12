@@ -80,12 +80,12 @@ void Simulation::DetQMC::init_measure() {
     if (this->bool_measure_eqtime && this->EqtimeMeasure) {
         delete this->EqtimeMeasure;
         this->EqtimeMeasure = new Measure::EqtimeMeasure(this->nbin);
-        this->EqtimeMeasure->initial();
+        this->EqtimeMeasure->initial(*this->hubb);
         this->EqtimeMeasure->q = M_PI * this->q;
     }
     else if (this->bool_measure_eqtime && !this->EqtimeMeasure) {
         this->EqtimeMeasure = new Measure::EqtimeMeasure(this->nbin);
-        this->EqtimeMeasure->initial();
+        this->EqtimeMeasure->initial(*this->hubb);
         this->EqtimeMeasure->q = M_PI * this->q;
     }
     else { this->EqtimeMeasure = nullptr; }
@@ -110,10 +110,10 @@ void Simulation::DetQMC::run_QMC(bool bool_display_process) {
 
     // clear data
     if (this->bool_measure_eqtime && this->EqtimeMeasure) {
-        this->EqtimeMeasure->clear();
+        this->EqtimeMeasure->clear_temporary();
     }
     if (this->bool_measure_dynamic && this->DynamicMeasure) {
-        this->DynamicMeasure->clear(*hubb);
+        this->DynamicMeasure->clear_temporary(*hubb);
     }
 
     // record current time
@@ -159,13 +159,13 @@ void Simulation::DetQMC::run_QMC(bool bool_display_process) {
             if (this->bool_measure_eqtime && this->EqtimeMeasure) {
                 this->EqtimeMeasure->normalizeStats(*this->hubb);
                 this->EqtimeMeasure->write_Stats_to_bins(bin);
-                this->EqtimeMeasure->clear();
+                this->EqtimeMeasure->clear_temporary();
             }
 
             if (this->bool_measure_dynamic && this->DynamicMeasure) {
                 this->DynamicMeasure->normalizeStats(*this->hubb);
                 this->DynamicMeasure->write_Stats_to_bins(bin, *this->hubb);
-                this->DynamicMeasure->clear(*this->hubb);
+                this->DynamicMeasure->clear_temporary(*this->hubb);
             }
 
             // avoid correlation between bins
@@ -186,7 +186,7 @@ void Simulation::DetQMC::run_QMC(bool bool_display_process) {
     this->end_t = std::chrono::steady_clock::now();
 }
 
-void Simulation::DetQMC::sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic) {
+void Simulation::DetQMC::sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic) const {
 
     // sweep forth from 0 to beta
     if (!bool_dynamic) {
@@ -197,20 +197,20 @@ void Simulation::DetQMC::sweep_back_and_forth(bool bool_eqtime, bool bool_dynami
         this->DynamicMeasure->measure_time_displaced(*this->hubb);
     }
     if (bool_eqtime) {
-        this->EqtimeMeasure->measure_equal_time(*this->hubb);
+        this->EqtimeMeasure->measure_equal_time_greens(*this->hubb);
     }
 
     // sweep back from beta to 0
     this->hubb->sweep_beta_to_0(this->nwrap);
     // TODO: hubb.sweep_beta_to_0_displaced
     if (bool_eqtime) {
-        this->EqtimeMeasure->measure_equal_time(*this->hubb);
+        this->EqtimeMeasure->measure_equal_time_greens(*this->hubb);
     }
 }
 
-void Simulation::DetQMC::analyse_stats() {
+void Simulation::DetQMC::analyse_stats() const {
     if (this->bool_measure_eqtime) {
-        this->EqtimeMeasure->analyseStats();
+        this->EqtimeMeasure->analyseStats(*this->hubb);
     }
     if (this->bool_measure_dynamic) {
         this->DynamicMeasure->analyse_timeDisplaced_Stats(*this->hubb);
@@ -231,7 +231,7 @@ void Simulation::DetQMC::print_params() const{
     std::cout << "==============================================================================" << std::endl;
 }
 
-void Simulation::DetQMC::print_stats() {
+void Simulation::DetQMC::print_stats() const {
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(this->end_t - this->begin_t).count();
     const int minute = std::floor((double)time / 1000 / 60);
     const double sec = (double)time / 1000 - 60 * minute;
@@ -240,18 +240,18 @@ void Simulation::DetQMC::print_stats() {
         std::cout.precision(8);
         std::cout << std::endl;
         std::cout << "  Equal-time Measurements: " << std::endl
-                  << "    Double Occupancy:        " << this->EqtimeMeasure->obs_mean_eqtime["double_occupancy"]
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["double_occupancy"] << std::endl
-                  << "    Kinetic Energy:          " << this->EqtimeMeasure->obs_mean_eqtime["kinetic_energy"]
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["kinetic_energy"] << std::endl
-                  << "    Momentum Distribution:   " << this->EqtimeMeasure->obs_mean_eqtime["momentum_distribution"]
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["momentum_distribution"] << std::endl
-                  << "    Local Spin Correlation:  " << this->EqtimeMeasure->obs_mean_eqtime["local_spin_correlation"]
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["local_spin_correlation"] << std::endl
-                  << "    Structure Factor:        " << this->EqtimeMeasure->obs_mean_eqtime["structure_factor"]
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["structure_factor"] << std::endl
-                  << "    Average Sign (abs):      " << abs(this->EqtimeMeasure->obs_mean_eqtime["average_sign"])
-                  << "    err: " << this->EqtimeMeasure->obs_err_eqtime["average_sign"] << std::endl;
+                  << "    Double Occupancy:        " << this->EqtimeMeasure->double_occu.mean_value()
+                  << "    err: " << this->EqtimeMeasure->double_occu.error_bar() << std::endl
+                  << "    Kinetic Energy:          " << this->EqtimeMeasure->kinetic_energy.mean_value()
+                  << "    err: " << this->EqtimeMeasure->kinetic_energy.error_bar() << std::endl
+                  << "    Electron Density:        " << this->EqtimeMeasure->electron_density.mean_value()
+                  << "    err: " << this->EqtimeMeasure->electron_density.error_bar() << std::endl
+                  << "    Local Spin Correlation:  " << this->EqtimeMeasure->local_corr.mean_value()
+                  << "    err: " << this->EqtimeMeasure->local_corr.error_bar() << std::endl
+                  << "    AFM Structure Factor:    " << this->EqtimeMeasure->AFM_factor.mean_value()
+                  << "    err: " << this->EqtimeMeasure->AFM_factor.error_bar() << std::endl
+                  << "    Average Sign (abs):      " << abs(this->EqtimeMeasure->sign.mean_value())
+                  << "    err: " << this->EqtimeMeasure->sign.error_bar() << std::endl;
         std::cout.precision(-1);
     }
 
@@ -260,12 +260,12 @@ void Simulation::DetQMC::print_stats() {
         std::cout << std::endl;
         std::cout << "  Time-displaced Measurements: " << std::endl
                   << "    Dynamical correlation in momentum space:  see in file" << std::endl
-                  << "    Correlation G(k, beta/2):   " << this->DynamicMeasure->obs_mean_g_kt[ceil(this->hubb->lt/2.0)]
-                  << "    err: " << this->DynamicMeasure->obs_err_g_kt[ceil(this->hubb->lt/2.0)] << std::endl
-                  << "    Helicity modules \\Rho_s:   " << this->DynamicMeasure->obs_mean_rho_s
-                  << "    err: " << this->DynamicMeasure->obs_err_rho_s << std::endl
-                  << "    Average Sign (abs):         " << abs(this->DynamicMeasure->obs_mean_sign)
-                  << "    err: " << this->DynamicMeasure->obs_err_sign << std::endl;
+                  << "    Correlation G(k, beta/2):   " << this->DynamicMeasure->mean_g_kt[ceil(this->hubb->lt/2.0)]
+                  << "    err: " << this->DynamicMeasure->err_g_kt[ceil(this->hubb->lt/2.0)] << std::endl
+                  << "    Helicity modules \\Rho_s:   " << this->DynamicMeasure->mean_rho_s
+                  << "    err: " << this->DynamicMeasure->err_rho_s << std::endl
+                  << "    Average Sign (abs):         " << abs(this->DynamicMeasure->mean_sign)
+                  << "    err: " << this->DynamicMeasure->err_sign << std::endl;
         std::cout.precision(-1);
     }
 
@@ -291,16 +291,21 @@ void Simulation::DetQMC::file_output_tau(const std::string &filename) const {
 void Simulation::DetQMC::bin_output_corr(const std::string &filename) const{
     if (this->bool_measure_dynamic) {
         std::ofstream outfile;
-        outfile.open(filename, std::ios::out | std::ios::trunc);
-//        outfile.open(filename, std::ios::out | std::ios::app);
-        outfile.precision(15);
+        std::ifstream test_exist(filename);
+        if (!test_exist.good()) {
+            outfile.open(filename, std::ios::out | std::ios::app);
+            outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+            outfile.close();
+        }
+        else { test_exist.close(); }
 
-        outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+        outfile.open(filename, std::ios::out | std::ios::app);
+        outfile.precision(15);
         for (int bin = 0; bin < this->nbin; ++bin) {
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
                 const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
-                outfile << std::setw(20) << this->DynamicMeasure->obs_bin_g_kt[bin][tau] << std::endl;
+                outfile << std::setw(20) << this->DynamicMeasure->bin_g_kt[bin][tau] << std::endl;
             }
         }
         outfile.close();
@@ -310,17 +315,22 @@ void Simulation::DetQMC::bin_output_corr(const std::string &filename) const{
 void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
     if (this->bool_measure_dynamic) {
         std::ofstream outfile;
-        outfile.open(filename, std::ios::out | std::ios::trunc);
-//        outfile.open(filename, std::ios::out | std::ios::app);
-        outfile.precision(15);
+        std::ifstream test_exist(filename);
+        if (!test_exist.good()) {
+            outfile.open(filename, std::ios::out | std::ios::app);
+            outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+            outfile.close();
+        }
+        else { test_exist.close(); }
 
-        outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+        outfile.open(filename, std::ios::out | std::ios::app);
+        outfile.precision(15);
         for (int bin = 0; bin < this->nbin; ++bin) {
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
                 const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
                 outfile << std::setw(20)
-                        << 0.5 / this->hubb->ls * (this->DynamicMeasure->obs_bin_gt0_up[bin][tau] + this->DynamicMeasure->obs_bin_gt0_dn[bin][tau]).trace()
+                        << 0.5 / this->hubb->ls * (this->DynamicMeasure->bin_gt0_up[bin][tau] + this->DynamicMeasure->bin_gt0_dn[bin][tau]).trace()
                         << std::endl;
             }
         }
@@ -328,7 +338,7 @@ void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
     }
 }
 
-void Simulation::DetQMC::file_output_eqtime_stats(const std::string &filename) {
+void Simulation::DetQMC::file_output_eqtime_stats(const std::string &filename) const {
     if (this->bool_measure_eqtime) {
         std::ofstream outfile;
         outfile.open(filename, std::ios::out | std::ios::trunc);
@@ -336,16 +346,16 @@ void Simulation::DetQMC::file_output_eqtime_stats(const std::string &filename) {
         outfile << std::setiosflags(std::ios::right)
                 << std::setw(15) << this->hubb->Uint / this->hubb->t
                 << std::setw(15) << this->hubb->beta
-                << std::setw(15) << this->EqtimeMeasure->obs_mean_eqtime["double_occupancy"]
-                << std::setw(15) << this->EqtimeMeasure->obs_mean_eqtime["kinetic_energy"]
-                << std::setw(15) << this->EqtimeMeasure->obs_mean_eqtime["structure_factor"]
-                << std::setw(15) << this->EqtimeMeasure->obs_mean_eqtime["momentum_distribution"]
-                << std::setw(15) << this->EqtimeMeasure->obs_mean_eqtime["local_spin_correlation"]
-                << std::setw(15) << this->EqtimeMeasure->obs_err_eqtime["double_occupancy"]
-                << std::setw(15) << this->EqtimeMeasure->obs_err_eqtime["kinetic_energy"]
-                << std::setw(15) << this->EqtimeMeasure->obs_err_eqtime["structure_factor"]
-                << std::setw(15) << this->EqtimeMeasure->obs_err_eqtime["momentum_distribution"]
-                << std::setw(15) << this->EqtimeMeasure->obs_err_eqtime["local_spin_correlation"]
+                << std::setw(15) << this->EqtimeMeasure->double_occu.mean_value()
+                << std::setw(15) << this->EqtimeMeasure->double_occu.error_bar()
+                << std::setw(15) << this->EqtimeMeasure->kinetic_energy.mean_value()
+                << std::setw(15) << this->EqtimeMeasure->kinetic_energy.error_bar()
+                << std::setw(15) << this->EqtimeMeasure->AFM_factor.mean_value()
+                << std::setw(15) << this->EqtimeMeasure->AFM_factor.error_bar()
+                << std::setw(15) << this->EqtimeMeasure->electron_density.mean_value()
+                << std::setw(15) << this->EqtimeMeasure->electron_density.error_bar()
+                << std::setw(15) << this->EqtimeMeasure->local_corr.mean_value()
+                << std::setw(15) << this->EqtimeMeasure->local_corr.error_bar()
                 << std::setw(15) << this->EqtimeMeasure->q(0)
                 << std::setw(15) << this->EqtimeMeasure->q(1)
                 << std::endl;
@@ -368,15 +378,15 @@ void Simulation::DetQMC::file_output_dynamic_stats(const std::string& filename) 
         for (int l = 0; l < this->hubb->lt; ++l) {
             const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
             outfile << std::setw(15) << l
-                    << std::setw(15) << this->DynamicMeasure->obs_mean_g_kt[tau]
-                    << std::setw(15) << this->DynamicMeasure->obs_err_g_kt[tau]
-                    << std::setw(15) << this->DynamicMeasure->obs_err_g_kt[tau] / this->DynamicMeasure->obs_mean_g_kt[tau]
+                    << std::setw(15) << this->DynamicMeasure->mean_g_kt[tau]
+                    << std::setw(15) << this->DynamicMeasure->err_g_kt[tau]
+                    << std::setw(15) << this->DynamicMeasure->err_g_kt[tau] / this->DynamicMeasure->mean_g_kt[tau]
                     << std::endl;
         }
 
-        outfile << std::setw(15) << this->DynamicMeasure->obs_mean_rho_s
-                << std::setw(15) << this->DynamicMeasure->obs_err_rho_s
-                << std::setw(15) << this->DynamicMeasure->obs_err_rho_s / this->DynamicMeasure->obs_mean_rho_s
+        outfile << std::setw(15) << this->DynamicMeasure->mean_rho_s
+                << std::setw(15) << this->DynamicMeasure->err_rho_s
+                << std::setw(15) << this->DynamicMeasure->err_rho_s / this->DynamicMeasure->mean_rho_s
                 << std::endl;
 
         outfile.close();

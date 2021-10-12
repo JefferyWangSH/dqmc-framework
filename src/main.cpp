@@ -8,6 +8,9 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 
+#include "EqtimeMeasure.h"
+#include "MeasureData.h"
+
 /**
   *  TODO:
   *   1. get params from command lines, using boost (done)
@@ -109,16 +112,18 @@ int main(int argc, char* argv[]) {
 
 
     /** usage example */
-//    dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
-//    dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
-//    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-//    dqmc->set_lattice_momentum(1.0, 1.0);
-//    dqmc->print_params();
-//
-//    dqmc->init_measure();
-//    dqmc->run_QMC(bool_display_process);
-//    dqmc->analyse_stats();
-//    dqmc->print_stats();
+    dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
+    dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+    dqmc->set_lattice_momentum(1.0, 1.0);
+    dqmc->print_params();
+
+    dqmc->init_measure();
+    dqmc->run_QMC(bool_display_process);
+    dqmc->analyse_stats();
+    dqmc->print_stats();
+
+//    std::cout << dqmc->EqtimeMeasure->double_occu.bin_data() << std::endl;
 
     /** Measure dynamical correlation functions for different momentum k */
 
@@ -152,31 +157,31 @@ int main(int argc, char* argv[]) {
 
     /** Measure local density of states (LDOS) **/
 
-    for (int n = 0; n < 1; ++n) {
-        dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
-        dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
-        dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-        dqmc->set_lattice_momentum(0.5, 0.5);
-        dqmc->print_params();
-
-        dqmc->init_measure();
-        dqmc->run_QMC(bool_display_process);
-        dqmc->analyse_stats();
-        dqmc->print_stats();
-
-        /* creat folder and pack up data */
-        std::string path = (boost::format("../results/L%db%.2fU%.2f") % ll % beta % u).str();
-        std::string command;
-        if ( access(path.c_str(), 0) != 0 ) {
-            command = "mkdir " + path;
-            if ( system(command.c_str()) != 0 ) {
-                std::cerr << "fail to create " + path << std::endl;
-            }
-        }
-        dqmc->file_output_tau(path + "/tau.dat");
-        dqmc->bin_output_LDOS(path + "/cor.dat");
-        dqmc->file_output_dynamic_stats(path + "/dynamic.dat");
-    }
+//    for (int n = 0; n < 5; ++n) {
+//        dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
+//        dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//        dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+//        dqmc->set_lattice_momentum(0.5, 0.5);
+//        dqmc->print_params();
+//
+//        dqmc->init_measure();
+//        dqmc->run_QMC(bool_display_process);
+//        dqmc->analyse_stats();
+//        dqmc->print_stats();
+//
+//        /* creat folder and pack up data */
+//        std::string path = (boost::format("../results/L%db%.2fU%.2f") % ll % beta % u).str();
+//        std::string command;
+//        if ( access(path.c_str(), 0) != 0 ) {
+//            command = "mkdir " + path;
+//            if ( system(command.c_str()) != 0 ) {
+//                std::cerr << "fail to create " + path << std::endl;
+//            }
+//        }
+//        dqmc->file_output_tau(path + "/tau.dat");
+//        dqmc->bin_output_LDOS(path + "/cor.dat");
+//        dqmc->file_output_dynamic_stats(path + "/dynamic.dat");
+//    }
 
 
     /** Measure observable quantities in momentum space ( fermi surface ) */
@@ -211,8 +216,8 @@ int main(int argc, char* argv[]) {
 //                        << std::setw(15) << j
 //                        << std::setw(15) << qx
 //                        << std::setw(15) << qy
-//                        << std::setw(15) << dqmc->DynamicMeasure.obs_mean_g_kt[ceil(lt/2)]
-//                        << std::setw(15) << dqmc->DynamicMeasure.obs_err_g_kt[ceil(lt/2)]
+//                        << std::setw(15) << dqmc->DynamicMeasure.mean_g_kt[ceil(lt/2)]
+//                        << std::setw(15) << dqmc->DynamicMeasure.err_g_kt[ceil(lt/2)]
 //                        << std::endl;
 //            }
 //        }
@@ -260,8 +265,8 @@ int main(int argc, char* argv[]) {
 //        outfile << std::setiosflags(std::ios::right)
 //                << std::setw(15) << Beta
 //                << std::setw(15) << 1 / Beta
-//                << std::setw(15) << dqmc->dynamicMeasure.obs_mean_rho_s
-//                << std::setw(15) << dqmc->dynamicMeasure.obs_err_rho_s
+//                << std::setw(15) << dqmc->dynamicMeasure.mean_rho_s
+//                << std::setw(15) << dqmc->dynamicMeasure.err_rho_s
 //                << std::endl;
 //        outfile.close();
 //
@@ -269,7 +274,7 @@ int main(int argc, char* argv[]) {
 //        for (int bin = 0; bin < nbin; ++bin) {
 //            outfile << std::setiosflags(std::ios::right)
 //                    << std::setw(15) << bin + 1
-//                    << std::setw(15) << dqmc->dynamicMeasure.obs_bin_rho_s[bin]
+//                    << std::setw(15) << dqmc->dynamicMeasure.bin_rho_s[bin]
 //                    << std::endl;
 //        }
 //        outfile.close();

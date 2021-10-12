@@ -24,13 +24,12 @@ class SvdStack;
 namespace Simulation {
 
     class DetQMC {
-    private:
+    public:
         // model parameters
         Model::Hubbard *hubb{};
 
         int nwrap{10}, nwarm{300};
         int nbin{20}, nsweep{100}, n_between_bins{10};
-        bool is_checkerboard = true;
 
         // bool parameters to control thermalization and measurements
         bool bool_warm_up = true;
@@ -46,7 +45,7 @@ namespace Simulation {
         // for equal-time measurements
         Measure::EqtimeMeasure *EqtimeMeasure{};
 
-        // for time-displaced (dynamic) measurements
+        // for time-displaced (dynamical) measurements
         Measure::DynamicMeasure *DynamicMeasure{};
 
     public:
@@ -81,7 +80,7 @@ namespace Simulation {
         void run_QMC(bool bool_display_process);
 
         /* analyse statistics from simulation */
-        void analyse_stats();
+        void analyse_stats() const;
 
 
         /** Output modules for the output of DQMC measuring results */
@@ -89,10 +88,10 @@ namespace Simulation {
         void print_params() const;
 
         /* print measuring results onto terminal */
-        void print_stats();
+        void print_stats() const;
 
         /* write results of measurements, including means and errors, into file */
-        void file_output_eqtime_stats(const std::string &filename);
+        void file_output_eqtime_stats(const std::string &filename) const;
 
         void file_output_dynamic_stats(const std::string &filename) const;
 
@@ -110,7 +109,7 @@ namespace Simulation {
 
     private:
         /* process of Monte Carlo sweeping, and do the measurements if needed */
-        void sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic);
+        void sweep_back_and_forth(bool bool_eqtime, bool bool_dynamic) const;
     };
 
 }

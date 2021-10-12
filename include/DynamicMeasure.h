@@ -29,26 +29,26 @@ namespace Measure{
         /* for time-displaced measurements */
 
         // dynamical correlation function of imaginary time G(k, \tua) = < c(k, \tau) * c^+(k, 0) >, \tau > 0.
-        std::vector<std::vector<double>> obs_bin_g_kt;      // obs_bin_g_kt[bin][tau] <type double>
-        std::vector<double> obs_mean_g_kt;                  // obs_mean_g_kt[tau] <type double>
-        std::vector<double> obs_err_g_kt;                   // obs_err_g_kt[tau] <type double>
+        std::vector<std::vector<double>> bin_g_kt;      // bin_g_kt[bin][tau] <type double>
+        std::vector<double> mean_g_kt;                  // mean_g_kt[tau] <type double>
+        std::vector<double> err_g_kt;                   // err_g_kt[tau] <type double>
 
         // helicity modulus \rho_s of superconducting
-        std::vector<double> obs_bin_rho_s;                  // obs_bin_rho_s[bin] <type double>
-        double obs_mean_rho_s = 0.0;                        // obs_mean_rho_s <type double>
-        double obs_err_rho_s = 0.0;                         // obs_err_rho_s <type double>
+        std::vector<double> bin_rho_s;                  // bin_rho_s[bin] <type double>
+        double mean_rho_s = 0.0;                        // mean_rho_s <type double>
+        double err_rho_s = 0.0;                         // err_rho_s <type double>
 
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gt0_up;       // data [bin][tau] <type Eigen::MatrixXd>
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_g0t_up;
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gtt_up;
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gt0_dn;
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_g0t_dn;
-        std::vector<std::vector<Eigen::MatrixXd>> obs_bin_gtt_dn;
+        std::vector<std::vector<Eigen::MatrixXd>> bin_gt0_up;       // data [bin][tau] <type Eigen::MatrixXd>
+        std::vector<std::vector<Eigen::MatrixXd>> bin_g0t_up;
+        std::vector<std::vector<Eigen::MatrixXd>> bin_gtt_up;
+        std::vector<std::vector<Eigen::MatrixXd>> bin_gt0_dn;
+        std::vector<std::vector<Eigen::MatrixXd>> bin_g0t_dn;
+        std::vector<std::vector<Eigen::MatrixXd>> bin_gtt_dn;
 
         // sign problem
-        double obs_mean_sign = 0.0;
-        double obs_err_sign = 0.0;
-        std::vector<double> obs_bin_sign;
+        double mean_sign = 0.0;
+        double err_sign = 0.0;
+        std::vector<double> bin_sign;
 
         // temporary parameters
         int n_time_displaced = 0;
@@ -79,7 +79,7 @@ namespace Measure{
 
         /* clear temporary parameters */
         void clear();
-        void clear(const Model::Hubbard &hubbard);
+        void clear_temporary(const Model::Hubbard &hubbard);
 
         /* time-displaced measurements */
         void measure_time_displaced(const Model::Hubbard &hubbard);
