@@ -13,6 +13,14 @@ double Measure::MeasureData::error_bar() const {
     return this->_error_bar;
 }
 
+double Measure::MeasureData::tmp_value() const {
+    return this->_tmp_data;
+}
+
+double& Measure::MeasureData::tmp_value() {
+    return this->_tmp_data;
+}
+
 int Measure::MeasureData::size_of_bin() const {
     assert( this->_size_of_bin == this->_bins.size() );
     return this->_size_of_bin;
@@ -34,6 +42,10 @@ void Measure::MeasureData::set_size_of_bin(const int &size_of_bin) {
 void Measure::MeasureData::clear() {
     this->_mean_value = 0.0;
     this->_error_bar = 0.0;
+}
+
+void Measure::MeasureData::clear_temporary() {
+    this->_tmp_data = 0.0;
 }
 
 void Measure::MeasureData::clear_bin_data() {

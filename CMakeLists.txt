@@ -30,9 +30,11 @@ add_executable(${PROJECT_NAME}
         src/BMatrixMult.hpp
         src/StableGreens.hpp
         src/ProgressBar.hpp
-        src/EqtimeMeasure.cpp
-        src/DynamicMeasure.cpp
         src/MeasureData.cpp
+        src/EqtimeMeasure.cpp
+        src/EqtimeMeasureLinear.cpp
+        src/DynamicMeasure.cpp
+        src/DynamicMeasureLinear.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

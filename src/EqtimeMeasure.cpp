@@ -24,77 +24,97 @@ void Measure::EqtimeMeasure::initial(const Model::Hubbard &hubbard) {
     for (int l = 0; l < hubbard.ll; ++l) {
         this->cooper_corr.emplace_back(this->nbin);
     }
-
-    this->bin_gtt_up.reserve(this->nbin);
-    this->bin_gtt_dn.reserve(this->nbin);
-    for (int bin = 0; bin < this->nbin; ++bin) {
-        this->bin_gtt_up.emplace_back(hubbard.ls, hubbard.ls);
-        this->bin_gtt_dn.emplace_back(hubbard.ls, hubbard.ls);
-    }
-
-    this->tmp_gtt_up = Eigen::MatrixXd::Zero(hubbard.ls, hubbard.ls);
-    this->tmp_gtt_dn = Eigen::MatrixXd::Zero(hubbard.ls, hubbard.ls);
 }
 
 void Measure::EqtimeMeasure::clear_temporary() {
     this->n_equal_time = 0;
-    this->tmp_sign = 0.0;
-    this->tmp_gtt_up.setZero();
-    this->tmp_gtt_dn.setZero();
+    this->sign.clear_temporary();
+    this->double_occu.clear_temporary();
+    this->kinetic_energy.clear_temporary();
+    this->electron_density.clear_temporary();
+    this->local_corr.clear_temporary();
+    this->AFM_factor.clear_temporary();
+    for (auto &CooperCorr : this->cooper_corr) {
+        CooperCorr.clear_temporary();
+    }
 }
 
-void Measure::EqtimeMeasure::measure_equal_time_greens(const Model::Hubbard &hubbard) {
-    this->tmp_sign += hubbard.config_sign;
+void Measure::EqtimeMeasure::equal_time_measure(const Model::Hubbard &hubbard) {
+    this->sign.tmp_value() += hubbard.config_sign;
+    for (int t = 0; t < hubbard.lt; ++t) {
+        this->measure_double_occu(t, hubbard);
+        this->measure_kinetic_energy(t, hubbard);
+        this->measure_electron_density(t, hubbard);
+        this->measure_local_corr(t, hubbard);
+        this->measure_AFM_factor(t, hubbard);
+        this->measure_Cooper_corr(t, hubbard);
+    }
     this->n_equal_time++;
+}
 
-    for (int l = 0; l < hubbard.lt; ++l) {
-        this->tmp_gtt_up += hubbard.config_sign * hubbard.vec_green_tt_up[l];
-        this->tmp_gtt_dn += hubbard.config_sign * hubbard.vec_green_tt_dn[l];
+void Measure::EqtimeMeasure::normalize_stats(const Model::Hubbard &hubbard) {
+    // normalized by counting
+    this->sign.tmp_value() /= this->n_equal_time;
+    this->double_occu.tmp_value() /= this->n_equal_time * hubbard.lt;
+    this->kinetic_energy.tmp_value() /= this->n_equal_time * hubbard.lt;
+    this->electron_density.tmp_value() /= this->n_equal_time * hubbard.lt;
+    this->local_corr.tmp_value() /= this->n_equal_time * hubbard.lt;
+    this->AFM_factor.tmp_value() /= this->n_equal_time * hubbard.lt;
+    for (auto &CooperCorr : this->cooper_corr) {
+        CooperCorr.tmp_value() /= this->n_equal_time * hubbard.lt;
+    }
+
+    // normalized by pre-factor of nature
+    this->double_occu.tmp_value() /= hubbard.ls * this->sign.tmp_value();
+    this->kinetic_energy.tmp_value() /= hubbard.ls * this->sign.tmp_value();
+    this->electron_density.tmp_value() /= this->sign.tmp_value();
+    this->local_corr.tmp_value() /= hubbard.ls * this->sign.tmp_value();
+    this->AFM_factor.tmp_value() /= hubbard.ls * hubbard.ls * this->sign.tmp_value();
+//    for (auto &CooperCorr : this->cooper_corr) {
+//        CooperCorr.tmp_value() /= this->n_equal_time * this->sign.tmp_value();
+//    }
+
+}
+
+void Measure::EqtimeMeasure::write_stats_to_bins(int bin) {
+    this->sign.bin_data()[bin] = this->sign.tmp_value();
+    this->double_occu.bin_data()[bin] = this->double_occu.tmp_value();
+    this->kinetic_energy.bin_data()[bin] = this->kinetic_energy.tmp_value();
+    this->electron_density.bin_data()[bin] = this->electron_density.tmp_value();
+    this->local_corr.bin_data()[bin] = this->local_corr.tmp_value();
+    this->AFM_factor.bin_data()[bin] = this->AFM_factor.tmp_value();
+    for (auto &CooperCorr : this->cooper_corr) {
+        CooperCorr.bin_data()[bin] = CooperCorr.tmp_value();
     }
 }
 
-void Measure::EqtimeMeasure::normalizeStats(const Model::Hubbard &hubbard) {
-    this->tmp_sign /= this->n_equal_time;
-    this->tmp_gtt_up /= this->n_equal_time * hubbard.lt * this->tmp_sign;
-    this->tmp_gtt_dn /= this->n_equal_time * hubbard.lt * this->tmp_sign;
-}
+void Measure::EqtimeMeasure::measure_double_occu(const int &t, const Model::Hubbard &hubbard) {
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
-void Measure::EqtimeMeasure::write_Stats_to_bins(int bin) {
-    this->sign.bin_data()[bin] = this->tmp_sign;
-    this->bin_gtt_up[bin] = this->tmp_gtt_up;
-    this->bin_gtt_dn[bin] = this->tmp_gtt_dn;
-}
-
-void Measure::EqtimeMeasure::analyse_double_occu(const int &bin, const Model::Hubbard &hubbard) {
-    const Eigen::MatrixXd gu = this->bin_gtt_up[bin];
-    const Eigen::MatrixXd gd = this->bin_gtt_dn[bin];
-
-    double tmp_double_occu = 0.0;
     for (int i = 0; i < hubbard.ls; ++i) {
-        tmp_double_occu += (1 - gu(i, i)) * (1 - gd(i, i));
+        this->double_occu.tmp_value() += hubbard.config_sign * (1 - gu(i, i)) * (1 - gd(i, i));
     }
-    this->double_occu.bin_data()[bin] = tmp_double_occu / hubbard.ls;
 }
 
-void Measure::EqtimeMeasure::analyse_kinetic_energy(const int &bin, const Model::Hubbard &hubbard) {
+void Measure::EqtimeMeasure::measure_kinetic_energy(const int &t, const Model::Hubbard &hubbard) {
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = this->bin_gtt_up[bin];
-    const Eigen::MatrixXd gd = this->bin_gtt_dn[bin];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
-    double tmp_kinetic_energy = 0.0;
     for (int x = 0; x < ll; ++x) {
         for (int y = 0; y < ll; ++y) {
-            tmp_kinetic_energy += 2 * hubbard.t * (gu(x + ll*y, ((x+1)%ll) + ll*y) + gu(x + ll*y, x + ll*((y+1)%ll)))
-                                + 2 * hubbard.t * (gd(x + ll*y, ((x+1)%ll) + ll*y) + gd(x + ll*y, x + ll*((y+1)%ll)));
+            this->kinetic_energy.tmp_value() += 2 * hubbard.t * hubbard.config_sign *
+                    ( gu(x + ll*y, ((x+1)%ll) + ll*y) + gu(x + ll*y, x + ll*((y+1)%ll))
+                    + gd(x + ll*y, ((x+1)%ll) + ll*y) + gd(x + ll*y, x + ll*((y+1)%ll)) );
         }
     }
-    this->kinetic_energy.bin_data()[bin] = tmp_kinetic_energy / hubbard.ls;
 }
 
-void Measure::EqtimeMeasure::analyse_electron_density(const int &bin, const Model::Hubbard &hubbard) {
+void Measure::EqtimeMeasure::measure_electron_density(const int &t, const Model::Hubbard &hubbard) {
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = this->bin_gtt_up[bin];
-    const Eigen::MatrixXd gd = this->bin_gtt_dn[bin];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     double tmp_electron_density = 0.0;
     for (int xi = 0; xi < ll; ++xi) {
@@ -109,26 +129,23 @@ void Measure::EqtimeMeasure::analyse_electron_density(const int &bin, const Mode
             }
         }
     }
-    tmp_electron_density = (1 - 0.5 * tmp_electron_density / hubbard.ls);
-    this->electron_density.bin_data()[bin] = tmp_electron_density;
+    this->electron_density.tmp_value() += hubbard.config_sign * (1 - 0.5 * tmp_electron_density / hubbard.ls);
 }
 
-void Measure::EqtimeMeasure::analyse_local_corr(const int &bin, const Model::Hubbard &hubbard) {
-    const Eigen::MatrixXd gu = this->bin_gtt_up[bin];
-    const Eigen::MatrixXd gd = this->bin_gtt_dn[bin];
+void Measure::EqtimeMeasure::measure_local_corr(const int &t, const Model::Hubbard &hubbard) {
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
-    double tmp_local_corr = 0.0;
     for (int i = 0; i < hubbard.ls; ++i) {
-        tmp_local_corr += gu(i, i) + gd(i, i) - 2 * gu(i, i) * gd(i, i);
+        this->local_corr.tmp_value() += hubbard.config_sign * ( gu(i, i) + gd(i, i) - 2 * gu(i, i) * gd(i, i) );
     }
-    this->local_corr.bin_data()[bin] = tmp_local_corr / hubbard.ls;
 }
 
-void Measure::EqtimeMeasure::analyse_AFM_factor(const int &bin, const Model::Hubbard &hubbard) {
+void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubbard &hubbard) {
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd gu = this->bin_gtt_up[bin];
-    const Eigen::MatrixXd gd = this->bin_gtt_dn[bin];
+    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
+    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     // Definition:
     //   gu(i,j)  = < c_i * c^+_j >
@@ -145,7 +162,6 @@ void Measure::EqtimeMeasure::analyse_AFM_factor(const int &bin, const Model::Hub
     }
 
     // loop for site i and j
-    double tmp_AFM_factor = 0.0;
     for (int xi = 0; xi < ll; ++xi) {
         for (int yi = 0; yi < ll; ++yi) {
             for (int xj = 0; xj < ll; ++xj) {
@@ -155,30 +171,21 @@ void Measure::EqtimeMeasure::analyse_AFM_factor(const int &bin, const Model::Hub
                     const Eigen::VectorXd r = (Eigen::VectorXd(2) << (xi - xj), (yi - yj)).finished();
                     const double factor = cos(-r.dot(this->q));
                     // factor 1/4 comes from spin 1/2
-                    tmp_AFM_factor += 0.25 * factor * ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
-                                                        + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
-                                                        - gdc(i, i) * guc(j, j) - guc(i, i) * gdc(j, j) );
+                    this->AFM_factor.tmp_value() += 0.25 * factor * hubbard.config_sign *
+                            ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
+                              + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
+                              - gdc(i, i) * guc(j, j) - guc(i, i) * gdc(j, j) );
                 }
             }
         }
     }
-    this->AFM_factor.bin_data()[bin] = tmp_AFM_factor / (ls * ls);
 }
 
-void Measure::EqtimeMeasure::analyse_Cooper_corr(const int &bin, const Model::Hubbard &hubbard) {
+void Measure::EqtimeMeasure::measure_Cooper_corr(const int &t, const Model::Hubbard &hubbard) {
 
 }
 
-void Measure::EqtimeMeasure::analyseStats(const Model::Hubbard &hubbard) {
-    for (int bin = 0; bin < this->nbin; ++bin) {
-        this->analyse_double_occu(bin, hubbard);
-        this->analyse_kinetic_energy(bin, hubbard);
-        this->analyse_electron_density(bin, hubbard);
-        this->analyse_local_corr(bin, hubbard);
-        this->analyse_AFM_factor(bin, hubbard);
-        this->analyse_Cooper_corr(bin, hubbard);
-    }
-
+void Measure::EqtimeMeasure::analyse_stats(const Model::Hubbard &hubbard) {
     this->sign.analyse();
     this->double_occu.analyse();
     this->kinetic_energy.analyse();

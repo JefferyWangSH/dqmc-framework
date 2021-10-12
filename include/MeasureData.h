@@ -2,6 +2,10 @@
 #define DQMC_HUBBARD_MEASUREDATA_H
 #pragma once
 
+/**
+  *  This is head file includes data structure `MeasureData` designed for the measurements of physical observables.
+  */
+
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
@@ -12,6 +16,7 @@ namespace Measure {
     private:
         double _mean_value = 0.0;
         double _error_bar = 0.0;
+        double _tmp_data = 0.0;
 
         int _size_of_bin = 0.0;
         Eigen::VectorXd _bins{};
@@ -23,6 +28,10 @@ namespace Measure {
         double mean_value() const;
 
         double error_bar() const;
+
+        double tmp_value() const;
+
+        double& tmp_value();
 
         int size_of_bin() const;
 

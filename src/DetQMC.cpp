@@ -157,14 +157,14 @@ void Simulation::DetQMC::run_QMC(bool bool_display_process) {
 
             // analyse statistical data
             if (this->bool_measure_eqtime && this->EqtimeMeasure) {
-                this->EqtimeMeasure->normalizeStats(*this->hubb);
-                this->EqtimeMeasure->write_Stats_to_bins(bin);
+                this->EqtimeMeasure->normalize_stats(*this->hubb);
+                this->EqtimeMeasure->write_stats_to_bins(bin);
                 this->EqtimeMeasure->clear_temporary();
             }
 
             if (this->bool_measure_dynamic && this->DynamicMeasure) {
-                this->DynamicMeasure->normalizeStats(*this->hubb);
-                this->DynamicMeasure->write_Stats_to_bins(bin, *this->hubb);
+                this->DynamicMeasure->normalize_stats(*this->hubb);
+                this->DynamicMeasure->write_stats_to_bins(bin, *this->hubb);
                 this->DynamicMeasure->clear_temporary(*this->hubb);
             }
 
@@ -194,26 +194,26 @@ void Simulation::DetQMC::sweep_back_and_forth(bool bool_eqtime, bool bool_dynami
     }
     else {
         this->hubb->sweep_0_to_beta_displaced(this->nwrap);
-        this->DynamicMeasure->measure_time_displaced(*this->hubb);
+        this->DynamicMeasure->time_displaced_measure(*this->hubb);
     }
     if (bool_eqtime) {
-        this->EqtimeMeasure->measure_equal_time_greens(*this->hubb);
+        this->EqtimeMeasure->equal_time_measure(*this->hubb);
     }
 
     // sweep back from beta to 0
     this->hubb->sweep_beta_to_0(this->nwrap);
     // TODO: hubb.sweep_beta_to_0_displaced
     if (bool_eqtime) {
-        this->EqtimeMeasure->measure_equal_time_greens(*this->hubb);
+        this->EqtimeMeasure->equal_time_measure(*this->hubb);
     }
 }
 
 void Simulation::DetQMC::analyse_stats() const {
     if (this->bool_measure_eqtime) {
-        this->EqtimeMeasure->analyseStats(*this->hubb);
+        this->EqtimeMeasure->analyse_stats(*this->hubb);
     }
     if (this->bool_measure_dynamic) {
-        this->DynamicMeasure->analyse_timeDisplaced_Stats(*this->hubb);
+        this->DynamicMeasure->analyse_stats(*this->hubb);
     }
 }
 
@@ -260,12 +260,12 @@ void Simulation::DetQMC::print_stats() const {
         std::cout << std::endl;
         std::cout << "  Time-displaced Measurements: " << std::endl
                   << "    Dynamical correlation in momentum space:  see in file" << std::endl
-                  << "    Correlation G(k, beta/2):   " << this->DynamicMeasure->mean_g_kt[ceil(this->hubb->lt/2.0)]
-                  << "    err: " << this->DynamicMeasure->err_g_kt[ceil(this->hubb->lt/2.0)] << std::endl
-                  << "    Helicity modules \\Rho_s:   " << this->DynamicMeasure->mean_rho_s
-                  << "    err: " << this->DynamicMeasure->err_rho_s << std::endl
-                  << "    Average Sign (abs):         " << abs(this->DynamicMeasure->mean_sign)
-                  << "    err: " << this->DynamicMeasure->err_sign << std::endl;
+                  << "    Correlation G(k, beta/2):   " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].mean_value()
+                  << "    err: " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].error_bar() << std::endl
+                  << "    Helicity modules \\Rho_s:   " << this->DynamicMeasure->superfluid_density.mean_value()
+                  << "    err: " << this->DynamicMeasure->superfluid_density.error_bar() << std::endl
+                  << "    Average Sign (abs):         " << abs(this->DynamicMeasure->sign.mean_value())
+                  << "    err: " << this->DynamicMeasure->sign.error_bar() << std::endl;
         std::cout.precision(-1);
     }
 
@@ -305,7 +305,7 @@ void Simulation::DetQMC::bin_output_corr(const std::string &filename) const{
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
                 const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
-                outfile << std::setw(20) << this->DynamicMeasure->bin_g_kt[bin][tau] << std::endl;
+                outfile << std::setw(20) << this->DynamicMeasure->matsubara_greens[tau].bin_data()[bin] << std::endl;
             }
         }
         outfile.close();
@@ -329,9 +329,10 @@ void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
                 const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
-                outfile << std::setw(20)
-                        << 0.5 / this->hubb->ls * (this->DynamicMeasure->bin_gt0_up[bin][tau] + this->DynamicMeasure->bin_gt0_dn[bin][tau]).trace()
-                        << std::endl;
+                // TODO: LDOS measure, linear!
+//                outfile << std::setw(20)
+//                        << 0.5 / this->hubb->ls * (this->DynamicMeasure->bin_gt0_up[bin][tau] + this->DynamicMeasure->bin_gt0_dn[bin][tau]).trace()
+//                        << std::endl;
             }
         }
         outfile.close();
@@ -378,15 +379,15 @@ void Simulation::DetQMC::file_output_dynamic_stats(const std::string& filename) 
         for (int l = 0; l < this->hubb->lt; ++l) {
             const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
             outfile << std::setw(15) << l
-                    << std::setw(15) << this->DynamicMeasure->mean_g_kt[tau]
-                    << std::setw(15) << this->DynamicMeasure->err_g_kt[tau]
-                    << std::setw(15) << this->DynamicMeasure->err_g_kt[tau] / this->DynamicMeasure->mean_g_kt[tau]
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].mean_value()
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].error_bar()
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].error_bar() / this->DynamicMeasure->matsubara_greens[tau].mean_value()
                     << std::endl;
         }
 
-        outfile << std::setw(15) << this->DynamicMeasure->mean_rho_s
-                << std::setw(15) << this->DynamicMeasure->err_rho_s
-                << std::setw(15) << this->DynamicMeasure->err_rho_s / this->DynamicMeasure->mean_rho_s
+        outfile << std::setw(15) << this->DynamicMeasure->superfluid_density.mean_value()
+                << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar()
+                << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar() / this->DynamicMeasure->superfluid_density.mean_value()
                 << std::endl;
 
         outfile.close();

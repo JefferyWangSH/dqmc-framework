@@ -8,9 +8,6 @@
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 
-#include "EqtimeMeasure.h"
-#include "MeasureData.h"
-
 /**
   *  TODO:
   *   1. get params from command lines, using boost (done)
@@ -115,15 +112,13 @@ int main(int argc, char* argv[]) {
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
     dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
     dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-    dqmc->set_lattice_momentum(1.0, 1.0);
+    dqmc->set_lattice_momentum(0.5, 0.5);
     dqmc->print_params();
 
     dqmc->init_measure();
     dqmc->run_QMC(bool_display_process);
     dqmc->analyse_stats();
     dqmc->print_stats();
-
-//    std::cout << dqmc->EqtimeMeasure->double_occu.bin_data() << std::endl;
 
     /** Measure dynamical correlation functions for different momentum k */
 

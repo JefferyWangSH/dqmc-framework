@@ -24,7 +24,7 @@ class SvdStack;
 namespace Simulation {
 
     class DetQMC {
-    public:
+    private:
         // model parameters
         Model::Hubbard *hubb{};
 
