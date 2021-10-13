@@ -5,6 +5,15 @@ Measure::MeasureData::MeasureData(const int &size_of_bin) {
     this->set_size_of_bin(size_of_bin);
 }
 
+int Measure::MeasureData::counts() const {
+    return this->_count;
+}
+
+int Measure::MeasureData::size_of_bin() const {
+    assert( this->_size_of_bin == this->_bins.size() );
+    return this->_size_of_bin;
+}
+
 double Measure::MeasureData::mean_value() const {
     return this->_mean_value;
 }
@@ -19,11 +28,6 @@ double Measure::MeasureData::tmp_value() const {
 
 double& Measure::MeasureData::tmp_value() {
     return this->_tmp_data;
-}
-
-int Measure::MeasureData::size_of_bin() const {
-    assert( this->_size_of_bin == this->_bins.size() );
-    return this->_size_of_bin;
 }
 
 Eigen::VectorXd& Measure::MeasureData::bin_data() {
@@ -46,6 +50,7 @@ void Measure::MeasureData::clear() {
 
 void Measure::MeasureData::clear_temporary() {
     this->_tmp_data = 0.0;
+    this->_count = 0;
 }
 
 void Measure::MeasureData::clear_bin_data() {

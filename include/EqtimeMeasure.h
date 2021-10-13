@@ -33,16 +33,13 @@ namespace Measure{
         int nbin{20};
 
         /* for equal-time (static) measurements */
-        Measure::MeasureData sign;                                      // average sign to keep track of sign problem
-        Measure::MeasureData double_occu;                               // double occupancy
-        Measure::MeasureData kinetic_energy;                            // kinetic energy
-        Measure::MeasureData electron_density;                          // electron density in momentum space
-        Measure::MeasureData local_corr;                                // local spin correlation
-        Measure::MeasureData AFM_factor;                                // AFM structure factor
-        Eigen::MatrixX<Measure::MeasureData> cooper_corr;               // space correlation of (local) Cooper order parameter
-
-        // temporary counting parameters
-        int n_equal_time = 0;
+        Measure::MeasureData sign;                              // average sign to keep track of sign problem
+        Measure::MeasureData double_occu;                       // double occupancy
+        Measure::MeasureData kinetic_energy;                    // kinetic energy
+        Measure::MeasureData electron_density;                  // electron density in momentum space
+        Measure::MeasureData local_corr;                        // local spin correlation
+        Measure::MeasureData AFM_factor;                        // AFM structure factor
+        std::vector<Measure::MeasureData> cooper_corr;          // space correlation of (local) Cooper order parameter
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);

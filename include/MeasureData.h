@@ -18,12 +18,20 @@ namespace Measure {
         double _error_bar = 0.0;
         double _tmp_data = 0.0;
 
+        int _count = 0;
+
         int _size_of_bin = 0.0;
         Eigen::VectorXd _bins{};
 
     public:
         MeasureData() = default;
         explicit MeasureData(const int& size_of_bin);
+
+        int operator++() { return ++this->_count; }
+
+        int counts() const;
+
+        int size_of_bin() const;
 
         double mean_value() const;
 
@@ -32,8 +40,6 @@ namespace Measure {
         double tmp_value() const;
 
         double& tmp_value();
-
-        int size_of_bin() const;
 
         const Eigen::VectorXd& bin_data() const;
 

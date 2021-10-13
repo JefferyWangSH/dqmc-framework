@@ -107,7 +107,6 @@ int main(int argc, char* argv[]) {
     Simulation::DetQMC *dqmc;
     dqmc = new Simulation::DetQMC();
 
-
     /** usage example */
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
     dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);

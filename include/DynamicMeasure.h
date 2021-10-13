@@ -42,9 +42,6 @@ namespace Measure{
         // sign problem
         MeasureData sign;
 
-        // temporary counting parameters
-        int n_time_displaced = 0;
-
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
 

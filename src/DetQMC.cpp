@@ -259,10 +259,10 @@ void Simulation::DetQMC::print_stats() const {
         std::cout.precision(8);
         std::cout << std::endl;
         std::cout << "  Time-displaced Measurements: " << std::endl
-                  << "    Dynamical correlation in momentum space:  see in file" << std::endl
-                  << "    Correlation G(k, beta/2):   " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].mean_value()
+                  << "    Dynamical green's functions of imaginary time:  see in file" << std::endl
+                  << "    Green's function G(k, beta/2):   " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].mean_value()
                   << "    err: " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].error_bar() << std::endl
-                  << "    Helicity modules \\Rho_s:   " << this->DynamicMeasure->superfluid_density.mean_value()
+                  << "    Superfluid density rho_s:   " << this->DynamicMeasure->superfluid_density.mean_value()
                   << "    err: " << this->DynamicMeasure->superfluid_density.error_bar() << std::endl
                   << "    Average Sign (abs):         " << abs(this->DynamicMeasure->sign.mean_value())
                   << "    err: " << this->DynamicMeasure->sign.error_bar() << std::endl;
@@ -400,68 +400,10 @@ void Simulation::DetQMC::file_output_cooper_corr(const std::string &filename) co
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::trunc);
 
-    // reading data of correlation matrix from measuring module
-    Eigen::MatrixXd cooper_corr_mean_mat(this->hubb->ls, this->hubb->ls);
-    Eigen::MatrixXd cooper_corr_err_mat(this->hubb->ls, this->hubb->ls);
-    for (int i = 0; i < this->hubb->ls; ++i) {
-        for (int j = 0; j < this->hubb->ls; ++j) {
-            cooper_corr_mean_mat(i, j) = this->EqtimeMeasure->cooper_corr(i, j).mean_value();
-            cooper_corr_err_mat(i, j) = this->EqtimeMeasure->cooper_corr(i, j).error_bar();
-        }
-    }
-
-    // analysed space correlations of cooper pairs
-    // number of independent correlation length = ll/2 + 1 due to the periodical boundary condition
-    // correlation length l1, l2 satisfying l1 + l2 = ll are identical
-    const int num_of_corr = this->hubb->ll / 2 + 1;
-    Eigen::VectorXd cooper_corr_mean(num_of_corr);
-    Eigen::VectorXd cooper_corr_err(num_of_corr);
-    Eigen::VectorXi counting(num_of_corr);
-    cooper_corr_mean.setZero();
-    cooper_corr_err.setZero();
-    counting.setZero();
-
-    // loop for space points pair (i, j)
-    // due to the symmetric feature of correlation matrix, we count a specific ij pair for only one time.
-    int corr_length = 0;
-    for (int xi = 0; xi < this->hubb->ll; ++xi) {
-        for (int yi = 0; yi < this->hubb->ll; ++yi) {
-            for (int xj = xi; xj < this->hubb->ll; ++xj) {
-                for (int yj = yi; yj < this->hubb->ll; ++yj) {
-                    // index j is always larger than index i.
-                    // ensure that the ij pair is counted only once
-                    const int i = xi + this->hubb->ll * yi;
-                    const int j = xj + this->hubb->ll * yj;
-                    if ( j < ((i/this->hubb->ll)+1)*this->hubb->ll ) {
-                        // correlations along x direction, including onsite cases (i=j)
-                        corr_length = ( (j-i) < num_of_corr ) ? j-i : this->hubb->ll-j+i;
-                        cooper_corr_mean(corr_length) += cooper_corr_mean_mat(i, j);
-                        cooper_corr_err(corr_length) += cooper_corr_err_mat(i, j);
-                        counting(corr_length)++;
-                    }
-                    if ( (j-i) % this->hubb->ll == 0 && j != i ) {
-                        // correlations along y direction
-                        corr_length = ( ((j-i)/this->hubb->ll) < num_of_corr ) ? (j-i)/this->hubb->ll : this->hubb->ll-((j-i)/this->hubb->ll);
-                        cooper_corr_mean(corr_length) += cooper_corr_mean_mat(i, j);
-                        cooper_corr_err(corr_length) += cooper_corr_err_mat(i, j);
-                        counting(corr_length)++;
-                    }
-                }
-            }
-        }
-    }
-    // normalizing
-    for (int i = 0; i < num_of_corr; ++i) {
-        cooper_corr_mean(i) /= counting(i);
-        cooper_corr_err(i) /= counting(i);
-    }
-
-    // results output
-    for (int i = 0; i < num_of_corr; ++i) {
+    for (int i = 0; i < this->EqtimeMeasure->cooper_corr.size(); ++i) {
         outfile << std::setw(15) << i
-                << std::setw(15) << cooper_corr_mean(i)
-                << std::setw(15) << cooper_corr_err(i)
-                << std::setw(15) << counting(i)
+                << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].mean_value()
+                << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].error_bar()
                 << std::endl;
     }
     outfile.close();
