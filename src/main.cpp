@@ -112,13 +112,16 @@ int main(int argc, char* argv[]) {
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
     dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
     dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-    dqmc->set_lattice_momentum(0.5, 0.5);
+    dqmc->set_lattice_momentum(1.0, 1.0);
     dqmc->print_params();
 
     dqmc->init_measure();
     dqmc->run_QMC(bool_display_process);
     dqmc->analyse_stats();
     dqmc->print_stats();
+
+    dqmc->file_output_cooper_corr("../results/cooper.dat");
+
 
     /** Measure dynamical correlation functions for different momentum k */
 
@@ -146,7 +149,7 @@ int main(int argc, char* argv[]) {
 //        }
 //
 //        dqmc->file_output_tau(path + "/tau.dat");
-//        dqmc->bin_output_corr(path + "/cor.dat");
+//        dqmc->bin_output_greens(path + "/cor.dat");
 //        dqmc->file_output_dynamic_stats(path + "/dynamic.dat");
 //    }
 

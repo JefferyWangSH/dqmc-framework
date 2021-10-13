@@ -4,7 +4,7 @@
 
 /**
   *  This head file includes module for equal-time measuring.
-  *  Class: measure::eqtimeMeasure
+  *  Class: Measure::eqtimeMeasure
   *  Measuring:
   *   1. Double occupancy D = < n_up*n_dn >
   *   2. Single particle kinetic energy
@@ -33,13 +33,13 @@ namespace Measure{
         int nbin{20};
 
         /* for equal-time (static) measurements */
-        Measure::MeasureData double_occu;                 // double occupancy
-        Measure::MeasureData kinetic_energy;              // kinetic energy
-        Measure::MeasureData electron_density;            // electron density in momentum space
-        Measure::MeasureData local_corr;                  // local spin correlation
-        Measure::MeasureData AFM_factor;                  // AFM structure factor
-        std::vector<Measure::MeasureData> cooper_corr;    // space correlation of Cooper-type order parameter
-        Measure::MeasureData sign;                        // average sign to keep track of sign problem
+        Measure::MeasureData sign;                                      // average sign to keep track of sign problem
+        Measure::MeasureData double_occu;                               // double occupancy
+        Measure::MeasureData kinetic_energy;                            // kinetic energy
+        Measure::MeasureData electron_density;                          // electron density in momentum space
+        Measure::MeasureData local_corr;                                // local spin correlation
+        Measure::MeasureData AFM_factor;                                // AFM structure factor
+        Eigen::MatrixX<Measure::MeasureData> cooper_corr;               // space correlation of (local) Cooper order parameter
 
         // temporary counting parameters
         int n_equal_time = 0;
@@ -74,14 +74,11 @@ namespace Measure{
         /* bin measurements */
         void write_stats_to_bins(int bin);
 
-//        /* analyse certain equal-time data and compute means and errors */
-//        void analyse_equal_time_Stats(const std::string &obs);
-
         /* analyse all equal-time statistics from simulation */
         void analyse_stats(const Model::Hubbard &hubbard);
 
     private:
-        /** double occupation: D = < n_up*n_dn > */
+        /** double occupation: D = < n_up * n_dn > */
         void measure_double_occu(const int &tau, const Model::Hubbard &hubbard);
 
         /** single particle kinetic energy */
@@ -96,7 +93,7 @@ namespace Measure{
         /** Anti-ferromagnetic structure factor: fourier transformation of real-space pi-pi correlation of spins */
         void measure_AFM_factor(const int &tau, const Model::Hubbard &hubbard);
 
-        /** space correlation of Cooper-type order parameter */
+        /** space correlation of (local) Cooper order parameter */
         void measure_Cooper_corr(const int &tau, const Model::Hubbard &hubbard);
     };
 }

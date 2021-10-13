@@ -1,3 +1,4 @@
+#include <iostream>
 #include "EqtimeMeasure.h"
 #include "MeasureData.h"
 #include "Hubbard.h"
@@ -20,9 +21,11 @@ void Measure::EqtimeMeasure::initial(const Model::Hubbard &hubbard) {
     this->AFM_factor.set_size_of_bin(this->nbin);
     this->sign.set_size_of_bin(this->nbin);
 
-    this->cooper_corr.reserve(hubbard.ll);
-    for (int l = 0; l < hubbard.ll; ++l) {
-        this->cooper_corr.emplace_back(this->nbin);
+    this->cooper_corr.resize(hubbard.ls, hubbard.ls);
+    for (int i = 0; i < hubbard.ls; ++i) {
+        for (int j = 0; j < hubbard.ls; ++j) {
+            cooper_corr(i, j).set_size_of_bin(this->nbin);
+        }
     }
 }
 
@@ -34,8 +37,11 @@ void Measure::EqtimeMeasure::clear_temporary() {
     this->electron_density.clear_temporary();
     this->local_corr.clear_temporary();
     this->AFM_factor.clear_temporary();
-    for (auto &CooperCorr : this->cooper_corr) {
-        CooperCorr.clear_temporary();
+
+    for (int i = 0; i < cooper_corr.rows(); ++i) {
+        for (int j = 0; j < cooper_corr.cols(); ++j) {
+            cooper_corr(i, j).clear_temporary();
+        }
     }
 }
 
@@ -60,8 +66,11 @@ void Measure::EqtimeMeasure::normalize_stats(const Model::Hubbard &hubbard) {
     this->electron_density.tmp_value() /= this->n_equal_time * hubbard.lt;
     this->local_corr.tmp_value() /= this->n_equal_time * hubbard.lt;
     this->AFM_factor.tmp_value() /= this->n_equal_time * hubbard.lt;
-    for (auto &CooperCorr : this->cooper_corr) {
-        CooperCorr.tmp_value() /= this->n_equal_time * hubbard.lt;
+
+    for (int i = 0; i < cooper_corr.rows(); ++i) {
+        for (int j = 0; j < cooper_corr.cols(); ++j) {
+            cooper_corr(i, j).tmp_value() /= this->n_equal_time * hubbard.lt;
+        }
     }
 
     // normalized by pre-factor of nature
@@ -70,10 +79,12 @@ void Measure::EqtimeMeasure::normalize_stats(const Model::Hubbard &hubbard) {
     this->electron_density.tmp_value() /= this->sign.tmp_value();
     this->local_corr.tmp_value() /= hubbard.ls * this->sign.tmp_value();
     this->AFM_factor.tmp_value() /= hubbard.ls * hubbard.ls * this->sign.tmp_value();
-//    for (auto &CooperCorr : this->cooper_corr) {
-//        CooperCorr.tmp_value() /= this->n_equal_time * this->sign.tmp_value();
-//    }
 
+    for (int i = 0; i < cooper_corr.rows(); ++i) {
+        for (int j = 0; j < cooper_corr.cols(); ++j) {
+            cooper_corr(i, j).tmp_value() /= this->sign.tmp_value();
+        }
+    }
 }
 
 void Measure::EqtimeMeasure::write_stats_to_bins(int bin) {
@@ -83,8 +94,11 @@ void Measure::EqtimeMeasure::write_stats_to_bins(int bin) {
     this->electron_density.bin_data()[bin] = this->electron_density.tmp_value();
     this->local_corr.bin_data()[bin] = this->local_corr.tmp_value();
     this->AFM_factor.bin_data()[bin] = this->AFM_factor.tmp_value();
-    for (auto &CooperCorr : this->cooper_corr) {
-        CooperCorr.bin_data()[bin] = CooperCorr.tmp_value();
+
+    for (int i = 0; i < cooper_corr.rows(); ++i) {
+        for (int j = 0; j < cooper_corr.cols(); ++j) {
+            cooper_corr(i, j).bin_data()[bin] = this->cooper_corr(i, j).tmp_value();
+        }
     }
 }
 
@@ -147,19 +161,10 @@ void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubba
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
     const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
-    // Definition:
-    //   gu(i,j)  = < c_i * c^+_j >
-    //   guc(i,j) = < c^+_i * c_j >
-    Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls);
-    Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls);
-    for (int i = 0; i < ls; ++i) {
-        for (int j = 0; j < ls; ++j) {
-            guc(j, i) = - gu(i, j);
-            gdc(j, i) = - gd(i, j);
-        }
-        guc(i, i)++;
-        gdc(i, i)++;
-    }
+    // g(i,j)  = < c_i * c^+_j >
+    // gc(i,j) = < c^+_i * c_j >
+    const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - gu.transpose();
+    const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - gd.transpose();
 
     // loop for site i and j
     for (int xi = 0; xi < ll; ++xi) {
@@ -169,9 +174,9 @@ void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubba
                     const int i = xi + ll * yi;
                     const int j = xj + ll * yj;
                     const Eigen::VectorXd r = (Eigen::VectorXd(2) << (xi - xj), (yi - yj)).finished();
-                    const double factor = cos(-r.dot(this->q));
+                    const double factor = hubbard.config_sign * cos(-r.dot(this->q));
                     // factor 1/4 comes from spin 1/2
-                    this->AFM_factor.tmp_value() += 0.25 * factor * hubbard.config_sign *
+                    this->AFM_factor.tmp_value() += 0.25 * factor *
                             ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
                               + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
                               - gdc(i, i) * guc(j, j) - guc(i, i) * gdc(j, j) );
@@ -182,7 +187,24 @@ void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubba
 }
 
 void Measure::EqtimeMeasure::measure_Cooper_corr(const int &t, const Model::Hubbard &hubbard) {
+    // The (local) Cooper order parameter is defined as \Delta_{i} = c_up_{i} * c_dn_{i}
+    // Accordingly, the space correlation of Cooper pair reads as follows
+    //   < \Delta^\dagger_{i} * \Delta_{j} >
+    //        = < c_up_{i}^+ * c_up_{j} > * < c_dn_{i}^+ * c_dn_{j} >
+    //        = ( \delta_{ij} - G_up(tau, tau)_{ji} ) * ( \delta_{ij} - G_dn(tau, tau)_{ji} )
 
+    // g(i,j)  = < c_i * c^+_j >
+    // gc(i,j) = < c^+_i * c_j >
+    const int ls = hubbard.ls;
+    const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - hubbard.vec_green_tt_up[t].transpose();
+    const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - hubbard.vec_green_tt_dn[t].transpose();
+
+    // sweep for space point i and j
+    for (int i = 0; i < ls; ++i) {
+        for (int j = 0; j < ls; ++j) {
+            this->cooper_corr(i, j).tmp_value() += hubbard.config_sign * guc(i, j) * gdc(i, j);
+        }
+    }
 }
 
 void Measure::EqtimeMeasure::analyse_stats(const Model::Hubbard &hubbard) {
@@ -192,7 +214,10 @@ void Measure::EqtimeMeasure::analyse_stats(const Model::Hubbard &hubbard) {
     this->electron_density.analyse();
     this->local_corr.analyse();
     this->AFM_factor.analyse();
-    for (int i = 0; i < hubbard.ll; ++i) {
-        this->cooper_corr[i].analyse();
+
+    for (int i = 0; i < cooper_corr.rows(); ++i) {
+        for (int j = 0; j < cooper_corr.cols(); ++j) {
+            cooper_corr(i, j).analyse();
+        }
     }
 }

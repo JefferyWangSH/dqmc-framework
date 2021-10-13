@@ -13,12 +13,10 @@ namespace Measure { class EqtimeMeasure; }
 namespace Measure { class DynamicMeasure; }
 class SvdStack;
 
-#include <map>
-#include <chrono>
-
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
+#include <chrono>
 
 
 namespace Simulation {
@@ -98,11 +96,14 @@ namespace Simulation {
         /* write sequences of imaginary-time tau into file */
         void file_output_tau(const std::string &filename) const;
 
-        /* write results of measurements, in terms of bins, into file */
-        void bin_output_corr(const std::string &filename) const;
+        /* write results of green's function measurements, in terms of bins, into file */
+        void bin_output_greens(const std::string &filename) const;
 
         /* write measuring results of local density of states(LDOS) , in terms of bins, into file */
         void bin_output_LDOS(const std::string &filename) const;
+
+        /* analyse space correlation of cooper pairs and write results into file */
+        void file_output_cooper_corr(const std::string &filename) const;
 
         /* output aux field configurations into file */
         void file_output_aux_field_configs(const std::string &filename) const;
