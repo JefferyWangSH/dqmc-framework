@@ -38,6 +38,7 @@ namespace Measure{
 
         // superfluid density (helicity modulus) \rho_s of superconducting
         MeasureData superfluid_density;
+//        Eigen::MatrixX<MeasureData> current_current_corr;
 
         // sign problem
         MeasureData sign;

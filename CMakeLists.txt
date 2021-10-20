@@ -12,13 +12,13 @@ include_directories(
         ${EIGEN3_INCLUDE_DIR}
         /usr/include/eigen3
         /opt/intel/oneapi/mkl/latest/include/
-        /usr/local/include/boost
+        /usr/include/boost
 )
 
 link_directories(
         /opt/intel/oneapi/mkl/latest/lib/intel64                        # mkl
         /opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64    # linux openmp library, specifically libiomp5.so
-        /usr/local/lib                                                  # boost
+        /usr/include/boost                                              # boost
 )
 
 add_executable(${PROJECT_NAME}
@@ -32,9 +32,8 @@ add_executable(${PROJECT_NAME}
         src/ProgressBar.hpp
         src/MeasureData.cpp
         src/EqtimeMeasure.cpp
-        src/EqtimeMeasureLinear.cpp
         src/DynamicMeasure.cpp
-        src/DynamicMeasureLinear.cpp
+        src/fft.hpp
 )
 
 target_include_directories(${PROJECT_NAME}

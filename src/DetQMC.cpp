@@ -304,8 +304,7 @@ void Simulation::DetQMC::bin_output_greens(const std::string &filename) const{
         for (int bin = 0; bin < this->nbin; ++bin) {
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
-                const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
-                outfile << std::setw(20) << this->DynamicMeasure->matsubara_greens[tau].bin_data()[bin] << std::endl;
+                outfile << std::setw(20) << this->DynamicMeasure->matsubara_greens[l].bin_data()[bin] << std::endl;
             }
         }
         outfile.close();
@@ -328,10 +327,9 @@ void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
         for (int bin = 0; bin < this->nbin; ++bin) {
             outfile << std::setw(20) << bin << std::endl;
             for (int l = 0; l < this->hubb->lt; ++l) {
-                const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
                 // TODO: LDOS measurements (linear) can be accelerated!
                 outfile << std::setw(20)
-                        << this->DynamicMeasure->density_of_states[tau].bin_data()[bin]
+                        << this->DynamicMeasure->density_of_states[l].bin_data()[bin]
                         << std::endl;
             }
         }
@@ -377,11 +375,10 @@ void Simulation::DetQMC::file_output_dynamic_stats(const std::string& filename) 
                 << "Momentum k: " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl;
 
         for (int l = 0; l < this->hubb->lt; ++l) {
-            const int tau = (l - 1 + this->hubb->lt) % this->hubb->lt;
             outfile << std::setw(15) << l
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].mean_value()
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].error_bar()
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[tau].error_bar() / this->DynamicMeasure->matsubara_greens[tau].mean_value()
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].mean_value()
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar()
+                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar() / this->DynamicMeasure->matsubara_greens[l].mean_value()
                     << std::endl;
         }
 

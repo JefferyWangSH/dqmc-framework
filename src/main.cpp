@@ -24,7 +24,12 @@
   *   12. replace boost::format with std::format, using c++20 standard (missing)
   *   13. log output (missing)
   *   14. simulate with bash script (missing)
-  *   15. ...
+  *   15. MPI distributed programing (missing)
+  *   16. generalized model and lattice module supporting simulations of user-designed physical systems (missing)
+  *   17. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
+  *   18. specialized random (and seed) module (missing)
+  *   19. high-efficient measurements of linear observables (missing)
+  *   20. ...
   */
 
 
@@ -108,10 +113,11 @@ int main(int argc, char* argv[]) {
     dqmc = new Simulation::DetQMC();
 
     /** usage example */
+
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
     dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
     dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-    dqmc->set_lattice_momentum(1.0, 1.0);
+    dqmc->set_lattice_momentum(1., 1.);
     dqmc->print_params();
 
     dqmc->init_measure();
@@ -119,7 +125,25 @@ int main(int argc, char* argv[]) {
     dqmc->analyse_stats();
     dqmc->print_stats();
 
-    dqmc->file_output_cooper_corr("../results/cooper.dat");
+//    dqmc->file_output_dynamic_stats("../results/dynamic.dat");
+//    dqmc->file_output_cooper_corr("../results/cooper_l_8.dat");
+
+
+//    std::vector<double> list_of_beta = { 4.0, 8.0, 10.0, 12.0, 16.0, };
+//    for (auto b : list_of_beta) {
+//        int number_of_t = 20*(int)b;
+//        dqmc->set_model_params(ll, number_of_t, b, t, u, mu, nwrap, bool_checkerboard);
+//        dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+//        dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+//        dqmc->set_lattice_momentum(0.5, 0.5);
+//        dqmc->print_params();
+//
+//        dqmc->init_measure();
+//        dqmc->run_QMC(bool_display_process);
+//        dqmc->analyse_stats();
+//        dqmc->print_stats();
+//    }
+
 
 
     /** Measure dynamical correlation functions for different momentum k */
@@ -301,6 +325,63 @@ int main(int argc, char* argv[]) {
 //    }
 //    end_t = std::chrono::steady_clock::now();
 //    std::cout << (double)std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count()/1000 << std::endl;
+
+
+//    // debug
+//    Model::Hubbard *model;
+//    lt = 80;
+//    nwrap = 5;
+//    model = new Model::Hubbard(4, lt, 4.0, 1.0, -4.0, 0.0, nwrap, false);
+//    model->sweep_0_to_beta(nwrap);
+//    model->sweep_beta_to_0(nwrap);
+//    model->sweep_0_to_beta_displaced(nwrap);
+
+//    std::cout << std::endl;
+//    std::cout << dqmc->hubb->vec_green_tt_up[10] << std::endl << std::endl;
+//    std::cout << dqmc->hubb->vec_green_t0_up[10] << std::endl << std::endl;
+
+//    Eigen::MatrixXd gtt = dqmc->hubb->vec_green_tt_up[10];
+//    Eigen::MatrixXd gt0_benchmark = dqmc->hubb->vec_green_t0_up[10];
+//    Eigen::MatrixXd gt0 = gtt;
+//
+//    dqmc->hubb->mult_B_from_right(gt0, 1, +1);
+
+//    Eigen::MatrixXd g00 = dqmc->hubb->vec_green_tt_up[0];
+//    Eigen::MatrixXd g10_benchmark = dqmc->hubb->vec_green_t0_up[1];
+//    Eigen::MatrixXd g10 = g00;
+//    dqmc->hubb->mult_B_from_right(g10, 1, +1);
+//
+//    std::cout << (g10 - g10_benchmark).maxCoeff() << std::endl;
+
+//    Eigen::MatrixXd g00 = model->vec_green_tt_up[lt-1];
+//    Eigen::MatrixXd g00_ = model->vec_green_t0_up[lt-1];
+//    for (int i = 1; i <= lt; ++i){
+//        model->mult_B_from_left(g00, i, +1);
+//    }
+//    std::cout << (g00 - g00_).maxCoeff() << std::endl;
+
+
+//    // text gt0 and g0t
+//    const int tau = 10;
+//    const Eigen::MatrixXd ident = Eigen::MatrixXd::Identity(16, 16);
+//    Eigen::MatrixXd gt0 = model->vec_green_t0_up[tau-1];
+//    Eigen::MatrixXd g0t = model->vec_green_0t_up[tau-1];
+//
+//    for (int i = 1; i <= tau; ++i) {
+//        model->mult_B_from_left(g0t, i, +1);
+//        model->mult_invB_from_right(gt0, i, +1);
+//    }
+//    std::cout << (gt0 - g0t - ident).maxCoeff() << std::endl;
+
+//    // text gt0 and gtt
+//    const int tau = 10;
+//    Eigen::MatrixXd gtt = model->vec_green_tt_up[tau-1];
+//    Eigen::MatrixXd gt0 = model->vec_green_t0_up[tau-1];
+//    for (int i = tau; i >= 1; --i) {
+//        model->mult_B_from_right(gtt, i, +1);
+//    }
+//    std::cout << (gt0 - gtt).maxCoeff() << std::endl;
+
 
     delete dqmc;
     return 0;

@@ -89,6 +89,7 @@ void Measure::EqtimeMeasure::write_stats_to_bins(int bin) {
 }
 
 void Measure::EqtimeMeasure::measure_double_occu(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
     const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
@@ -99,6 +100,7 @@ void Measure::EqtimeMeasure::measure_double_occu(const int &t, const Model::Hubb
 }
 
 void Measure::EqtimeMeasure::measure_kinetic_energy(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
     const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
@@ -114,18 +116,21 @@ void Measure::EqtimeMeasure::measure_kinetic_energy(const int &t, const Model::H
 }
 
 void Measure::EqtimeMeasure::measure_electron_density(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
     const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
     double tmp_electron_density = 0.0;
+    // base point
     for (int xi = 0; xi < ll; ++xi) {
         for (int yi = 0; yi < ll; ++yi) {
-            for (int xj = 0; xj < ll; ++xj) {
-                for (int yj = 0; yj < ll; ++yj) {
-                    const int i = xi + ll * yi;
-                    const int j = xj + ll * yj;
-                    const Eigen::VectorXd r = ( Eigen::VectorXd(2) << (xi - xj), (yi - yj) ).finished();
+            const int i = xi + ll * yi;
+            // displacement
+            for (int dx = 0; dx < ll; ++dx) {
+                for (int dy = 0; dy < ll; ++dy) {
+                    const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
+                    const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
                     tmp_electron_density += cos(-r.dot(this->q)) * (gu(j, i) + gd(j, i));
                 }
             }
@@ -136,6 +141,7 @@ void Measure::EqtimeMeasure::measure_electron_density(const int &t, const Model:
 }
 
 void Measure::EqtimeMeasure::measure_local_corr(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
     const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
 
@@ -146,6 +152,7 @@ void Measure::EqtimeMeasure::measure_local_corr(const int &t, const Model::Hubba
 }
 
 void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
     const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
@@ -156,14 +163,15 @@ void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubba
     const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - gu.transpose();
     const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - gd.transpose();
 
-    // loop for site i and j
+    // loop for site i and average
     for (int xi = 0; xi < ll; ++xi) {
         for (int yi = 0; yi < ll; ++yi) {
-            for (int xj = 0; xj < ll; ++xj) {
-                for (int yj = 0; yj < ll; ++yj) {
-                    const int i = xi + ll * yi;
-                    const int j = xj + ll * yj;
-                    const Eigen::VectorXd r = (Eigen::VectorXd(2) << (xi - xj), (yi - yj)).finished();
+            const int i = xi + ll * yi;
+            // displacement
+            for (int dx = 0; dx < ll; ++dx) {
+                for (int dy = 0; dy < ll; ++dy) {
+                    const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
+                    const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
                     const double factor = hubbard.config_sign * cos(-r.dot(this->q));
                     // factor 1/4 comes from spin 1/2
                     this->AFM_factor.tmp_value() += 0.25 * factor *
@@ -178,6 +186,7 @@ void Measure::EqtimeMeasure::measure_AFM_factor(const int &t, const Model::Hubba
 }
 
 void Measure::EqtimeMeasure::measure_Cooper_corr(const int &t, const Model::Hubbard &hubbard) {
+    assert( t >= 0 && t < hubbard.lt );
     // The (local) Cooper order parameter is defined as \Delta_{i} = c_up_{i} * c_dn_{i}
     // Accordingly, the space correlation of Cooper pair reads as follows
     //   < \Delta^\dagger_{i} * \Delta_{j} >
@@ -195,30 +204,25 @@ void Measure::EqtimeMeasure::measure_Cooper_corr(const int &t, const Model::Hubb
     // correlation length l1, l2 satisfying l1 + l2 = ll are identical
     const int num_of_corr = ll / 2 + 1;
 
-    // loop for space points pair (i, j)
-    // due to the symmetric feature of correlation matrix, we count a specific ij pair for only one time.
-    int corr_length = 0;
+    // select base point i
     for (int xi = 0; xi < ll; ++xi) {
         for (int yi = 0; yi < ll; ++yi) {
-            for (int xj = xi; xj < ll; ++xj) {
-                for (int yj = yi; yj < ll; ++yj) {
-                    // index j is always larger than index i.
-                    // ensure that the ij pair is counted only once
-                    const int i = xi + ll * yi;
-                    const int j = xj + ll * yj;
-                    if ( j < ((i/ll)+1) * ll ) {
-                        // correlations along x direction, including onsite cases (i=j)
-                        corr_length = ( (j-i) < num_of_corr ) ? j-i : ll-j+i;
-                        this->cooper_corr[corr_length].tmp_value() += hubbard.config_sign * guc(i, j) * gdc(i, j);
-                        ++this->cooper_corr[corr_length];
-                    }
-                    if ( (j-i) % ll == 0 && j != i ) {
-                        // correlations along y direction
-                        corr_length = ( ((j-i)/ll) < num_of_corr ) ? (j-i)/ll : ll-((j-i)/ll);
-                        this->cooper_corr[corr_length].tmp_value() += hubbard.config_sign * guc(i, j) * gdc(i, j);
-                        ++this->cooper_corr[corr_length];
-                    }
-                }
+            const int i = xi + ll * yi;
+
+            // correlations along x direction, including onsite cases (i=j)
+            for (int dx = 0; dx < ll; ++dx) {
+                const int j = (xi + dx) % ll + ll * yi;
+                const int corr_len = (dx < num_of_corr)? dx : ll-dx;
+                this->cooper_corr[corr_len].tmp_value() += hubbard.config_sign * guc(i, j) * gdc(i, j);
+                ++this->cooper_corr[corr_len];
+            }
+
+            // correlations along y direction
+            for (int dy = 1; dy < ll; ++dy) {
+                const int j = xi + ll * ((yi + dy) % ll);
+                const int corr_len = (dy < num_of_corr)? dy : ll-dy;
+                this->cooper_corr[corr_len].tmp_value() += hubbard.config_sign * guc(i, j) * gdc(i, j);
+                ++this->cooper_corr[corr_len];
             }
         }
     }
