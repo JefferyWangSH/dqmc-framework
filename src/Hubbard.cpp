@@ -3,6 +3,7 @@
 #include "SvdStack.h"
 #include "BMatrixMult.hpp"
 #include "StableGreens.hpp"
+#include "Random.hpp"
 
 #include <iostream>
 #include <cassert>
@@ -74,7 +75,7 @@ Model::Hubbard::Hubbard(int ll, int lt, double beta, double t, double Uint, doub
     this->init_field_to_random();
 
     // initialize checkerboard
-    this->checkerboard = new CheckerBoard();
+    this->checkerboard = new CheckerBoard::CheckerBoard();
     this->checkerboard->init_from_model(*this);
     this->is_checkerboard = this->checkerboard->is_checker_board();
 
@@ -116,7 +117,7 @@ void Model::Hubbard::init_field_to_random() {
     std::bernoulli_distribution dist(0.5);
     for(int i = 0; i < this->ls; ++i) {
         for(int l = 0; l < this->lt; ++l) {
-            this->s(i, l) = dist(eng)? +1.0:-1.0;
+            this->s(i, l) = dist(Random::Engine)? +1.0:-1.0;
         }
     }
 }
@@ -144,7 +145,7 @@ void Model::Hubbard::metropolis_update(int l) {
                        * (1 + (1 - green_tt_dn(i, i)) * (exp(-2 * alpha * s(i, tau)) - 1));
         }
 
-        if(std::bernoulli_distribution(std::min(1.0, std::abs(p)))(eng)) {
+        if(std::bernoulli_distribution(std::min(1.0, std::abs(p)))(Random::Engine)) {
             /** reference:
              *  Quantum Monte Carlo Methods (Algorithms for Lattice Models) Determinant method
              *  Here we use the sparseness of matrix \delta */
@@ -379,7 +380,7 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
      *  For l = 1,2...,lt, recompute SvdStacks every `stable_pace` time slices.
      *  Data is stored in vec_green_t0/0t_up/dn.
      *
-     *  Cautious that equal-time green's function are also re-calculated according to the current configurations of aux field.
+     *  Cautious that equal-time green's functions are also re-calculated according to the current configurations of aux field.
      *  Data is stored in vec_green_tt_up/dn
      */
     this->current_tau++;
@@ -427,8 +428,6 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             this->stackLeftU->push(tmpU);
             this->stackLeftD->push(tmpD);
 
-            Eigen::MatrixXd tmp_green_tt_up = Eigen::MatrixXd::Zero(ls, ls);
-            Eigen::MatrixXd tmp_green_tt_dn = Eigen::MatrixXd::Zero(ls, ls);
             Eigen::MatrixXd tmp_green_t0_up = Eigen::MatrixXd::Zero(ls, ls);
             Eigen::MatrixXd tmp_green_t0_dn = Eigen::MatrixXd::Zero(ls, ls);
             Eigen::MatrixXd tmp_green_0t_up = Eigen::MatrixXd::Zero(ls, ls);
@@ -442,8 +441,8 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
             // equal time green's function are re-evaluated for current field configurations
-            compute_Green_eqtime(this->stackLeftU, this->stackRightU, tmp_green_tt_up);
-            compute_Green_eqtime(this->stackLeftD, this->stackRightD, tmp_green_tt_dn);
+            compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
+            compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
             compute_Green_displaced(this->stackLeftU, this->stackRightU, tmp_green_t0_up, tmp_green_0t_up);
             compute_Green_displaced(this->stackLeftD, this->stackRightD, tmp_green_t0_dn, tmp_green_0t_dn);
 
@@ -456,8 +455,6 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
             this->max_wrap_error_displaced = std::max(this->max_wrap_error_displaced, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
 
-            this->green_tt_up = tmp_green_tt_up;
-            this->green_tt_dn = tmp_green_tt_dn;
             this->green_t0_up = tmp_green_t0_up;
             this->green_t0_dn = tmp_green_t0_dn;
             this->green_0t_up = tmp_green_0t_up;

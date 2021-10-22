@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-bool CheckerBoard::is_checker_board() const {
+bool CheckerBoard::CheckerBoard::is_checker_board() const {
     return this->is_checkerboard;
 }
 
-void CheckerBoard::check_checker_board() {
+void CheckerBoard::CheckerBoard::check_checker_board() {
     if (this->is_checkerboard && this->ll % 2 != 0) {
         this->is_checkerboard = false;
         std::cerr << "Checkerboard break-up only supported for even lattice sizes." << std::endl;
@@ -15,7 +15,7 @@ void CheckerBoard::check_checker_board() {
     }
 }
 
-void CheckerBoard::init_from_model(const Model::Hubbard &hubbard) {
+void CheckerBoard::CheckerBoard::init_from_model(const Model::Hubbard &hubbard) {
     this->ll = hubbard.ll;
     this->ls = hubbard.ls;
     this->t = hubbard.t;
@@ -31,7 +31,7 @@ void CheckerBoard::init_from_model(const Model::Hubbard &hubbard) {
     else { this->make_expK_direct();}
 }
 
-void CheckerBoard::make_expK_direct() {
+void CheckerBoard::CheckerBoard::make_expK_direct() {
     // hopping matrix K: depends on geometry and hopping
     assert( this->exp_dtK.cols() == this->ls && this->exp_dtK.rows() == this->ls );
     assert( this->inv_exp_dtK.cols() == this->ls && this->inv_exp_dtK.rows() == this->ls );
@@ -51,7 +51,7 @@ void CheckerBoard::make_expK_direct() {
     this->inv_exp_dtK = (+dtau * K).exp();
 }
 
-void CheckerBoard::make_expK_checkerboard() {
+void CheckerBoard::CheckerBoard::make_expK_checkerboard() {
     // construct exponent of hopping in a reduced sub Hilbert-space
     double ch, sh;
     Eigen::Matrix4d reduced_K;
@@ -91,7 +91,7 @@ int xy_to_label(int x, int y, int ll) {
 //   1.0, 0.0, 0.0, 1.0,
 //   0.0, 1.0, 1.0, 0.0.
 
-void CheckerBoard::mult_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const {
+void CheckerBoard::CheckerBoard::mult_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const {
     assert( A.rows() == this->ls && A.cols() == this->ls );
 
     const int label_xy = xy_to_label(x, y, ll);
@@ -113,7 +113,7 @@ void CheckerBoard::mult_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int 
     A.row(label_xy_diagonal) = tmp_mat.row(3);
 }
 
-void CheckerBoard::mult_inv_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const {
+void CheckerBoard::CheckerBoard::mult_inv_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, int y) const {
     assert( A.rows() == this->ls && A.cols() == this->ls );
 
     const int label_xy = xy_to_label(x, y, ll);
@@ -135,7 +135,7 @@ void CheckerBoard::mult_inv_expK_plaquette_from_left(Eigen::MatrixXd &A, int x, 
     A.row(label_xy_diagonal) = tmp_mat.row(3);
 }
 
-void CheckerBoard::mult_expK_plaquette_from_right(Eigen::MatrixXd &A, int x, int y) const {
+void CheckerBoard::CheckerBoard::mult_expK_plaquette_from_right(Eigen::MatrixXd &A, int x, int y) const {
     assert( A.rows() == this->ls && A.cols() == this->ls );
 
     const int label_xy = xy_to_label(x, y, ll);
@@ -157,7 +157,7 @@ void CheckerBoard::mult_expK_plaquette_from_right(Eigen::MatrixXd &A, int x, int
     A.col(label_xy_diagonal) = tmp_mat.col(3);
 }
 
-void CheckerBoard::mult_inv_expK_plaquette_from_right(Eigen::MatrixXd &A, int x, int y) const {
+void CheckerBoard::CheckerBoard::mult_inv_expK_plaquette_from_right(Eigen::MatrixXd &A, int x, int y) const {
     assert( A.rows() == this->ls && A.cols() == this->ls );
 
     const int label_xy = xy_to_label(x, y, ll);
@@ -179,7 +179,7 @@ void CheckerBoard::mult_inv_expK_plaquette_from_right(Eigen::MatrixXd &A, int x,
     A.col(label_xy_diagonal) = tmp_mat.col(3);
 }
 
-void CheckerBoard::mult_expK_from_left(Eigen::MatrixXd &A) const {
+void CheckerBoard::CheckerBoard::mult_expK_from_left(Eigen::MatrixXd &A) const {
     if (this->is_checkerboard) {
         // checkerboard break-up only supported for even lattice sizes
         assert( ll % 2 == 0 );
@@ -200,7 +200,7 @@ void CheckerBoard::mult_expK_from_left(Eigen::MatrixXd &A) const {
     else { A = this->exp_dtK * A;}
 }
 
-void CheckerBoard::mult_inv_expK_from_left(Eigen::MatrixXd &A) const {
+void CheckerBoard::CheckerBoard::mult_inv_expK_from_left(Eigen::MatrixXd &A) const {
     if (this->is_checkerboard) {
         // checkerboard break-up only supported for even lattice sizes
         assert( this->ll % 2 == 0 );
@@ -221,7 +221,7 @@ void CheckerBoard::mult_inv_expK_from_left(Eigen::MatrixXd &A) const {
     else { A = this->inv_exp_dtK * A;}
 }
 
-void CheckerBoard::mult_expK_from_right(Eigen::MatrixXd &A) const {
+void CheckerBoard::CheckerBoard::mult_expK_from_right(Eigen::MatrixXd &A) const {
     if (this->is_checkerboard) {
         // checkerboard break-up only supported for even lattice sizes
         assert( this->ll % 2 == 0 );
@@ -242,7 +242,7 @@ void CheckerBoard::mult_expK_from_right(Eigen::MatrixXd &A) const {
     else { A = A * this->exp_dtK;}
 }
 
-void CheckerBoard::mult_inv_expK_from_right(Eigen::MatrixXd &A) const {
+void CheckerBoard::CheckerBoard::mult_inv_expK_from_right(Eigen::MatrixXd &A) const {
     if (this->is_checkerboard) {
         // checkerboard break-up only supported for even lattice sizes
         assert( this->ll % 2 == 0 );
@@ -263,7 +263,7 @@ void CheckerBoard::mult_inv_expK_from_right(Eigen::MatrixXd &A) const {
     else { A = A * this->inv_exp_dtK;}
 }
 
-void CheckerBoard::mult_trans_expK_from_left(Eigen::MatrixXd &A) const {
+void CheckerBoard::CheckerBoard::mult_trans_expK_from_left(Eigen::MatrixXd &A) const {
     if (this->is_checkerboard) {
         // FIXME: rewrite in a direct way
         A.transposeInPlace();

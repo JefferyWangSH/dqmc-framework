@@ -14,18 +14,13 @@
 #include <Eigen/LU>
 #include <Eigen/SVD>
 #include <unsupported/Eigen/MatrixFunctions>
-
-#include <random>
-
+#include <vector>
 
 class SvdStack;
-class CheckerBoard;
+namespace CheckerBoard { class CheckerBoard; }
 namespace Measure { class EqtimeMeasure; }
 namespace Measure { class DynamicMeasure; }
 namespace Simulation { class DetQMC; }
-
-// random engine
-static std::default_random_engine eng(time(nullptr));
 
 
 namespace Model {
@@ -52,22 +47,22 @@ namespace Model {
 
         // checkerboard class for hopping matrix fabrication
         bool is_checkerboard = true;
-        CheckerBoard *checkerboard{};
+        CheckerBoard::CheckerBoard *checkerboard{};
 
         // equal-time greens function for both spin up and down states
         // critical quantities in DQMC simulation
         Eigen::MatrixXd green_tt_up, green_tt_dn;
-        std::vector<Eigen::MatrixXd> vec_green_tt_up, vec_green_tt_dn;
+        std::vector<Eigen::MatrixXd> vec_green_tt_up{}, vec_green_tt_dn{};
 
         // time-displaced greens function for dynamic measurements
         // Matsubara greens function: G(\tau, 0) and G(0, \tau).
         // Gij(\tau, 0) = < ci(\tau) * cj^+ (0) >
         Eigen::MatrixXd green_t0_up, green_t0_dn;
-        std::vector<Eigen::MatrixXd> vec_green_t0_up, vec_green_t0_dn;
+        std::vector<Eigen::MatrixXd> vec_green_t0_up{}, vec_green_t0_dn{};
 
         // Gij(0, \tau) = - < cj^+(\tau) * ci(0) >
         Eigen::MatrixXd green_0t_up, green_0t_dn;
-        std::vector<Eigen::MatrixXd> vec_green_0t_up, vec_green_0t_dn;
+        std::vector<Eigen::MatrixXd> vec_green_0t_up{}, vec_green_0t_dn{};
 
         // aux SvdStack class for stable multiplication
         SvdStack *stackLeftU{};
@@ -94,7 +89,7 @@ namespace Model {
 
         // friend class
         friend class Simulation::DetQMC;
-        friend class ::CheckerBoard;
+        friend class CheckerBoard::CheckerBoard;
         friend class Measure::EqtimeMeasure;
         friend class Measure::DynamicMeasure;
 

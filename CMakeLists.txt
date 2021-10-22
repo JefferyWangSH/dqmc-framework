@@ -21,25 +21,11 @@ link_directories(
         /usr/include/boost                                              # boost
 )
 
-add_executable(${PROJECT_NAME}
-        src/main.cpp
-        src/Hubbard.cpp
-        src/DetQMC.cpp
-        src/SvdStack.cpp
-        src/CheckerBoard.cpp
-        src/BMatrixMult.hpp
-        src/StableGreens.hpp
-        src/ProgressBar.hpp
-        src/MeasureData.cpp
-        src/EqtimeMeasure.cpp
-        src/DynamicMeasure.cpp
-        src/fft.hpp
-)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src SRC_DIR)
 
-target_include_directories(${PROJECT_NAME}
-        PRIVATE
-        ${PROJECT_SOURCE_DIR}/include
-)
+add_executable(${PROJECT_NAME} ${SRC_DIR})
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(${PROJECT_NAME}
         mkl_gf_lp64

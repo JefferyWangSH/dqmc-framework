@@ -23,7 +23,7 @@
   *   11. openmp parallel sampling (missing)
   *   12. replace boost::format with std::format, using c++20 standard (missing)
   *   13. log output (missing)
-  *   14. simulate with bash script (missing)
+  *   14. run the program with bash scripts (done)
   *   15. MPI distributed programing (missing)
   *   16. generalized model and lattice module supporting simulations of user-designed physical systems (missing)
   *   17. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
@@ -382,7 +382,7 @@ int main(int argc, char* argv[]) {
 //    }
 //    std::cout << (gt0 - gtt).maxCoeff() << std::endl;
 
-
     delete dqmc;
+
     return 0;
 }

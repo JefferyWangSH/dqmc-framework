@@ -32,17 +32,16 @@
 *.app
 
 # Personal folders and files
-.git/
+.git/*
 
-build/
-cmake-build-debug/
-.idea/
+cmake-build-debug/*
+cmake-build-release/*
+.idea/*
 
-results/data/
+build/*
+!build/runcmake.sh
 
-results/critical-temperature/*.txt
-results/critical-temperature/*.png
-results/equal-time-measurments/*.txt
-results/equal-time-measurments/*.png
-results/fermi-surface/*.txt
-results/fermi-surface/*.png
+results/*
+!results/critical-temperature/*
+!results/equal-time-measurments/*
+!results/fermi-surface/*
