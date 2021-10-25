@@ -1,5 +1,5 @@
-#include "DynamicMeasure.h"
-#include "Hubbard.h"
+#include "dynamic_measure.h"
+#include "hubbard.h"
 
 Measure::DynamicMeasure::DynamicMeasure(const int &nbin) {
     this->nbin = nbin;

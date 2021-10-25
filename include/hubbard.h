@@ -119,10 +119,10 @@ namespace Model {
         void metropolis_update(int l);
 
         /** propagate the green's function from l to l+1 */
-        void wrap_north(int l);
+        void wrap_0_to_beta(int l);
 
         /** propagate the green's function from l to l-1 */
-        void wrap_south(int l);
+        void wrap_beta_to_0(int l);
     };
 
 }

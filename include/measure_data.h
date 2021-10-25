@@ -3,12 +3,15 @@
 #pragma once
 
 /**
-  *  This is head file includes data structure `MeasureData` designed for the measurements of physical observables.
+  *  This head file includes data structure `MeasureData` designed for the measurements of physical observables.
+  *  and the seiraliztion of class are realized using boost.
   */
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
+#include <boost/serialization/access.hpp>
+
 
 namespace Measure {
 
@@ -22,6 +25,11 @@ namespace Measure {
 
         int _size_of_bin = 0.0;
         Eigen::VectorXd _bins{};
+
+    private:
+        friend class boost::serialization::access;
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version);
 
     public:
         MeasureData() = default;

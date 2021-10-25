@@ -1,5 +1,11 @@
-#include "MeasureData.h"
+#include "measure_data.h"
+#include "eigen_boost_serialization.hpp"
 
+
+template<class Archive>
+void Measure::MeasureData::serialize(Archive & ar, const unsigned int version) {
+    // TODO
+};
 
 Measure::MeasureData::MeasureData(const int &size_of_bin) {
     this->set_size_of_bin(size_of_bin);

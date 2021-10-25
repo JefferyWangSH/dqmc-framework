@@ -1,0 +1,7 @@
+#ifndef DQMC_HUBBARD_OUTPUT_H
+#define DQMC_HUBBARD_OUTPUT_H
+#pragma once
+
+// TODO
+
+#endif // DQMC_HUBBARD_OUTPUT_H

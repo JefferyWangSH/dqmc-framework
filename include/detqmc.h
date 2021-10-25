@@ -40,6 +40,7 @@ namespace Simulation {
         // time cost of one single measuring process
         std::chrono::steady_clock::time_point begin_t{}, end_t{};
 
+    public:
         // for equal-time measurements
         Measure::EqtimeMeasure *EqtimeMeasure{};
 
@@ -75,7 +76,7 @@ namespace Simulation {
         void init_measure();
 
         /* run a dqmc simulation */
-        void run_QMC(bool bool_display_process);
+        void run(bool bool_display_process);
 
         /* analyse statistics from simulation */
         void analyse_stats() const;

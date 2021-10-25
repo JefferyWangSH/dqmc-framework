@@ -1,9 +1,9 @@
-#include "DetQMC.h"
-#include "Hubbard.h"
-#include "SvdStack.h"
-#include "EqtimeMeasure.h"
-#include "DynamicMeasure.h"
-#include "ProgressBar.hpp"
+#include "detqmc.h"
+#include "hubbard.h"
+#include "svd_stack.h"
+#include "eqtime_measure.h"
+#include "dynamic_measure.h"
+#include "progress_bar.hpp"
 
 #include <cmath>
 #include <fstream>
@@ -105,7 +105,7 @@ void Simulation::DetQMC::init_measure() {
     else { this->DynamicMeasure = nullptr; }
 }
 
-void Simulation::DetQMC::run_QMC(bool bool_display_process) {
+void Simulation::DetQMC::run(bool bool_display_process) {
     assert( this->hubb );
 
     // clear data
@@ -179,10 +179,6 @@ void Simulation::DetQMC::run_QMC(bool bool_display_process) {
             progressBar.done();
         }
     }
-
-    std::cout << std::endl;
-    std::cout << "  Maximum of wrap error (equal-time):     " << this->hubb->max_wrap_error_equal << std::endl
-              << "  Maximum of wrap error (time-displaced): " << this->hubb->max_wrap_error_displaced << std::endl;
     this->end_t = std::chrono::steady_clock::now();
 }
 
@@ -221,13 +217,13 @@ void Simulation::DetQMC::print_params() const{
     std::cout << std::endl;
     std::cout << "==============================================================================" << std::endl;
     std::cout << "  Simulation Parameters: " << std::endl
-    << "    ll:     " << this->hubb->ll << std::endl
-    << "    lt:     " << this->hubb->lt << std::endl
-    << "    beta:   " << this->hubb->beta << std::endl
-    << "    U/t:    " << this->hubb->Uint / this->hubb->t << std::endl
-    << "    mu:     " << this->hubb->mu << std::endl
-    << "    q:      " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl
-    << "    nwrap:  " << this->nwrap << std::endl;
+              << "    ll:     " << this->hubb->ll << std::endl
+              << "    lt:     " << this->hubb->lt << std::endl
+              << "    beta:   " << this->hubb->beta << std::endl
+              << "    U/t:    " << this->hubb->Uint / this->hubb->t << std::endl
+              << "    mu:     " << this->hubb->mu << std::endl
+              << "    q:      " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl
+              << "    nwrap:  " << this->nwrap << std::endl;
     std::cout << "==============================================================================" << std::endl;
 }
 
@@ -235,6 +231,10 @@ void Simulation::DetQMC::print_stats() const {
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(this->end_t - this->begin_t).count();
     const int minute = std::floor((double)time / 1000 / 60);
     const double sec = (double)time / 1000 - 60 * minute;
+
+    std::cout << std::endl
+              << "  Maximum of wrap error (equal-time):     " << this->hubb->max_wrap_error_equal << std::endl
+              << "  Maximum of wrap error (time-displaced): " << this->hubb->max_wrap_error_displaced << std::endl;
 
     if (this->bool_measure_eqtime) {
         std::cout.precision(8);
@@ -435,5 +435,4 @@ Simulation::DetQMC::~DetQMC() {
         delete DynamicMeasure;
         this->DynamicMeasure = nullptr;
     }
-    std::cout << std::endl << "The simulation was done :)" << std::endl;
 }

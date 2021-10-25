@@ -1,5 +1,5 @@
-#include "CheckerBoard.h"
-#include "Hubbard.h"
+#include "checker_board.h"
+#include "hubbard.h"
 
 #include <iostream>
 

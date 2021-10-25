@@ -1,6 +1,6 @@
-#include "EqtimeMeasure.h"
-#include "MeasureData.h"
-#include "Hubbard.h"
+#include "eqtime_measure.h"
+#include "measure_data.h"
+#include "hubbard.h"
 
 Measure::EqtimeMeasure::EqtimeMeasure(const int &nbin) {
     this->nbin = nbin;

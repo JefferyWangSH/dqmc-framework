@@ -1,12 +1,23 @@
-#include "Hubbard.h"
-#include "DetQMC.h"
+#include "hubbard.h"
+#include "detqmc.h"
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <unistd.h>
+
+#include <mpi.h>
+#include <boost/mpi.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
+
+// for testing and debuging
+#include "eqtime_measure.h"
+#include "dynamic_measure.h"
+#include <Eigen/Core>
+#include "random.h"
 
 /**
   *  TODO:
@@ -46,7 +57,7 @@ int main(int argc, char* argv[]) {
     bool bool_checkerboard = false;
 
     int nwrap = 10;
-    int nwarm = (int)(4 * ll * ll * beta);
+    int nwarm = (int)(4*ll*ll*beta);
 
     int nbin = 20;
     int nsweep = 100;
@@ -112,18 +123,64 @@ int main(int argc, char* argv[]) {
     Simulation::DetQMC *dqmc;
     dqmc = new Simulation::DetQMC();
 
-    /** usage example */
+    /** distributed parallelization using MPI */
+    boost::mpi::environment env(argc, argv);
+    boost::mpi::communicator world;
+    const int master = 0;
+    const int rank = world.rank();
+    const int tag = 0; 
 
+    // arrange bins measurements over processors
+    const int bins_per_proc = (nbin % world.size() == 0)? nbin/world.size() : nbin/world.size()+1;
+
+    // set up random seed for each processor
+    Random::set_seed(rank);
+
+    // usage example
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
-    dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
+    dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, nBetweenBins);
     dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
     dqmc->set_lattice_momentum(1., 1.);
-    dqmc->print_params();
-
     dqmc->init_measure();
-    dqmc->run_QMC(bool_display_process);
+    
+    // the master processor
+    if (rank == master) {
+        // output the information of simulation
+        dqmc->print_params();
+    }
+    
+    bool_display_process = (rank == master)? true : false;
+    dqmc->run(bool_display_process);
     dqmc->analyse_stats();
-    dqmc->print_stats();
+
+    // collect data from all processors
+    if (rank == master) {
+        std::vector<double> bin_data;
+        bin_data.push_back(dqmc->EqtimeMeasure->double_occu.mean_value());
+        for (int proc = 1; proc < world.size(); ++proc) {
+            double tmp_data;
+            world.recv(proc, tag, tmp_data);
+            bin_data.push_back(tmp_data);
+        }
+
+        // dqmc->print_stats();
+        Eigen::VectorXd bins = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(bin_data.data(), 1, bin_data.size());
+        std::cout << bins.size() << std::endl;
+        std::cout.precision(10);
+        std::cout << bins << std::endl;
+        std::cout << std::endl;
+
+        // analysis
+        const double mean = bins.sum() / bins.size();
+        double err = bins.array().square().sum() / bins.size();
+        err = pow(err - pow(mean, 2), 0.5) / pow(bins.size()-1, 0.5);
+        std::cout << std::setiosflags(std::ios::right)
+                  << std::setw(15) << mean 
+                  << std::setw(15) << err << std::endl;
+    }
+    else {
+        world.send(master, tag, dqmc->EqtimeMeasure->double_occu.mean_value());
+    }
 
 //    dqmc->file_output_dynamic_stats("../results/dynamic.dat");
 //    dqmc->file_output_cooper_corr("../results/cooper_l_8.dat");
@@ -139,7 +196,7 @@ int main(int argc, char* argv[]) {
 //        dqmc->print_params();
 //
 //        dqmc->init_measure();
-//        dqmc->run_QMC(bool_display_process);
+//        dqmc->run(bool_display_process);
 //        dqmc->analyse_stats();
 //        dqmc->print_stats();
 //    }
@@ -153,7 +210,7 @@ int main(int argc, char* argv[]) {
 //    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
 //    dqmc->init_measure();            // init after params set
 //    dqmc->print_params();
-//    dqmc->run_QMC(bool_display_process);
+//    dqmc->run(bool_display_process);
 //
 //    std::vector<double> q_list = { 0.00, 0.25, 0.50, 0.75, 1.00, };
 //    for (auto q : q_list ) {
@@ -186,7 +243,7 @@ int main(int argc, char* argv[]) {
 //        dqmc->print_params();
 //
 //        dqmc->init_measure();
-//        dqmc->run_QMC(bool_display_process);
+//        dqmc->run(bool_display_process);
 //        dqmc->analyse_stats();
 //        dqmc->print_stats();
 //
@@ -214,7 +271,7 @@ int main(int argc, char* argv[]) {
 //        dqmc->set_controlling_params(true, false, true);
 //        dqmc->init_measure();
 //        dqmc->print_params();
-//        dqmc->run_QMC(bool_display_process);
+//        dqmc->run(bool_display_process);
 //
 //        std::string filename = (boost::format("../results/FS_L%db%.2fU%.2f.dat") % ll % beta % u).str();
 //        std::ofstream outfile;
@@ -273,7 +330,7 @@ int main(int argc, char* argv[]) {
 //        dqmc->init_measure();
 //        dqmc->print_params();
 //
-//        dqmc->run_QMC(bool_display_process);
+//        dqmc->run(bool_display_process);
 //        dqmc->analyse_stats();
 //        dqmc->print_stats();
 //        dqmc->file_output_aux_field_configs(file_configs);

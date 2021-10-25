@@ -1,9 +1,9 @@
-#include "Hubbard.h"
-#include "CheckerBoard.h"
-#include "SvdStack.h"
-#include "BMatrixMult.hpp"
-#include "StableGreens.hpp"
-#include "Random.hpp"
+#include "hubbard.h"
+#include "checker_board.h"
+#include "svd_stack.h"
+#include "b_matrix_mult.hpp"
+#include "stable_greens.hpp"
+#include "random.h"
 
 #include <iostream>
 #include <cassert>
@@ -166,7 +166,7 @@ void Model::Hubbard::metropolis_update(int l) {
     }
 }
 
-void Model::Hubbard::wrap_north(int l) {
+void Model::Hubbard::wrap_0_to_beta(int l) {
     /*
      * Propagate the green's function from the current time slice l
      * upward to the time slice l+1:
@@ -182,7 +182,7 @@ void Model::Hubbard::wrap_north(int l) {
     this->mult_invB_from_right(this->green_tt_dn, tau, -1);
 }
 
-void Model::Hubbard::wrap_south(int l) {
+void Model::Hubbard::wrap_beta_to_0(int l) {
     /*
      * Propagate the green's function from the current time slice l
      * downward to the time slice l-1:
@@ -225,8 +225,8 @@ void Model::Hubbard::init_stacks(int stable_pace) {
     }
 
     // initialize green function at l = 0
-    compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
-    compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
+    StableGreens::compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
+    StableGreens::compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
 }
 
 void Model::Hubbard::sweep_0_to_beta(int stable_pace) {
@@ -249,7 +249,7 @@ void Model::Hubbard::sweep_0_to_beta(int stable_pace) {
     // sweep up from 0 to beta
     for (int l = 1; l <= this->lt; ++l) {
         // wrap green function to current time slice l
-        this->wrap_north(l-1);
+        this->wrap_0_to_beta(l-1);
 
         // update aux field and record new greens
         this->metropolis_update(l);
@@ -274,12 +274,12 @@ void Model::Hubbard::sweep_0_to_beta(int stable_pace) {
             // compute fresh greens every `stable_pace` steps: g = (1 + stackLeft * stackRight^T)^-1
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
-            compute_Green_eqtime(this->stackLeftU, this->stackRightU, tmp_green_tt_up);
-            compute_Green_eqtime(this->stackLeftD, this->stackRightD, tmp_green_tt_dn);
+            StableGreens::compute_Green_eqtime(this->stackLeftU, this->stackRightU, tmp_green_tt_up);
+            StableGreens::compute_Green_eqtime(this->stackLeftD, this->stackRightD, tmp_green_tt_dn);
 
             // calculate wrap error
-            matrix_compare_error(tmp_green_tt_up, this->green_tt_up, tmp_wrap_error_tt_up);
-            matrix_compare_error(tmp_green_tt_dn, this->green_tt_dn, tmp_wrap_error_tt_dn);
+            StableGreens::matrix_compare_error(tmp_green_tt_up, this->green_tt_up, tmp_wrap_error_tt_up);
+            StableGreens::matrix_compare_error(tmp_green_tt_dn, this->green_tt_dn, tmp_wrap_error_tt_dn);
             this->max_wrap_error_equal = std::max(this->max_wrap_error_equal, std::max(tmp_wrap_error_tt_up, tmp_wrap_error_tt_dn));
 
             this->green_tt_up = tmp_green_tt_up;
@@ -332,12 +332,12 @@ void Model::Hubbard::sweep_beta_to_0(int stable_pace) {
             double tmp_wrap_error_tt_up = 0.0;
             double tmp_wrap_error_tt_dn = 0.0;
 
-            compute_Green_eqtime(this->stackLeftU, this->stackRightU, tmp_green_tt_up);
-            compute_Green_eqtime(this->stackLeftD, this->stackRightD, tmp_green_tt_dn);
+            StableGreens::compute_Green_eqtime(this->stackLeftU, this->stackRightU, tmp_green_tt_up);
+            StableGreens::compute_Green_eqtime(this->stackLeftD, this->stackRightD, tmp_green_tt_dn);
 
             // calculate wrap error
-            matrix_compare_error(tmp_green_tt_up, this->green_tt_up, tmp_wrap_error_tt_up);
-            matrix_compare_error(tmp_green_tt_dn, this->green_tt_dn, tmp_wrap_error_tt_dn);
+            StableGreens::matrix_compare_error(tmp_green_tt_up, this->green_tt_up, tmp_wrap_error_tt_up);
+            StableGreens::matrix_compare_error(tmp_green_tt_dn, this->green_tt_dn, tmp_wrap_error_tt_dn);
             this->max_wrap_error_equal = std::max(this->max_wrap_error_equal, std::max(tmp_wrap_error_tt_up, tmp_wrap_error_tt_dn));
 
             this->green_tt_up = tmp_green_tt_up;
@@ -355,7 +355,7 @@ void Model::Hubbard::sweep_beta_to_0(int stable_pace) {
         this->mult_transB_from_left(tmpU, l, +1);
         this->mult_transB_from_left(tmpD, l, -1);
 
-        this->wrap_south(l);
+        this->wrap_beta_to_0(l);
 
         this->current_tau--;
     }
@@ -366,8 +366,8 @@ void Model::Hubbard::sweep_beta_to_0(int stable_pace) {
     this->stackRightU->push(tmpU);
     this->stackRightD->push(tmpD);
 
-    compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
-    compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
+    StableGreens::compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
+    StableGreens::compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
 
     // end with fresh green functions
     this->vec_green_tt_up[lt-1] = this->green_tt_up;
@@ -403,7 +403,7 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
     // sweep up from 0 to beta
     for (int l = 1; l <= this->lt; ++l) {
         // wrap equal time green function to current time slice l
-        this->wrap_north(l-1);
+        this->wrap_0_to_beta(l-1);
         this->vec_green_tt_up[l-1] = this->green_tt_up;
         this->vec_green_tt_dn[l-1] = this->green_tt_dn;
         
@@ -441,18 +441,18 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             // stackLeft = B(l-1) *...* B(0)
             // stackRight = B(l)^T *...* B(L-1)^T
             // equal time green's function are re-evaluated for current field configurations
-            compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
-            compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
-            compute_Green_displaced(this->stackLeftU, this->stackRightU, tmp_green_t0_up, tmp_green_0t_up);
-            compute_Green_displaced(this->stackLeftD, this->stackRightD, tmp_green_t0_dn, tmp_green_0t_dn);
+            StableGreens::compute_Green_eqtime(this->stackLeftU, this->stackRightU, this->green_tt_up);
+            StableGreens::compute_Green_eqtime(this->stackLeftD, this->stackRightD, this->green_tt_dn);
+            StableGreens::compute_Green_displaced(this->stackLeftU, this->stackRightU, tmp_green_t0_up, tmp_green_0t_up);
+            StableGreens::compute_Green_displaced(this->stackLeftD, this->stackRightD, tmp_green_t0_dn, tmp_green_0t_dn);
 
             // calculate wrap error
-            matrix_compare_error(tmp_green_t0_up, this->green_t0_up, tmp_wrap_error_t0_up);
-            matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
+            StableGreens::matrix_compare_error(tmp_green_t0_up, this->green_t0_up, tmp_wrap_error_t0_up);
+            StableGreens::matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
             this->max_wrap_error_displaced = std::max(this->max_wrap_error_displaced, std::max(tmp_wrap_error_t0_up, tmp_wrap_error_t0_dn));
 
-            matrix_compare_error(tmp_green_0t_up, this->green_0t_up, tmp_wrap_error_0t_up);
-            matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
+            StableGreens::matrix_compare_error(tmp_green_0t_up, this->green_0t_up, tmp_wrap_error_0t_up);
+            StableGreens::matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
             this->max_wrap_error_displaced = std::max(this->max_wrap_error_displaced, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
 
             this->green_t0_up = tmp_green_t0_up;

@@ -16,7 +16,7 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 #include <vector>
-#include "MeasureData.h"
+#include "measure_data.h"
 
 // forward declaration
 namespace Model { class Hubbard; }

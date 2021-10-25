@@ -9,7 +9,7 @@
   *  algorithm (for even lattice sizes) are supported.
   */
 
-#include "Hubbard.h"
+#include "hubbard.h"
 
 //Eigen::MatrixXd Model::Hubbard::make_B_l(int l, int sigma) {
 //    /*
