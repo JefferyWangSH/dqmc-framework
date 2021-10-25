@@ -16,8 +16,11 @@
 // for testing and debuging
 #include "eqtime_measure.h"
 #include "dynamic_measure.h"
-#include <Eigen/Core>
+#include "measure_data.h"
+#include "measure_gather.hpp"
 #include "random.h"
+#include <Eigen/Core>
+
 
 /**
   *  TODO:
@@ -128,7 +131,6 @@ int main(int argc, char* argv[]) {
     boost::mpi::communicator world;
     const int master = 0;
     const int rank = world.rank();
-    const int tag = 0; 
 
     // arrange bins measurements over processors
     const int bins_per_proc = (nbin % world.size() == 0)? nbin/world.size() : nbin/world.size()+1;
@@ -154,33 +156,14 @@ int main(int argc, char* argv[]) {
     dqmc->analyse_stats();
 
     // collect data from all processors
+    Measure::MeasureData double_occu = Measure::gather(world, dqmc->EqtimeMeasure->double_occu);
+
     if (rank == master) {
-        std::vector<double> bin_data;
-        bin_data.push_back(dqmc->EqtimeMeasure->double_occu.mean_value());
-        for (int proc = 1; proc < world.size(); ++proc) {
-            double tmp_data;
-            world.recv(proc, tag, tmp_data);
-            bin_data.push_back(tmp_data);
-        }
-
-        // dqmc->print_stats();
-        Eigen::VectorXd bins = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(bin_data.data(), 1, bin_data.size());
-        std::cout << bins.size() << std::endl;
-        std::cout.precision(10);
-        std::cout << bins << std::endl;
-        std::cout << std::endl;
-
-        // analysis
-        const double mean = bins.sum() / bins.size();
-        double err = bins.array().square().sum() / bins.size();
-        err = pow(err - pow(mean, 2), 0.5) / pow(bins.size()-1, 0.5);
-        std::cout << std::setiosflags(std::ios::right)
-                  << std::setw(15) << mean 
-                  << std::setw(15) << err << std::endl;
+        std::cout << double_occu.mean_value() << std::endl;
+        std::cout << double_occu.error_bar() << std::endl;
+        std::cout << double_occu.size_of_bin() << std::endl;
     }
-    else {
-        world.send(master, tag, dqmc->EqtimeMeasure->double_occu.mean_value());
-    }
+
 
 //    dqmc->file_output_dynamic_stats("../results/dynamic.dat");
 //    dqmc->file_output_cooper_corr("../results/cooper_l_8.dat");
