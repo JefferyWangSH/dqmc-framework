@@ -1,0 +1,34 @@
+ Current time : 2021-Oct-26 23:24:10
+
+ Distribute tasks to 24 processors, with the master processor being ca0406.para.bscc. 
+
+ Initialization finished. 
+
+ The simulation is going to get started with parameters shown below : 
+
+           Lattice length 'll'   ->      4
+    Imaginary-time length 'lt'   ->     80
+    Inverse temperature 'beta'   ->    4.0
+      Interaction strength 'U'   ->   -4.0
+       Chemical potential 'mu'   ->    0.0
+          Lattice momentum 'k'   ->    1.0 pi, 1.0 pi
+
+     Stablization pace 'nwrap'   ->     10
+         Number of bins 'nbin'   ->     24
+       Sweeps per bin 'nsweep'   ->    100
+
+ Warm-up progress:   [###>------------------------------------] 7% 0.053s Warm-up progress:   [######>---------------------------------] 15% 0.106s Warm-up progress:   [#########>------------------------------] 23% 0.16s Warm-up progress:   [############>---------------------------] 31% 0.213s Warm-up progress:   [###############>------------------------] 39% 0.265s Warm-up progress:   [##################>---------------------] 46% 0.316s Warm-up progress:   [#####################>------------------] 54% 0.37s Warm-up progress:   [#########################>--------------] 62% 0.422s Warm-up progress:   [############################>-----------] 70% 0.474s Warm-up progress:   [###############################>--------] 78% 0.525s Warm-up progress:   [##################################>-----] 85% 0.576s Warm-up progress:   [#####################################>--] 93% 0.629s Warm-up progress:   [########################################] 100% 0.67s
+ Measuring progress: [########>-------------------------------] 20% 0.296s Measuring progress: [################>-----------------------] 40% 0.591s Measuring progress: [########################>---------------] 60% 0.887s Measuring progress: [################################>-------] 80% 1.184s Measuring progress: [########################################] 100% 1.488s Measuring progress: [########################################] 100% 1.541s
+
+ The simulation finished in 0 min 2.21 s. 
+
+ Maximum of equal-time wrap error :  2.62204e-10
+
+ Maximum of dynamical wrap error :   2.6345e-12
+
+              Double Occupancy   ->   0.380121146239 pm 0.003184639643
+                Kinetic energy   ->  -1.304835610188 pm 0.002923184307
+              Electron density   ->   0.036570355095 pm 0.000587548664
+     Local density correlation   ->   0.250736483378 pm 0.000735521296
+    Anti ferromagnetism factor   ->   0.006217619208 pm 0.000011059588
+            Average sign (abs)   ->   1.000000000000 pm 0.000000000000

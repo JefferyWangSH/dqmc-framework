@@ -21,6 +21,10 @@ namespace CheckerBoard { class CheckerBoard; }
 namespace Measure { class EqtimeMeasure; }
 namespace Measure { class DynamicMeasure; }
 namespace Simulation { class DetQMC; }
+namespace ScreenOutput { 
+    void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc); 
+    void screen_output_end_info(const Simulation::DetQMC &dqmc);
+}
 
 
 namespace Model {
@@ -87,11 +91,13 @@ namespace Model {
         /** sweep from beta to 0 to calculate time-displaced green functions */
         void sweep_0_to_beta_displaced(int is_stable);
 
-        // friend class
+        // friend classes and functions
         friend class Simulation::DetQMC;
         friend class CheckerBoard::CheckerBoard;
         friend class Measure::EqtimeMeasure;
         friend class Measure::DynamicMeasure;
+        friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
+        friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);
 
 
     private:

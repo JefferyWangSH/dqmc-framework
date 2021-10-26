@@ -129,13 +129,13 @@ void Simulation::DetQMC::run(bool bool_display_process) {
             ++progressBar;
 
             if ( nwm % 10 == 0 && bool_display_process) {
-                std::cout << "Warm-up progress:   ";
+                std::cout << " Warm-up progress:   ";
                 progressBar.display();
             }
         }
 
         if (bool_display_process) {
-            std::cout << "Warm-up progress:   ";
+            std::cout << " Warm-up progress:   ";
             progressBar.done();
         }
     }
@@ -150,7 +150,7 @@ void Simulation::DetQMC::run(bool bool_display_process) {
                 ++progressBar;
 
                 if ( nsw % 10 == 0 && bool_display_process) {
-                    std::cout << "Measuring progress: ";
+                    std::cout << " Measuring progress: ";
                     progressBar.display();
                 }
             }
@@ -175,7 +175,7 @@ void Simulation::DetQMC::run(bool bool_display_process) {
         }
 
         if (bool_display_process) {
-            std::cout << "Measuring progress: ";
+            std::cout << " Measuring progress: ";
             progressBar.done();
         }
     }
@@ -213,214 +213,200 @@ void Simulation::DetQMC::analyse_stats() const {
     }
 }
 
-void Simulation::DetQMC::print_params() const{
-    std::cout << std::endl;
-    std::cout << "==============================================================================" << std::endl;
-    std::cout << "  Simulation Parameters: " << std::endl
-              << "    ll:     " << this->hubb->ll << std::endl
-              << "    lt:     " << this->hubb->lt << std::endl
-              << "    beta:   " << this->hubb->beta << std::endl
-              << "    U/t:    " << this->hubb->Uint / this->hubb->t << std::endl
-              << "    mu:     " << this->hubb->mu << std::endl
-              << "    q:      " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl
-              << "    nwrap:  " << this->nwrap << std::endl;
-    std::cout << "==============================================================================" << std::endl;
-}
+// void Simulation::DetQMC::print_stats() const {
+//     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(this->end_t - this->begin_t).count();
+//     const int minute = std::floor((double)time / 1000 / 60);
+//     const double sec = (double)time / 1000 - 60 * minute;
 
-void Simulation::DetQMC::print_stats() const {
-    auto time = std::chrono::duration_cast<std::chrono::milliseconds>(this->end_t - this->begin_t).count();
-    const int minute = std::floor((double)time / 1000 / 60);
-    const double sec = (double)time / 1000 - 60 * minute;
+//     std::cout << std::endl
+//               << "  Maximum of wrap error (equal-time):     " << this->hubb->max_wrap_error_equal << std::endl
+//               << "  Maximum of wrap error (time-displaced): " << this->hubb->max_wrap_error_displaced << std::endl;
 
-    std::cout << std::endl
-              << "  Maximum of wrap error (equal-time):     " << this->hubb->max_wrap_error_equal << std::endl
-              << "  Maximum of wrap error (time-displaced): " << this->hubb->max_wrap_error_displaced << std::endl;
+//     if (this->bool_measure_eqtime) {
+//         std::cout.precision(8);
+//         std::cout << std::endl;
+//         std::cout << "  Equal-time Measurements: " << std::endl
+//                   << "    Double Occupancy:        " << this->EqtimeMeasure->double_occu.mean_value()
+//                   << "    err: " << this->EqtimeMeasure->double_occu.error_bar() << std::endl
+//                   << "    Kinetic Energy:          " << this->EqtimeMeasure->kinetic_energy.mean_value()
+//                   << "    err: " << this->EqtimeMeasure->kinetic_energy.error_bar() << std::endl
+//                   << "    Electron Density:        " << this->EqtimeMeasure->electron_density.mean_value()
+//                   << "    err: " << this->EqtimeMeasure->electron_density.error_bar() << std::endl
+//                   << "    Local Spin Correlation:  " << this->EqtimeMeasure->local_corr.mean_value()
+//                   << "    err: " << this->EqtimeMeasure->local_corr.error_bar() << std::endl
+//                   << "    AFM Structure Factor:    " << this->EqtimeMeasure->AFM_factor.mean_value()
+//                   << "    err: " << this->EqtimeMeasure->AFM_factor.error_bar() << std::endl
+//                   << "    Average Sign (abs):      " << abs(this->EqtimeMeasure->sign.mean_value())
+//                   << "    err: " << this->EqtimeMeasure->sign.error_bar() << std::endl;
+//         std::cout.precision(-1);
+//     }
 
-    if (this->bool_measure_eqtime) {
-        std::cout.precision(8);
-        std::cout << std::endl;
-        std::cout << "  Equal-time Measurements: " << std::endl
-                  << "    Double Occupancy:        " << this->EqtimeMeasure->double_occu.mean_value()
-                  << "    err: " << this->EqtimeMeasure->double_occu.error_bar() << std::endl
-                  << "    Kinetic Energy:          " << this->EqtimeMeasure->kinetic_energy.mean_value()
-                  << "    err: " << this->EqtimeMeasure->kinetic_energy.error_bar() << std::endl
-                  << "    Electron Density:        " << this->EqtimeMeasure->electron_density.mean_value()
-                  << "    err: " << this->EqtimeMeasure->electron_density.error_bar() << std::endl
-                  << "    Local Spin Correlation:  " << this->EqtimeMeasure->local_corr.mean_value()
-                  << "    err: " << this->EqtimeMeasure->local_corr.error_bar() << std::endl
-                  << "    AFM Structure Factor:    " << this->EqtimeMeasure->AFM_factor.mean_value()
-                  << "    err: " << this->EqtimeMeasure->AFM_factor.error_bar() << std::endl
-                  << "    Average Sign (abs):      " << abs(this->EqtimeMeasure->sign.mean_value())
-                  << "    err: " << this->EqtimeMeasure->sign.error_bar() << std::endl;
-        std::cout.precision(-1);
-    }
+//     if (this->bool_measure_dynamic) {
+//         std::cout.precision(8);
+//         std::cout << std::endl;
+//         std::cout << "  Time-displaced Measurements: " << std::endl
+//                   << "    Dynamical green's functions of imaginary time:  see in file" << std::endl
+//                   << "    Green's function G(k, beta/2):   " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].mean_value()
+//                   << "    err: " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].error_bar() << std::endl
+//                   << "    Superfluid density rho_s:   " << this->DynamicMeasure->superfluid_density.mean_value()
+//                   << "    err: " << this->DynamicMeasure->superfluid_density.error_bar() << std::endl
+//                   << "    Average Sign (abs):         " << abs(this->DynamicMeasure->sign.mean_value())
+//                   << "    err: " << this->DynamicMeasure->sign.error_bar() << std::endl;
+//         std::cout.precision(-1);
+//     }
 
-    if (this->bool_measure_dynamic) {
-        std::cout.precision(8);
-        std::cout << std::endl;
-        std::cout << "  Time-displaced Measurements: " << std::endl
-                  << "    Dynamical green's functions of imaginary time:  see in file" << std::endl
-                  << "    Green's function G(k, beta/2):   " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].mean_value()
-                  << "    err: " << this->DynamicMeasure->matsubara_greens[ceil(this->hubb->lt/2.0)].error_bar() << std::endl
-                  << "    Superfluid density rho_s:   " << this->DynamicMeasure->superfluid_density.mean_value()
-                  << "    err: " << this->DynamicMeasure->superfluid_density.error_bar() << std::endl
-                  << "    Average Sign (abs):         " << abs(this->DynamicMeasure->sign.mean_value())
-                  << "    err: " << this->DynamicMeasure->sign.error_bar() << std::endl;
-        std::cout.precision(-1);
-    }
+//     std::cout << std::endl;
+//     std::cout << "  Time Cost:      " << minute << " min " << sec << " s" << std::endl;
 
-    std::cout << std::endl;
-    std::cout << "  Time Cost:      " << minute << " min " << sec << " s" << std::endl;
+//     std::cout << "==============================================================================" << std::endl;
+// }
 
-    std::cout << "==============================================================================" << std::endl;
-}
+// void Simulation::DetQMC::file_output_tau(const std::string &filename) const {
+//     std::ofstream outfile;
+//     outfile.open(filename, std::ios::out | std::ios::trunc);
 
-void Simulation::DetQMC::file_output_tau(const std::string &filename) const {
-    std::ofstream outfile;
-    outfile.open(filename, std::ios::out | std::ios::trunc);
+//     outfile << std::setiosflags(std::ios::right)
+//             << std::setw(7) << this->hubb->lt
+//             << std::setw(7) << this->hubb->beta << std::endl;
+//     for (int l = 0; l < this->hubb->lt; ++l){
+//         outfile << std::setw(15) << l * this->hubb->dtau << std::endl;
+//     }
+//     outfile.close();
+// }
 
-    outfile << std::setiosflags(std::ios::right)
-            << std::setw(7) << this->hubb->lt
-            << std::setw(7) << this->hubb->beta << std::endl;
-    for (int l = 0; l < this->hubb->lt; ++l){
-        outfile << std::setw(15) << l * this->hubb->dtau << std::endl;
-    }
-    outfile.close();
-}
+// void Simulation::DetQMC::bin_output_greens(const std::string &filename) const{
+//     if (this->bool_measure_dynamic) {
+//         std::ofstream outfile;
+//         std::ifstream test_exist(filename);
+//         if (!test_exist.good()) {
+//             outfile.open(filename, std::ios::out | std::ios::app);
+//             outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+//             outfile.close();
+//         }
+//         else { test_exist.close(); }
 
-void Simulation::DetQMC::bin_output_greens(const std::string &filename) const{
-    if (this->bool_measure_dynamic) {
-        std::ofstream outfile;
-        std::ifstream test_exist(filename);
-        if (!test_exist.good()) {
-            outfile.open(filename, std::ios::out | std::ios::app);
-            outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
-            outfile.close();
-        }
-        else { test_exist.close(); }
+//         outfile.open(filename, std::ios::out | std::ios::app);
+//         outfile.precision(15);
+//         for (int bin = 0; bin < this->nbin; ++bin) {
+//             outfile << std::setw(20) << bin << std::endl;
+//             for (int l = 0; l < this->hubb->lt; ++l) {
+//                 outfile << std::setw(20) << this->DynamicMeasure->matsubara_greens[l].bin_data()[bin] << std::endl;
+//             }
+//         }
+//         outfile.close();
+//     }
+// }
 
-        outfile.open(filename, std::ios::out | std::ios::app);
-        outfile.precision(15);
-        for (int bin = 0; bin < this->nbin; ++bin) {
-            outfile << std::setw(20) << bin << std::endl;
-            for (int l = 0; l < this->hubb->lt; ++l) {
-                outfile << std::setw(20) << this->DynamicMeasure->matsubara_greens[l].bin_data()[bin] << std::endl;
-            }
-        }
-        outfile.close();
-    }
-}
+// void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
+//     if (this->bool_measure_dynamic) {
+//         std::ofstream outfile;
+//         std::ifstream test_exist(filename);
+//         if (!test_exist.good()) {
+//             outfile.open(filename, std::ios::out | std::ios::app);
+//             outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
+//             outfile.close();
+//         }
+//         else { test_exist.close(); }
 
-void Simulation::DetQMC::bin_output_LDOS(const std::string &filename) const {
-    if (this->bool_measure_dynamic) {
-        std::ofstream outfile;
-        std::ifstream test_exist(filename);
-        if (!test_exist.good()) {
-            outfile.open(filename, std::ios::out | std::ios::app);
-            outfile << std::setiosflags(std::ios::right) << std::setw(10) << this->nbin << std::endl;
-            outfile.close();
-        }
-        else { test_exist.close(); }
+//         outfile.open(filename, std::ios::out | std::ios::app);
+//         outfile.precision(15);
+//         for (int bin = 0; bin < this->nbin; ++bin) {
+//             outfile << std::setw(20) << bin << std::endl;
+//             for (int l = 0; l < this->hubb->lt; ++l) {
+//                 // TODO: LDOS measurements (linear) can be accelerated!
+//                 outfile << std::setw(20)
+//                         << this->DynamicMeasure->density_of_states[l].bin_data()[bin]
+//                         << std::endl;
+//             }
+//         }
+//         outfile.close();
+//     }
+// }
 
-        outfile.open(filename, std::ios::out | std::ios::app);
-        outfile.precision(15);
-        for (int bin = 0; bin < this->nbin; ++bin) {
-            outfile << std::setw(20) << bin << std::endl;
-            for (int l = 0; l < this->hubb->lt; ++l) {
-                // TODO: LDOS measurements (linear) can be accelerated!
-                outfile << std::setw(20)
-                        << this->DynamicMeasure->density_of_states[l].bin_data()[bin]
-                        << std::endl;
-            }
-        }
-        outfile.close();
-    }
-}
+// void Simulation::DetQMC::file_output_eqtime_stats(const std::string &filename) const {
+//     if (this->bool_measure_eqtime) {
+//         std::ofstream outfile;
+//         outfile.open(filename, std::ios::out | std::ios::trunc);
 
-void Simulation::DetQMC::file_output_eqtime_stats(const std::string &filename) const {
-    if (this->bool_measure_eqtime) {
-        std::ofstream outfile;
-        outfile.open(filename, std::ios::out | std::ios::trunc);
+//         outfile << std::setiosflags(std::ios::right)
+//                 << std::setw(15) << this->hubb->Uint / this->hubb->t
+//                 << std::setw(15) << this->hubb->beta
+//                 << std::setw(15) << this->EqtimeMeasure->double_occu.mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->double_occu.error_bar()
+//                 << std::setw(15) << this->EqtimeMeasure->kinetic_energy.mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->kinetic_energy.error_bar()
+//                 << std::setw(15) << this->EqtimeMeasure->AFM_factor.mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->AFM_factor.error_bar()
+//                 << std::setw(15) << this->EqtimeMeasure->electron_density.mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->electron_density.error_bar()
+//                 << std::setw(15) << this->EqtimeMeasure->local_corr.mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->local_corr.error_bar()
+//                 << std::setw(15) << this->EqtimeMeasure->q(0)
+//                 << std::setw(15) << this->EqtimeMeasure->q(1)
+//                 << std::endl;
+//         outfile.close();
+//         std::cout << "  Equal-time data has been written into file: " << filename << std::endl;
+//         if (! this->bool_measure_dynamic) {
+//             std::cout << "==============================================================================" << std::endl << std::endl;
+//         }
+//     }
+// }
 
-        outfile << std::setiosflags(std::ios::right)
-                << std::setw(15) << this->hubb->Uint / this->hubb->t
-                << std::setw(15) << this->hubb->beta
-                << std::setw(15) << this->EqtimeMeasure->double_occu.mean_value()
-                << std::setw(15) << this->EqtimeMeasure->double_occu.error_bar()
-                << std::setw(15) << this->EqtimeMeasure->kinetic_energy.mean_value()
-                << std::setw(15) << this->EqtimeMeasure->kinetic_energy.error_bar()
-                << std::setw(15) << this->EqtimeMeasure->AFM_factor.mean_value()
-                << std::setw(15) << this->EqtimeMeasure->AFM_factor.error_bar()
-                << std::setw(15) << this->EqtimeMeasure->electron_density.mean_value()
-                << std::setw(15) << this->EqtimeMeasure->electron_density.error_bar()
-                << std::setw(15) << this->EqtimeMeasure->local_corr.mean_value()
-                << std::setw(15) << this->EqtimeMeasure->local_corr.error_bar()
-                << std::setw(15) << this->EqtimeMeasure->q(0)
-                << std::setw(15) << this->EqtimeMeasure->q(1)
-                << std::endl;
-        outfile.close();
-        std::cout << "  Equal-time data has been written into file: " << filename << std::endl;
-        if (! this->bool_measure_dynamic) {
-            std::cout << "==============================================================================" << std::endl << std::endl;
-        }
-    }
-}
+// void Simulation::DetQMC::file_output_dynamic_stats(const std::string& filename) const{
+//     if (this->bool_measure_dynamic) {
+//         std::ofstream outfile;
+//         outfile.open(filename, std::ios::out | std::ios::trunc);
 
-void Simulation::DetQMC::file_output_dynamic_stats(const std::string& filename) const{
-    if (this->bool_measure_dynamic) {
-        std::ofstream outfile;
-        outfile.open(filename, std::ios::out | std::ios::trunc);
+//         outfile << std::setiosflags(std::ios::right)
+//                 << "Momentum k: " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl;
 
-        outfile << std::setiosflags(std::ios::right)
-                << "Momentum k: " << this->q(0) << " pi, "<< this->q(1) << " pi" << std::endl;
+//         for (int l = 0; l < this->hubb->lt; ++l) {
+//             outfile << std::setw(15) << l
+//                     << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].mean_value()
+//                     << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar()
+//                     << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar() / this->DynamicMeasure->matsubara_greens[l].mean_value()
+//                     << std::endl;
+//         }
 
-        for (int l = 0; l < this->hubb->lt; ++l) {
-            outfile << std::setw(15) << l
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].mean_value()
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar()
-                    << std::setw(15) << this->DynamicMeasure->matsubara_greens[l].error_bar() / this->DynamicMeasure->matsubara_greens[l].mean_value()
-                    << std::endl;
-        }
+//         outfile << std::setw(15) << this->DynamicMeasure->superfluid_density.mean_value()
+//                 << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar()
+//                 << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar() / this->DynamicMeasure->superfluid_density.mean_value()
+//                 << std::endl;
 
-        outfile << std::setw(15) << this->DynamicMeasure->superfluid_density.mean_value()
-                << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar()
-                << std::setw(15) << this->DynamicMeasure->superfluid_density.error_bar() / this->DynamicMeasure->superfluid_density.mean_value()
-                << std::endl;
+//         outfile.close();
+//         std::cout << "  Dynamic data has been written into file: " << filename << std::endl;
+//         std::cout << "==============================================================================" << std::endl << std::endl;
+//     }
+// }
 
-        outfile.close();
-        std::cout << "  Dynamic data has been written into file: " << filename << std::endl;
-        std::cout << "==============================================================================" << std::endl << std::endl;
-    }
-}
+// void Simulation::DetQMC::file_output_cooper_corr(const std::string &filename) const {
+//     std::ofstream outfile;
+//     outfile.open(filename, std::ios::out | std::ios::trunc);
 
-void Simulation::DetQMC::file_output_cooper_corr(const std::string &filename) const {
-    std::ofstream outfile;
-    outfile.open(filename, std::ios::out | std::ios::trunc);
+//     for (int i = 0; i < this->EqtimeMeasure->cooper_corr.size(); ++i) {
+//         outfile << std::setw(15) << i
+//                 << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].mean_value()
+//                 << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].error_bar()
+//                 << std::endl;
+//     }
+//     outfile.close();
+// }
 
-    for (int i = 0; i < this->EqtimeMeasure->cooper_corr.size(); ++i) {
-        outfile << std::setw(15) << i
-                << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].mean_value()
-                << std::setw(15) << this->EqtimeMeasure->cooper_corr[i].error_bar()
-                << std::endl;
-    }
-    outfile.close();
-}
+// void Simulation::DetQMC::file_output_aux_field_configs(const std::string &filename) const{
+//     std::ofstream outfile;
+//     outfile.open(filename, std::ios::out | std::ios::trunc);
 
-void Simulation::DetQMC::file_output_aux_field_configs(const std::string &filename) const{
-    std::ofstream outfile;
-    outfile.open(filename, std::ios::out | std::ios::trunc);
-
-    outfile << std::setiosflags(std::ios::right);
-    for (int l = 0; l < this->hubb->lt; ++l) {
-        for (int i = 0; i < this->hubb->ls; ++i) {
-            outfile << std::setw(15) << l
-                    << std::setw(15) << i
-                    << std::setw(15) << this->hubb->s(i, l)
-                    << std::endl;
-        }
-    }
-    outfile.close();
-}
+//     outfile << std::setiosflags(std::ios::right);
+//     for (int l = 0; l < this->hubb->lt; ++l) {
+//         for (int i = 0; i < this->hubb->ls; ++i) {
+//             outfile << std::setw(15) << l
+//                     << std::setw(15) << i
+//                     << std::setw(15) << this->hubb->s(i, l)
+//                     << std::endl;
+//         }
+//     }
+//     outfile.close();
+// }
 
 Simulation::DetQMC::~DetQMC() {
     if (this->hubb) {

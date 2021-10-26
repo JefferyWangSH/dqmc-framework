@@ -8,10 +8,15 @@
   *  including: MC sampling (measuring) and output of statistical results.
   */
 
+class SvdStack;
 namespace Model { class Hubbard; }
 namespace Measure { class EqtimeMeasure; }
 namespace Measure { class DynamicMeasure; }
-class SvdStack;
+namespace Simulation { class DetQMC; }
+namespace ScreenOutput { 
+    void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc); 
+    void screen_output_end_info(const Simulation::DetQMC &dqmc);
+}
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
@@ -47,6 +52,10 @@ namespace Simulation {
         // for time-displaced (dynamical) measurements
         Measure::DynamicMeasure *DynamicMeasure{};
 
+        // friend function
+        friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
+        friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);
+
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -54,7 +63,7 @@ namespace Simulation {
 
         ~DetQMC();
 
-        /** Following functions aimed to set up params and initialization before DQMC calculation starts */
+        /** functions to set up params and initialization before DQMC calculation starts */
         /* set up model parameters */
         void set_model_params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard);
 
@@ -80,34 +89,6 @@ namespace Simulation {
 
         /* analyse statistics from simulation */
         void analyse_stats() const;
-
-
-        /** Output modules for the output of DQMC measuring results */
-        /* print simulation params onto terminal */
-        void print_params() const;
-
-        /* print measuring results onto terminal */
-        void print_stats() const;
-
-        /* write results of measurements, including means and errors, into file */
-        void file_output_eqtime_stats(const std::string &filename) const;
-
-        void file_output_dynamic_stats(const std::string &filename) const;
-
-        /* write sequences of imaginary-time tau into file */
-        void file_output_tau(const std::string &filename) const;
-
-        /* write results of green's function measurements, in terms of bins, into file */
-        void bin_output_greens(const std::string &filename) const;
-
-        /* write measuring results of local density of states(LDOS) , in terms of bins, into file */
-        void bin_output_LDOS(const std::string &filename) const;
-
-        /* analyse space correlation of cooper pairs and write results into file */
-        void file_output_cooper_corr(const std::string &filename) const;
-
-        /* output aux field configurations into file */
-        void file_output_aux_field_configs(const std::string &filename) const;
 
     private:
         /* process of Monte Carlo sweeping, and do the measurements if needed */

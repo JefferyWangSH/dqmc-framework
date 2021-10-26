@@ -1,5 +1,11 @@
 #include "hubbard.h"
 #include "detqmc.h"
+#include "eqtime_measure.h"
+#include "dynamic_measure.h"
+#include "measure_data.h"
+#include "measure_gather.hpp"
+#include "random.h"
+#include "output.h"
 
 #include <iostream>
 #include <iomanip>
@@ -9,17 +15,8 @@
 #include <mpi.h>
 #include <boost/mpi.hpp>
 #include <boost/serialization/vector.hpp>
-
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
-
-// for testing and debuging
-#include "eqtime_measure.h"
-#include "dynamic_measure.h"
-#include "measure_data.h"
-#include "measure_gather.hpp"
-#include "random.h"
-#include <Eigen/Core>
 
 
 /**
@@ -35,15 +32,14 @@
   *   9. read aux field configurations from input file (done)
   *   10. checkerboard decomposition (done)
   *   11. openmp parallel sampling (missing)
-  *   12. replace boost::format with std::format, using c++20 standard (missing)
-  *   13. log output (missing)
-  *   14. run the program with bash scripts (done)
-  *   15. MPI distributed programing (missing)
-  *   16. generalized model and lattice module supporting simulations of user-designed physical systems (missing)
-  *   17. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
-  *   18. specialized random (and seed) module (missing)
-  *   19. high-efficient measurements of linear observables (missing)
-  *   20. ...
+  *   12. log output (done)
+  *   13. run the program with bash scripts (done)
+  *   14. MPI distributed programing (done)
+  *   15. generalized model and lattice module supporting simulations of user-designed physical systems (missing)
+  *   16. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
+  *   17. independent random (and seed) module (done)
+  *   18. high-efficient measurements of linear observables (missing)
+  *   19. ...
   */
 
 
@@ -135,7 +131,7 @@ int main(int argc, char* argv[]) {
     // arrange bins measurements over processors
     const int bins_per_proc = (nbin % world.size() == 0)? nbin/world.size() : nbin/world.size()+1;
 
-    // set up random seed for each processor
+    // set up unique random seed for each processor
     Random::set_seed(rank);
 
     // usage example
@@ -148,25 +144,38 @@ int main(int argc, char* argv[]) {
     // the master processor
     if (rank == master) {
         // output the information of simulation
-        dqmc->print_params();
+        ScreenOutput::screen_output_init_info(env.processor_name(), world.size(), *dqmc);
     }
     
-    bool_display_process = (rank == master)? true : false;
+    // MC simulation process ...
+    bool_display_process = (rank == master);
     dqmc->run(bool_display_process);
+
+    // output the ending information, include time cost and wrap errors
+    if (rank == master) {
+        ScreenOutput::screen_output_end_info(*dqmc);
+    }
+
+    // analyse statistics
     dqmc->analyse_stats();
 
     // collect data from all processors
     Measure::MeasureData double_occu = Measure::gather(world, dqmc->EqtimeMeasure->double_occu);
-
+    Measure::MeasureData kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
+    Measure::MeasureData electron_density = Measure::gather(world, dqmc->EqtimeMeasure->electron_density);
+    Measure::MeasureData local_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_corr);
+    Measure::MeasureData AFM_factor = Measure::gather(world, dqmc->EqtimeMeasure->AFM_factor);
+    Measure::MeasureData average_sign = Measure::gather(world, dqmc->EqtimeMeasure->sign);
+    
+    // display of measuring results on terminal
     if (rank == master) {
-        std::cout << double_occu.mean_value() << std::endl;
-        std::cout << double_occu.error_bar() << std::endl;
-        std::cout << double_occu.size_of_bin() << std::endl;
+        ScreenOutput::screen_output_observable(double_occu, "Double Occupancy");
+        ScreenOutput::screen_output_observable(kinetic_energy, "Kinetic energy");
+        ScreenOutput::screen_output_observable(electron_density, "Electron density");
+        ScreenOutput::screen_output_observable(local_corr, "Local density correlation");
+        ScreenOutput::screen_output_observable(AFM_factor, "Anti ferromagnetism factor");
+        ScreenOutput::screen_output_observable(average_sign, "Average sign (abs)");
     }
-
-
-//    dqmc->file_output_dynamic_stats("../results/dynamic.dat");
-//    dqmc->file_output_cooper_corr("../results/cooper_l_8.dat");
 
 
 //    std::vector<double> list_of_beta = { 4.0, 8.0, 10.0, 12.0, 16.0, };

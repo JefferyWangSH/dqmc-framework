@@ -1,3 +1,99 @@
 #include "output.h"
 
-// TODO
+#include "detqmc.h"
+#include "hubbard.h"
+#include "measure_data.h"
+
+#include <boost/format.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/local_time/local_time.hpp>
+
+
+namespace FileOutput {
+
+    // TODO
+    void file_output_observable(const Measure::MeasureData &obs, const std::string &file_name, const int &mode) {
+        
+    }
+
+
+
+
+
+
+} // namespace FileOutput
+
+
+namespace ScreenOutput {
+
+    void screen_output_time() {
+        // print current date and time
+        auto current_time = boost::posix_time::second_clock::local_time();
+        std::cout << " Current time : " << current_time << "\n" << std::endl;
+    }
+
+    void screen_output_mpi(const std::string &master_proc_name, const int &world_size) {
+        // print information of processors
+        std::cout << boost::format(" Distribute tasks to %s processors, with the master processor being %s. \n") % world_size % master_proc_name 
+                  << std::endl;
+    }
+
+    void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc){
+        // print simualtion parameters          
+        boost::format fmt_param_int("%| 30s|%| 5s|%| 7d|");
+        boost::format fmt_param_double("%| 30s|%| 5s|%| 7.1f|");
+        boost::format fmt_param_k("%| 30s|%| 5s|%| 7.1f| pi, %.1f pi");
+        const std::string joiner = "->";
+
+        std::cout << " Initialization finished. \n\n"
+                  << " The simulation is going to get started with parameters shown below : \n" << std::endl;
+        std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubb->ll << std::endl;
+        std::cout << fmt_param_int % "Imaginary-time length 'lt'" % joiner % dqmc.hubb->lt << std::endl;
+        std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubb->beta << std::endl;
+        std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubb->Uint << std::endl;
+        std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubb->mu << std::endl;
+        std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % dqmc.q[0] % dqmc.q[1] << std::endl;
+        std::cout << std::endl;
+
+        std::cout << fmt_param_int % "Stablization pace 'nwrap'" % joiner % dqmc.nwrap << std::endl;
+        std::cout << fmt_param_int % "Number of bins 'nbin'" % joiner % (dqmc.nbin * world_size) << std::endl;
+        std::cout << fmt_param_int % "Sweeps per bin 'nsweep'" % joiner % dqmc.nsweep << std::endl << std::endl;
+    }
+
+    void screen_output_init_info(const std::string &master_proc_name, const int &world_size, const Simulation::DetQMC &dqmc) {
+        // print current date and time
+        screen_output_time();
+        
+        // print information of processors
+        screen_output_mpi(master_proc_name, world_size);
+        
+        // print simualtion parameters 
+        screen_output_params(world_size, dqmc);
+    }
+
+    void screen_output_end_info(const Simulation::DetQMC &dqmc) {
+        auto time = std::chrono::duration_cast<std::chrono::milliseconds>(dqmc.end_t - dqmc.begin_t).count();
+        const int minute = std::floor((double)time / 1000 / 60);
+        const double sec = (double)time / 1000 - 60 * minute;
+
+        // print the time cost of simulation
+        std::cout << boost::format("\n The simulation finished in %d min %.2f s. \n") % minute % sec << std::endl;
+
+        // print wrap error of the evaluation of Green's functions
+        if (dqmc.bool_measure_eqtime || dqmc.bool_measure_dynamic || dqmc.bool_warm_up) {
+            std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubb->max_wrap_error_equal << std::endl;
+            if (dqmc.bool_measure_dynamic) {
+                std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubb->max_wrap_error_displaced << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    void screen_output_observable(const Measure::MeasureData &obs, const std::string &obs_name) {
+        boost::format fmt_obs("%| 30s|%| 5s|%| 17.12f| pm %.12f");
+        const std::string joiner = "->";
+        std::cout << fmt_obs % obs_name % joiner % obs.mean_value() % obs.error_bar() << std::endl;
+    }
+
+} // namespace ScreenOutput
