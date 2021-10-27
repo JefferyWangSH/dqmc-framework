@@ -25,6 +25,10 @@ namespace FileOutput{
 
     void file_output_observable_bin(const std::vector<Measure::MeasureData> &obs_vec, const std::string &file_name, const int &mode);
 
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+
+    void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+
 } // namespace FileOutput
 
 
@@ -41,12 +45,6 @@ namespace ScreenOutput {
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
 
     void screen_output_observable(const Measure::MeasureData &obs, const std::string &obs_name);
-
-    // void screen_output_observable_bin(const Measure::MeasureData &obs);
-
-    // void screen_output_observable(const std::vector<Measure::MeasureData> &obs_vec);
-
-    // void screen_output_observable_bin(const std::vector<Measure::MeasureData> &obs_vec);
 
 } // namespace ScreenOutput
 

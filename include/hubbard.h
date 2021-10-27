@@ -18,10 +18,13 @@
 
 class SvdStack;
 namespace CheckerBoard { class CheckerBoard; }
-namespace Measure { class EqtimeMeasure; }
-namespace Measure { class DynamicMeasure; }
+namespace Measure { class EqtimeMeasure; class DynamicMeasure; }
 namespace Simulation { class DetQMC; }
-namespace ScreenOutput { 
+namespace FileOutput { 
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+    void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+}
+namespace ScreenOutput {
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc); 
     void screen_output_end_info(const Simulation::DetQMC &dqmc);
 }
@@ -96,9 +99,10 @@ namespace Model {
         friend class CheckerBoard::CheckerBoard;
         friend class Measure::EqtimeMeasure;
         friend class Measure::DynamicMeasure;
+        friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+        friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
         friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);
-
 
     private:
         /** randomly initialize aux field */

@@ -4,6 +4,7 @@
 #include "hubbard.h"
 #include "measure_data.h"
 
+#include <fstream>
 #include <boost/format.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -12,15 +13,93 @@
 
 namespace FileOutput {
 
-    // TODO
     void file_output_observable(const Measure::MeasureData &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
         
+        // for a specfic measuring object, output mean value, error bar and relative error in order. 
+        boost::format fmt_obs("%| 20.10f|%| 20.10f|%| 20.10f|");
+        outfile << fmt_obs % obs.mean_value() % obs.error_bar() % (obs.error_bar()/obs.mean_value()) << std::endl;
+        outfile.close();
     }
 
+    void file_output_observable_bin(const Measure::MeasureData &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
 
+        // output bin data of observables
+        boost::format fmt_bin_info("%| 20d|");
+        boost::format fmt_bin_obs("%| 20d|%| 20.10f|");
+        outfile << fmt_bin_info % obs.size_of_bin() << std::endl;
+        for (int bin = 0; bin < obs.size_of_bin(); ++bin) {
+            outfile << fmt_bin_obs % bin % obs.bin_data()[bin] << std::endl;
+        }
+        outfile.close();
+    }
 
+    void file_output_observable(const std::vector<Measure::MeasureData> &obs_vec, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
 
+        // for a list of observables, output mean value, error bar and relative error in order
+        boost::format fmt_obs("%| 20d|%| 20.10f|%| 20.10f|%| 20.10f|");
+        for (int i = 0; i < obs_vec.size(); ++i) {
+            outfile << fmt_obs % i % obs_vec[i].mean_value() % obs_vec[i].error_bar() % (obs_vec[i].error_bar()/obs_vec[i].mean_value()) << std::endl;
+        }
+        outfile.close(); 
+    }
 
+    void file_output_observable_bin(const std::vector<Measure::MeasureData> &obs_vec, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data for a list of observables
+        boost::format fmt_bin_info("%| 20d|%| 20d|");
+        boost::format fmt_bin_obs("%| 20d|%| 20d|%| 20.10f|");
+        outfile << fmt_bin_info % obs_vec.size() % obs_vec[0].size_of_bin() << std::endl;
+        for (int i = 0; i < obs_vec.size(); ++i) {
+            for (int bin = 0; bin < obs_vec[i].size_of_bin(); ++bin) {
+                outfile << fmt_bin_obs % i % bin % obs_vec[i].bin_data()[bin] << std::endl;
+            }
+        }
+        outfile.close();
+    }
+
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output sequence of imaginary-time grids
+        boost::format fmt_tau_info("%| 20d|%| 20.2f|");
+        boost::format fmt_tau_seq("%| 20d|%| 20.10f|");
+        outfile << fmt_tau_info % dqmc.hubb->lt % dqmc.hubb->beta << std::endl;
+        for (int l = 0; l < dqmc.hubb->lt; ++l) {
+            outfile << fmt_tau_seq % l % (l*dqmc.hubb->dtau) << std::endl;
+        }
+        outfile.close();
+    }
+
+    void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output current configuration of aux fields
+        boost::format fmt_field_info("%| 20d|%| 20d|");
+        boost::format fmt_field_seq("%| 20d|%| 20d|%| 20.1f|");
+        outfile << fmt_field_info % dqmc.hubb->lt % dqmc.hubb->ls << std::endl;
+        for (int l = 0; l < dqmc.hubb->lt; ++l) {
+            for (int i = 0; i < dqmc.hubb->ls; ++i) {
+                outfile << fmt_field_seq % l % i % dqmc.hubb->s(i, l) << std::endl;
+            }
+        }
+        outfile.close();
+    }
 
 } // namespace FileOutput
 
@@ -42,8 +121,8 @@ namespace ScreenOutput {
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc){
         // print simualtion parameters          
         boost::format fmt_param_int("%| 30s|%| 5s|%| 7d|");
-        boost::format fmt_param_double("%| 30s|%| 5s|%| 7.1f|");
-        boost::format fmt_param_k("%| 30s|%| 5s|%| 7.1f| pi, %.1f pi");
+        boost::format fmt_param_double("%| 30s|%| 5s|%| 7.2f|");
+        boost::format fmt_param_k("%| 30s|%| 5s|%| 7.2f| pi, %.2f pi");
         const std::string joiner = "->";
 
         std::cout << " Initialization finished. \n\n"

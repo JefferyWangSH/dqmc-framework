@@ -13,6 +13,7 @@
 #include "measure_data.h"
 
 namespace Measure {
+
     Measure::MeasureData gather(const boost::mpi::communicator &world, const Measure::MeasureData &obs) {
         const int master = 0;
         const int rank = world.rank();
@@ -50,6 +51,15 @@ namespace Measure {
             boost::mpi::wait_all(sends.begin(), sends.end());
             return obs;
         }
+    }
+
+    // TODO: rewrite in a more efficient manner, by directly transmitting stl vector
+    std::vector<Measure::MeasureData> gather(const boost::mpi::communicator &world, const std::vector<Measure::MeasureData> &obs_vec) {
+        std::vector<Measure::MeasureData> gathered_obs_vec;
+        for (int i = 0; i < obs_vec.size(); ++i) {
+            gathered_obs_vec.push_back(gather(world, obs_vec[i]));
+        }
+        return gathered_obs_vec;
     }
     
 } // namespace Measure

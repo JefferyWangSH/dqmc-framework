@@ -166,6 +166,7 @@ int main(int argc, char* argv[]) {
     Measure::MeasureData local_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_corr);
     Measure::MeasureData AFM_factor = Measure::gather(world, dqmc->EqtimeMeasure->AFM_factor);
     Measure::MeasureData average_sign = Measure::gather(world, dqmc->EqtimeMeasure->sign);
+    std::vector<Measure::MeasureData> cooper_corr = Measure::gather(world, dqmc->EqtimeMeasure->cooper_corr);
     
     // display of measuring results on terminal
     if (rank == master) {
@@ -175,6 +176,14 @@ int main(int argc, char* argv[]) {
         ScreenOutput::screen_output_observable(local_corr, "Local density correlation");
         ScreenOutput::screen_output_observable(AFM_factor, "Anti ferromagnetism factor");
         ScreenOutput::screen_output_observable(average_sign, "Average sign (abs)");
+
+        // FileOutput::file_output_observable(double_occu, "../results/out.dat", 1);
+        // FileOutput::file_output_observable(double_occu, "../results/out.dat", 0);
+        // FileOutput::file_output_observable_bin(double_occu, "../results/out.dat", 0);
+        // FileOutput::file_output_tau(*dqmc, "../results/out.dat", 0);
+        // FileOutput::file_output_aux_field(*dqmc, "../results/out.dat", 0);
+        // FileOutput::file_output_observable(cooper_corr, "../results/out.dat", 0);
+        // FileOutput::file_output_observable_bin(cooper_corr, "../results/out.dat", 0);
     }
 
 
@@ -192,7 +201,6 @@ int main(int argc, char* argv[]) {
 //        dqmc->analyse_stats();
 //        dqmc->print_stats();
 //    }
-
 
 
     /** Measure dynamical correlation functions for different momentum k */

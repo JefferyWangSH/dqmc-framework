@@ -8,20 +8,23 @@
   *  including: MC sampling (measuring) and output of statistical results.
   */
 
-class SvdStack;
-namespace Model { class Hubbard; }
-namespace Measure { class EqtimeMeasure; }
-namespace Measure { class DynamicMeasure; }
-namespace Simulation { class DetQMC; }
-namespace ScreenOutput { 
-    void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc); 
-    void screen_output_end_info(const Simulation::DetQMC &dqmc);
-}
-
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 #include <chrono>
+
+class SvdStack;
+namespace Model { class Hubbard; }
+namespace Measure { class EqtimeMeasure; class DynamicMeasure; }
+namespace Simulation { class DetQMC; }
+namespace FileOutput { 
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+    void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+}
+namespace ScreenOutput {
+    void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc); 
+    void screen_output_end_info(const Simulation::DetQMC &dqmc);
+}
 
 
 namespace Simulation {
@@ -53,6 +56,8 @@ namespace Simulation {
         Measure::DynamicMeasure *DynamicMeasure{};
 
         // friend function
+        friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+        friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
         friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);
 
