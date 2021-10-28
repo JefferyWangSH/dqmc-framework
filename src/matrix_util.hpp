@@ -34,23 +34,23 @@ namespace MatrixUtil {
      * @param v -> v matrix in Eigen::Matrix, N * N.
      */
     void mkl_lapack_dgesvd(const int &m, const int &n, const Eigen::MatrixXd &a, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
-        assert(m == a.rows());
-        assert(n == a.cols());
+        assert( m == a.rows() );
+        assert( n == a.cols() );
 
         // Matrix size
         int matrix_layout = LAPACK_ROW_MAJOR;
         lapack_int info, lda = m, ldu = m, ldvt = n;
 
         // Local arrays
-        double s_[ldu * ldu], u_[ldu * m], vt_[ldvt * n];
-        double a_[lda * n];
+        double _s[ldu * ldu], _u[ldu * m], _vt[ldvt * n];
+        double _a[lda * n];
         double superb[ldu * lda];
         for (int i = 0; i < lda * n; ++i) {
-            a_[i] = a(i/lda, i%lda);
+            _a[i] = a(i/lda, i%lda);
         }
 
         // Compute SVD
-        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', m, n, a_, lda, s_, u_, ldu, vt_, ldvt, superb );
+        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', m, n, _a, lda, _s, _u, ldu, _vt, ldvt, superb );
 
         // Check for convergence
         if( info > 0 ) {
@@ -59,9 +59,9 @@ namespace MatrixUtil {
         }
 
         // Convert results to Eigen
-        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(u_, n, n);
-        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(s_, 1, n);
-        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(vt_, m, m);
+        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(_u, n, n);
+        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(_s, 1, n);
+        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_vt, m, m);
     }
 
 
@@ -89,16 +89,16 @@ namespace MatrixUtil {
         // Locals params
         lapack_int n = N, lda = N, info;
         double w[N];
-        double a_[lda * n];
+        double _a[lda * n];
         const Eigen::MatrixXd a_upper = a.triangularView<Eigen::Upper>();
 
         // Convert eigen matrix to array ( upper triangular )
         for (int i = 0; i < lda * n; ++i) {
-            a_[i] = a_upper(i/lda, i%lda);
+            _a[i] = a_upper(i/lda, i%lda);
         }
 
         // Solve eigen problem
-        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, a_, lda, w );
+        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, _a, lda, w );
 
         // Check for convergence
         if( info > 0 ) {
@@ -108,7 +108,7 @@ namespace MatrixUtil {
 
         // Convert eigenvalues and eigenvectors to eigen style
         s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(w, 1, n);
-        T = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(a_, n, n);
+        T = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_a, n, n);
     }
 
 } // namespce MatrixUtil

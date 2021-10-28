@@ -15,8 +15,8 @@ SvdStack::SvdStack(int n, int l): n(n), tmp(n, n) {
     }
 }
 
-void SvdStack::resize(int n_, int l_) {
-    SvdStack newStack(n_, l_);
+void SvdStack::resize(int _n, int _l) {
+    SvdStack newStack(_n, _l);
     *this = newStack;
 }
 

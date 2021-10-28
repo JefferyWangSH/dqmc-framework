@@ -153,12 +153,17 @@ namespace ScreenOutput {
 
     void screen_output_end_info(const Simulation::DetQMC &dqmc) {
         auto time = std::chrono::duration_cast<std::chrono::milliseconds>(dqmc.end_t - dqmc.begin_t).count();
-        const int minute = std::floor((double)time / 1000 / 60);
-        const double sec = (double)time / 1000 - 60 * minute;
+        const int day = std::floor((double)time / 86400000);
+        const int hour = std::floor((double)time / 3600000);
+        const int minute = std::floor((double)time / 60000);
+        const double sec = (double)time / 1000 - 60 * minute - 3600 * hour - 86400 * day;
 
         // print the time cost of simulation
-        std::cout << boost::format("\n The simulation finished in %d min %.2f s. \n") % minute % sec << std::endl;
-
+        if ( day ) { std::cout << boost::format("\n The simulation finished in %d d %d h %d m %.2f s. \n") % day % hour % minute % sec << std::endl; }
+        else if ( hour ) { std::cout << boost::format("\n The simulation finished in %d h %d m %.2f s. \n") % hour % minute % sec << std::endl; }
+        else if ( minute ) { std::cout << boost::format("\n The simulation finished in %d m %.2f s. \n") % minute % sec << std::endl; }
+        else { std::cout << boost::format("\n The simulation finished in %.2f s. \n") % sec << std::endl; }
+        
         // print wrap error of the evaluation of Green's functions
         if (dqmc.bool_measure_eqtime || dqmc.bool_measure_dynamic || dqmc.bool_warm_up) {
             std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubb->max_wrap_error_equal << std::endl;

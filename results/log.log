@@ -1,4 +1,4 @@
- Current time : 2021-Oct-27 15:54:28
+ Current time : 2021-Oct-28 23:43:16
 
  Distribute tasks to 24 processors, with the master processor being ca0307.para.bscc. 
 
@@ -17,18 +17,18 @@
          Number of bins 'nbin'   ->     24
        Sweeps per bin 'nsweep'   ->    100
 
- Warm-up progress:   [###>------------------------------------] 7% 0.053s Warm-up progress:   [######>---------------------------------] 15% 0.105s Warm-up progress:   [#########>------------------------------] 23% 0.157s Warm-up progress:   [############>---------------------------] 31% 0.209s Warm-up progress:   [###############>------------------------] 39% 0.261s Warm-up progress:   [##################>---------------------] 46% 0.313s Warm-up progress:   [#####################>------------------] 54% 0.365s Warm-up progress:   [#########################>--------------] 62% 0.417s Warm-up progress:   [############################>-----------] 70% 0.469s Warm-up progress:   [###############################>--------] 78% 0.521s Warm-up progress:   [##################################>-----] 85% 0.573s Warm-up progress:   [#####################################>--] 93% 0.626s Warm-up progress:   [########################################] 100% 0.668s
- Measuring progress: [########>-------------------------------] 20% 0.289s Measuring progress: [################>-----------------------] 40% 0.579s Measuring progress: [########################>---------------] 60% 0.869s Measuring progress: [################################>-------] 80% 1.159s Measuring progress: [########################################] 100% 1.449s Measuring progress: [########################################] 100% 1.5s
+ Warm-up progress:   [###>------------------------------------] 7% 0.053s Warm-up progress:   [######>---------------------------------] 15% 0.107s Warm-up progress:   [#########>------------------------------] 23% 0.161s Warm-up progress:   [############>---------------------------] 31% 0.215s Warm-up progress:   [###############>------------------------] 39% 0.269s Warm-up progress:   [##################>---------------------] 46% 0.323s Warm-up progress:   [#####################>------------------] 54% 0.377s Warm-up progress:   [#########################>--------------] 62% 0.43s Warm-up progress:   [############################>-----------] 70% 0.485s Warm-up progress:   [###############################>--------] 78% 0.538s Warm-up progress:   [##################################>-----] 85% 0.592s Warm-up progress:   [#####################################>--] 93% 0.646s Warm-up progress:   [########################################] 100% 0.69s
+ Measuring progress: [########>-------------------------------] 20% 0.291s Measuring progress: [################>-----------------------] 40% 0.584s Measuring progress: [########################>---------------] 60% 0.878s Measuring progress: [################################>-------] 80% 1.171s Measuring progress: [########################################] 100% 1.465s Measuring progress: [########################################] 100% 1.518s
 
- The simulation finished in 0 min 2.17 s. 
+ The simulation finished in 2.21 s. 
 
- Maximum of equal-time wrap error :  9.67582e-11
+ Maximum of equal-time wrap error :  2.06235e-11
 
- Maximum of dynamical wrap error :   3.58301e-12
+ Maximum of dynamical wrap error :   6.19493e-12
 
-              Double Occupancy   ->   0.370710193490 pm 0.004133336026
-                Kinetic energy   ->  -1.307771425880 pm 0.002429263002
-              Electron density   ->   0.035183305191 pm 0.000859950621
-     Local density correlation   ->   0.251586463996 pm 0.000997869851
-    Anti ferromagnetism factor   ->   0.006235295042 pm 0.000014781312
+              Double Occupancy   ->   0.377863770046 pm 0.003679655746
+                Kinetic energy   ->  -1.313390348733 pm 0.003506842545
+              Electron density   ->   0.036585956586 pm 0.000580949524
+     Local density correlation   ->   0.251774959043 pm 0.001234525569
+    Anti ferromagnetism factor   ->   0.006230877485 pm 0.000026025817
             Average sign (abs)   ->   1.000000000000 pm 0.000000000000
