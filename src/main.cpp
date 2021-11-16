@@ -62,13 +62,12 @@ int main(int argc, char* argv[]) {
     int nsweep = 100;
     int nBetweenBins = 10;
 
-    std::string filename_eqtime = "../results/meas-eqtime.dat";
-    std::string filename_dynamic = "../results/meas-dynamic.dat";
     bool bool_display_process = true;
-
     bool bool_warm_up = true;
     bool bool_measure_eqtime = true;
     bool bool_measure_dynamic = true;
+
+    std::string out_folder_name = "example";
 
 
     /** read params from command line */
@@ -91,13 +90,10 @@ int main(int argc, char* argv[]) {
             ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
             ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10),
                     "number of sweeps between bins to avoid correlation, default: 10")
-            ("eqtime", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
-            ("dynamic", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
-            ("oeq", boost::program_options::value<std::string>(&filename_eqtime)->default_value("../results/meas-eqtime.dat"),
-                    "output filename of equal-time data, default: ../results/meas-eqtime.dat")
-            ("ody", boost::program_options::value<std::string>(&filename_dynamic)->default_value("../results/meas-dynamic.dat"),
-                    "output filename of dynamic data, default: ../results/meas-dynamic.dat");
-
+            ("eqtime-measure", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
+            ("dynamic-measure", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
+            ("output-file-folder", boost::program_options::value<std::string>(&out_folder_name)->default_value("example"), "name of the output folder, default: example");
+    
     try {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
     }
@@ -159,48 +155,61 @@ int main(int argc, char* argv[]) {
     // analyse statistics
     dqmc->analyse_stats();
 
-    // collect data from all processors
-    Measure::MeasureData double_occu = Measure::gather(world, dqmc->EqtimeMeasure->double_occu);
-    Measure::MeasureData kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
-    Measure::MeasureData electron_density = Measure::gather(world, dqmc->EqtimeMeasure->electron_density);
-    Measure::MeasureData local_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_corr);
-    Measure::MeasureData AFM_factor = Measure::gather(world, dqmc->EqtimeMeasure->AFM_factor);
-    Measure::MeasureData average_sign = Measure::gather(world, dqmc->EqtimeMeasure->sign);
-    std::vector<Measure::MeasureData> cooper_corr = Measure::gather(world, dqmc->EqtimeMeasure->cooper_corr);
-    
-    // display of measuring results on terminal
+    // collect data and output results
+    // initialize output folder
+    const std::string out_folder_path = "../results/" + out_folder_name;
     if (rank == master) {
-        ScreenOutput::screen_output_observable(double_occu, "Double Occupancy");
-        ScreenOutput::screen_output_observable(kinetic_energy, "Kinetic energy");
-        ScreenOutput::screen_output_observable(electron_density, "Electron density");
-        ScreenOutput::screen_output_observable(local_corr, "Local density correlation");
-        ScreenOutput::screen_output_observable(AFM_factor, "Anti ferromagnetism factor");
-        ScreenOutput::screen_output_observable(average_sign, "Average sign (abs)");
-
-        // FileOutput::file_output_observable(double_occu, "../results/out.dat", 1);
-        // FileOutput::file_output_observable(double_occu, "../results/out.dat", 0);
-        // FileOutput::file_output_observable_bin(double_occu, "../results/out.dat", 0);
-        // FileOutput::file_output_tau(*dqmc, "../results/out.dat", 0);
-        // FileOutput::file_output_aux_field(*dqmc, "../results/out.dat", 0);
-        // FileOutput::file_output_observable(cooper_corr, "../results/out.dat", 0);
-        // FileOutput::file_output_observable_bin(cooper_corr, "../results/out.dat", 0);
+        if ( access(out_folder_path.c_str(), 0) != 0 ) {
+            const std::string command = "mkdir " + out_folder_path;
+            if ( system(command.c_str()) != 0 ) {
+                std::cerr << boost::format(" fail to creat folder %s . \n") % out_folder_path << std::endl;
+            }
+        }
     }
 
+    if (dqmc->EqtimeMeasure) {
+        // collect data from all processors
+        Measure::MeasureData average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
+        Measure::MeasureData double_occu = Measure::gather(world, dqmc->EqtimeMeasure->double_occu);
+        Measure::MeasureData kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
+        Measure::MeasureData electron_density = Measure::gather(world, dqmc->EqtimeMeasure->electron_density);
+        Measure::MeasureData local_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_corr);
+        Measure::MeasureData AFM_factor = Measure::gather(world, dqmc->EqtimeMeasure->AFM_factor);
+        std::vector<Measure::MeasureData> cooper_corr = Measure::gather(world, dqmc->EqtimeMeasure->cooper_corr);
+        
+        // display of measuring results on terminal
+        if (rank == master) {
+            ScreenOutput::screen_output_observable(double_occu, "Double Occupancy");
+            ScreenOutput::screen_output_observable(kinetic_energy, "Kinetic energy");
+            ScreenOutput::screen_output_observable(electron_density, "Electron density");
+            ScreenOutput::screen_output_observable(local_corr, "Local density correlation");
+            ScreenOutput::screen_output_observable(AFM_factor, "Anti ferromagnetism factor");
+            ScreenOutput::screen_output_observable(average_sign_eq, "Average sign (abs)");
+        }
 
-//    std::vector<double> list_of_beta = { 4.0, 8.0, 10.0, 12.0, 16.0, };
-//    for (auto b : list_of_beta) {
-//        int number_of_t = 20*(int)b;
-//        dqmc->set_model_params(ll, number_of_t, b, t, u, mu, nwrap, bool_checkerboard);
-//        dqmc->set_Monte_Carlo_params(nwarm, nbin, nsweep, nBetweenBins);
-//        dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
-//        dqmc->set_lattice_momentum(0.5, 0.5);
-//        dqmc->print_params();
-//
-//        dqmc->init_measure();
-//        dqmc->run(bool_display_process);
-//        dqmc->analyse_stats();
-//        dqmc->print_stats();
-//    }
+        // file output of measuring results
+        if (rank == master) {
+            // TODO
+        }
+    }
+
+    if (dqmc->DynamicMeasure) {
+        // collect data from all processors
+        Measure::MeasureData average_sign_dy = Measure::gather(world, dqmc->DynamicMeasure->sign);
+        Measure::MeasureData superfluid_density = Measure::gather(world, dqmc->DynamicMeasure->superfluid_density);
+    
+        // display of measuring results on terminal
+        if (rank == master) {
+            ScreenOutput::screen_output_observable(superfluid_density, "Superfluid density");
+            ScreenOutput::screen_output_observable(average_sign_dy, "Average sign (abs)");
+        }
+
+        // file output of measuring results
+        if (rank == master) {
+            FileOutput::file_output_observable(superfluid_density, out_folder_path + "/out.dat", 0);
+            FileOutput::file_output_observable_bin(superfluid_density, out_folder_path + "/out_bin.dat", 0);
+        }
+    }
 
 
     /** Measure dynamical correlation functions for different momentum k */

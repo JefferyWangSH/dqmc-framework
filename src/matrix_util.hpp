@@ -6,9 +6,9 @@
  *  This source file includes some diagonalizing tools with C++/Eigen interface
  *  for diagonalizing real matrices using mkl and lapack.
  *  including:
- *    1. generalized SVD decomposition for arbitrary M * N matrices,
+ *    1. generalized SVD decomposition for arbitrary M * N matrices
  *    2. optimized diagonalizing mechanism for N * N real symmetric matrix
- *  and calculation accuracy is guaranteed.
+ *  The calculation accuracy and efficiency are guaranteed.
  */
 
 
@@ -22,93 +22,88 @@
 namespace MatrixUtil {
 
     /**
-     * SVD decomposition of arbitrary M * N real matrix, using MKL_LAPACK:
-     *      A  ->  U * S * V^T
-     * Remind that V is returned in this subroutine, not V transpose.
-     *
-     * @param m -> number of rows.
-     * @param n -> number of cols.
-     * @param a -> arbitrary M*N real matrix to be solved.
-     * @param u -> u matrix in Eigen::Matrix, M * M.
-     * @param s -> eigenvalues s in Eigen::Vector, descending sorted.
-     * @param v -> v matrix in Eigen::Matrix, N * N.
-     */
-    void mkl_lapack_dgesvd(const int &m, const int &n, const Eigen::MatrixXd &a, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
-        assert( m == a.rows() );
-        assert( n == a.cols() );
+      * SVD decomposition of arbitrary M * N real matrix, using MKL_LAPACK:
+      *      A  ->  U * S * V^T
+      * Remind that V is returned in this subroutine, not V transpose.
+      *
+      * @param row -> number of rows.
+      * @param col -> number of cols.
+      * @param mat -> arbitrary `row` * `col` real matrix to be solved.
+      * @param u -> u matrix in Eigen::Matrix, `row` * `row`.
+      * @param s -> eigenvalues s in Eigen::Vector, descending sorted.
+      * @param v -> v matrix in Eigen::Matrix, `col` * `col`.
+      */
+    void mkl_lapack_dgesvd(const int &row, const int &col, const Eigen::MatrixXd &mat, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
+        assert( row == mat.rows() );
+        assert( col == mat.cols() );
 
-        // Matrix size
+        // matrix size
         int matrix_layout = LAPACK_ROW_MAJOR;
-        lapack_int info, lda = m, ldu = m, ldvt = n;
+        lapack_int info, lda = row, ldu = row, ldvt = col;
 
-        // Local arrays
-        double _s[ldu * ldu], _u[ldu * m], _vt[ldvt * n];
-        double _a[lda * n];
+        // local arrays
+        double _s[ldu * ldu], _u[ldu * row], _vt[ldvt * col];
+        double a[lda * col];
         double superb[ldu * lda];
-        for (int i = 0; i < lda * n; ++i) {
-            _a[i] = a(i/lda, i%lda);
+        for (int i = 0; i < lda * col; ++i) {
+            a[i] = mat(i/lda, i%lda);
         }
 
-        // Compute SVD
-        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', m, n, _a, lda, _s, _u, ldu, _vt, ldvt, superb );
+        // compute SVD
+        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', row, col, a, lda, _s, _u, ldu, _vt, ldvt, superb );
 
-        // Check for convergence
+        // check for convergence
         if( info > 0 ) {
             std::cerr << "The algorithm computing SVD failed to converge." << std::endl;
             exit( 1 );
         }
 
-        // Convert results to Eigen
-        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(_u, n, n);
-        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(_s, 1, n);
-        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_vt, m, m);
+        // convert results to Eigen
+        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(_u, col, col);
+        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(_s, 1, col);
+        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_vt, row, row);
     }
 
 
     /**
-     * Calculate eigenvalues and eigenstates given an arbitrary N * N real symmetric matrix, using MKL_LAPACK
-     *      A  ->  T^dagger * S * T
-     * where T is rotation matrix, which is orthogonal;
-     *       S is diagonal matrix with eigenvalues being diagonal elements.
-     *
-     * @param N -> number of rows/cols.
-     * @param a -> arbitrary N * N real symmetric matrix to be solved.
-     * @param s -> diagonal eigen matrix.
-     * @param T -> rotation matrix, columns being eigenstates.
-     */
-    void mkl_lapack_dsyev(const int &N, const Eigen::MatrixXd &a, Eigen::VectorXd &s, Eigen::MatrixXd &T) {
-        assert( a.rows() == N );
-        assert( a.cols() == N );
-        // make sure that a is symmetric
-        for (int i = 0; i < N; ++i) {
-            for (int j = 0; j < N; ++j) {
-                assert( a(i, j) == a(j, i) );
-            }
-        }
+      * Calculate eigenvalues and eigenstates given an arbitrary N * N real symmetric matrix, using MKL_LAPACK
+      *      A  ->  T^dagger * S * T
+      * where T is rotation matrix, which is orthogonal;
+      *       S is diagonal matrix with eigenvalues being diagonal elements.
+      *
+      * @param size -> number of rows/cols.
+      * @param mat -> arbitrary `size` * `size` real symmetric matrix to be solved.
+      * @param s -> diagonal eigen matrix.
+      * @param t -> rotation matrix, columns being eigenstates.
+      */
+    void mkl_lapack_dsyev(const int &size, const Eigen::MatrixXd &mat, Eigen::VectorXd &s, Eigen::MatrixXd &t) {
+        assert( mat.rows() == size );
+        assert( mat.cols() == size );
+        // make sure the input matrix is symmetric
+        assert( mat.isApprox(mat.transpose(), 1e-12) );
 
-        // Locals params
-        lapack_int n = N, lda = N, info;
-        double w[N];
-        double _a[lda * n];
-        const Eigen::MatrixXd a_upper = a.triangularView<Eigen::Upper>();
+        // locals params
+        lapack_int n = size, lda = size, info;
+        double w[n];
+        double a[lda * n];
 
-        // Convert eigen matrix to array ( upper triangular )
+        // convert eigen matrix to c-style array
         for (int i = 0; i < lda * n; ++i) {
-            _a[i] = a_upper(i/lda, i%lda);
+            a[i] = mat(i/lda, i%lda);
         }
 
-        // Solve eigen problem
-        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, _a, lda, w );
+        // solve eigen problem
+        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, a, lda, w );
 
-        // Check for convergence
+        // check for convergence
         if( info > 0 ) {
-            printf( "The algorithm failed to compute eigenvalues.\n" );
+            std::cerr << "The algorithm failed to compute eigenvalues." << std::endl;
             exit( 1 );
         }
 
-        // Convert eigenvalues and eigenvectors to eigen style
+        // convert eigenvalues and eigenvectors to eigen style
         s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(w, 1, n);
-        T = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_a, n, n);
+        t = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(a, n, n);
     }
 
 } // namespce MatrixUtil

@@ -154,9 +154,9 @@ namespace ScreenOutput {
     void screen_output_end_info(const Simulation::DetQMC &dqmc) {
         auto time = std::chrono::duration_cast<std::chrono::milliseconds>(dqmc.end_t - dqmc.begin_t).count();
         const int day = std::floor((double)time / 86400000);
-        const int hour = std::floor((double)time / 3600000);
-        const int minute = std::floor((double)time / 60000);
-        const double sec = (double)time / 1000 - 60 * minute - 3600 * hour - 86400 * day;
+        const int hour = std::floor(((double)time/1000 - day * 86400) / 3600);
+        const int minute = std::floor(((double)time/1000 - day * 86400 - hour * 3600) / 60);
+        const double sec = (double)time/1000 - 86400 * day - 3600 * hour - 60 * minute;
 
         // print the time cost of simulation
         if ( day ) { std::cout << boost::format("\n The simulation finished in %d d %d h %d m %.2f s. \n") % day % hour % minute % sec << std::endl; }

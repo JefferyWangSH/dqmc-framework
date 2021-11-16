@@ -42,7 +42,8 @@ cmake-build-release/*
 build/*
 !build/runcmake.sh
 
-# results/*
-# !results/critical-temperature/*
-# !results/equal-time-measurments/*
-# !results/fermi-surface/*
+results/*
+!results/critical-temperature/*
+!results/equal-time-measurments/*
+!results/fermi-surface/*
+!results/example/*
