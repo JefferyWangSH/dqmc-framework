@@ -35,7 +35,7 @@
   *   12. log output (done)
   *   13. run the program with bash scripts (done)
   *   14. MPI distributed programing (done)
-  *   15. generalized model and lattice module supporting simulations of user-designed physical systems (missing)
+  *   15. generalized model and lattice module supporting simulations of customized physical systems (missing)
   *   16. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
   *   17. independent random (and seed) module (done)
   *   18. high-efficient measurements of linear observables (missing)
@@ -90,6 +90,7 @@ int main(int argc, char* argv[]) {
             ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
             ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10),
                     "number of sweeps between bins to avoid correlation, default: 10")
+            ("warm-up", boost::program_options::value<bool>(&bool_warm_up)->default_value(true), "whether to warm up, default: true")
             ("eqtime-measure", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
             ("dynamic-measure", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
             ("output-file-folder", boost::program_options::value<std::string>(&out_folder_name)->default_value("example"), "name of the output folder, default: example");
@@ -136,13 +137,29 @@ int main(int argc, char* argv[]) {
     dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
     dqmc->set_lattice_momentum(1., 1.);
     dqmc->init_measure();
+
+    // initialize output folder
+    const std::string out_folder_path = "../results/" + out_folder_name;
+    if (rank == master) {
+        if ( access(out_folder_path.c_str(), 0) != 0 ) {
+            const std::string command = "mkdir " + out_folder_path;
+            if ( system(command.c_str()) != 0 ) {
+                std::cerr << boost::format(" fail to creat folder %s . \n") % out_folder_path << std::endl;
+            }
+        }
+    }
+
+    // read in configurations of aux fields
+    if (!bool_warm_up) {
+        dqmc->read_aux_field_configs(out_folder_path + "/config.dat");
+    }
     
     // the master processor
     if (rank == master) {
         // output the information of simulation
         ScreenOutput::screen_output_init_info(env.processor_name(), world.size(), *dqmc);
     }
-    
+
     // MC simulation process ...
     bool_display_process = (rank == master);
     dqmc->run(bool_display_process);
@@ -156,17 +173,6 @@ int main(int argc, char* argv[]) {
     dqmc->analyse_stats();
 
     // collect data and output results
-    // initialize output folder
-    const std::string out_folder_path = "../results/" + out_folder_name;
-    if (rank == master) {
-        if ( access(out_folder_path.c_str(), 0) != 0 ) {
-            const std::string command = "mkdir " + out_folder_path;
-            if ( system(command.c_str()) != 0 ) {
-                std::cerr << boost::format(" fail to creat folder %s . \n") % out_folder_path << std::endl;
-            }
-        }
-    }
-
     if (dqmc->EqtimeMeasure) {
         // collect data from all processors
         Measure::MeasureData average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
@@ -209,6 +215,11 @@ int main(int argc, char* argv[]) {
             FileOutput::file_output_observable(superfluid_density, out_folder_path + "/out.dat", 0);
             FileOutput::file_output_observable_bin(superfluid_density, out_folder_path + "/out_bin.dat", 0);
         }
+    }
+
+    // configuration output of aux fields
+    if (rank == master) {
+        FileOutput::file_output_aux_field(*dqmc, out_folder_path + "/config.dat", 0);
     }
 
 

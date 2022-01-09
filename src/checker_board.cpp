@@ -10,8 +10,8 @@ bool CheckerBoard::CheckerBoard::is_checker_board() const {
 void CheckerBoard::CheckerBoard::check_checker_board() {
     if (this->is_checkerboard && this->ll % 2 != 0) {
         this->is_checkerboard = false;
-        std::cerr << "Checkerboard break-up only supported for even lattice sizes." << std::endl;
-        std::cerr << "  Simulating with direct multiplication algorithm ..." << std::endl;
+        std::cerr << " Checkerboard break-up method is only supported for even lattice sizes." << std::endl;
+        std::cerr << " Simulating with direct multiplication algorithm ..." << std::endl;
     }
 }
 

@@ -14,10 +14,11 @@ mu=0.0
 nbin=240
 nsweep=100
 cb="false"
+warm_up="false"
 equal_measure="true"
 dynamic_measure="true"
 output_folder="example"
 
-mpirun ${exe} --ll=${ll} --lt=${lt} --beta=${b} --u=${u} --mu=${mu} --checkerboard=${cb} --eqtime=${equal_measure} --dynamic=${dynamic_measure} --nbin=${nbin} --nsweep=${nsweep} --output-file-folder=${output_folder}
+mpirun ${exe} --ll=${ll} --lt=${lt} --beta=${b} --u=${u} --mu=${mu} --checkerboard=${cb} --warm-up=${warm_up} --eqtime=${equal_measure} --dynamic=${dynamic_measure} --nbin=${nbin} --nsweep=${nsweep} --output-file-folder=${output_folder}
 
 exit 0
