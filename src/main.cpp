@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
     bool bool_measure_eqtime = true;
     bool bool_measure_dynamic = true;
 
-    std::string out_folder_name = "example";
+    std::string out_folder_path = "../results/example";
 
 
     /** read params from command line */
@@ -75,31 +75,29 @@ int main(int argc, char* argv[]) {
     boost::program_options::variables_map vm;
 
     opts.add_options()
-            ("help,h", "display this information")
-            ("ll", boost::program_options::value<int>(&ll)->default_value(4), "spatial size of lattice, default: 4")
-            ("lt", boost::program_options::value<int>(&lt)->default_value(80), "imaginary-time size of lattice, default: 80")
-            ("beta", boost::program_options::value<double>(&beta)->default_value(4.0), "inverse temperature, default: 4.0")
-            ("t", boost::program_options::value<double>(&t)->default_value(1.0), "hopping strength, default: 1.0")
-            ("u", boost::program_options::value<double>(&u)->default_value(-4.0),
-                    "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
-            ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
-            ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(false), "whether to perform checkerboard break-up, default: false")
-            ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
-            ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
-            ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
-            ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
-            ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10),
-                    "number of sweeps between bins to avoid correlation, default: 10")
-            ("warm-up", boost::program_options::value<bool>(&bool_warm_up)->default_value(true), "whether to warm up, default: true")
-            ("eqtime-measure", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
-            ("dynamic-measure", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
-            ("output-file-folder", boost::program_options::value<std::string>(&out_folder_name)->default_value("example"), "name of the output folder, default: example");
+        ("help,h", "display this information")
+        ("ll", boost::program_options::value<int>(&ll)->default_value(4), "spatial size of lattice, default: 4")
+        ("lt", boost::program_options::value<int>(&lt)->default_value(80), "imaginary-time size of lattice, default: 80")
+        ("beta", boost::program_options::value<double>(&beta)->default_value(4.0), "inverse temperature, default: 4.0")
+        ("t", boost::program_options::value<double>(&t)->default_value(1.0), "hopping strength, default: 1.0")
+        ("u", boost::program_options::value<double>(&u)->default_value(-4.0), "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
+        ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
+        ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(false), "whether to perform checkerboard break-up, default: false")
+        ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
+        ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
+        ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
+        ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
+        ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10), "number of sweeps between bins to avoid correlation, default: 10")
+        ("warm-up", boost::program_options::value<bool>(&bool_warm_up)->default_value(true), "whether to warm up, default: true")
+        ("eqtime-measure", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
+        ("dynamic-measure", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
+        ("out-folder-path", boost::program_options::value<std::string>(&out_folder_path)->default_value("../results/example"), "path of the output folder, default: ../results/example");
     
     try {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
     }
     catch (...) {
-        std::cerr << "Got undefined options from command line! "<< std::endl;
+        std::cerr << " Got undefined options from command line! "<< std::endl;
         exit(1);
     }
     boost::program_options::notify(vm);
@@ -139,12 +137,11 @@ int main(int argc, char* argv[]) {
     dqmc->init_measure();
 
     // initialize output folder
-    const std::string out_folder_path = "../results/" + out_folder_name;
     if (rank == master) {
         if ( access(out_folder_path.c_str(), 0) != 0 ) {
             const std::string command = "mkdir " + out_folder_path;
             if ( system(command.c_str()) != 0 ) {
-                std::cerr << boost::format(" fail to creat folder %s . \n") % out_folder_path << std::endl;
+                std::cerr << boost::format(" fail to creat folder at %s . \n") % out_folder_path << std::endl;
             }
         }
     }
