@@ -1,8 +1,8 @@
- Current time : 2022-Jan-09 20:20:44
+ Current time : 2022-Jan-11 23:32:03
 
- Distribute tasks to 24 processors, with the master processor being cc0805.para.bscc. 
+ Distribute tasks to 20 processors, with the master processor being ca0706.para.bscc. 
 
- Configurations of aux fields read from input config file. 
+ Configurations of aux field set to random. 
 
  Initialization finished. 
 
@@ -12,26 +12,29 @@
     Imaginary-time length 'lt'   ->    160
     Inverse temperature 'beta'   ->   8.00
       Interaction strength 'U'   ->  -4.00
-       Chemical potential 'mu'   ->   0.00
+       Chemical potential 'mu'   ->  -0.20
           Lattice momentum 'k'   ->   1.00 pi, 1.00 pi
 
      Stablization pace 'nwrap'   ->     10
-         Number of bins 'nbin'   ->    240
+         Number of bins 'nbin'   ->     20
        Sweeps per bin 'nsweep'   ->    100
 
- Measuring progress: [>---------------------------------------] 1% 0.585s Measuring progress: [#>--------------------------------------] 3% 1.162s Measuring progress: [##>-------------------------------------] 5% 1.74s Measuring progress: [###>------------------------------------] 7% 2.317s Measuring progress: [####>-----------------------------------] 10% 2.898s Measuring progress: [####>-----------------------------------] 11% 3.571s Measuring progress: [#####>----------------------------------] 14% 4.148s Measuring progress: [######>---------------------------------] 15% 4.726s Measuring progress: [#######>--------------------------------] 18% 5.302s Measuring progress: [########>-------------------------------] 20% 5.88s Measuring progress: [########>-------------------------------] 21% 6.554s Measuring progress: [#########>------------------------------] 23% 7.13s Measuring progress: [##########>-----------------------------] 25% 7.707s Measuring progress: [###########>----------------------------] 28% 8.284s Measuring progress: [############>---------------------------] 30% 8.86s Measuring progress: [############>---------------------------] 31% 9.531s Measuring progress: [#############>--------------------------] 34% 10.106s Measuring progress: [##############>-------------------------] 36% 10.681s Measuring progress: [###############>------------------------] 37% 11.257s Measuring progress: [################>-----------------------] 40% 11.832s Measuring progress: [################>-----------------------] 41% 12.504s Measuring progress: [#################>----------------------] 43% 13.079s Measuring progress: [##################>---------------------] 46% 13.653s Measuring progress: [###################>--------------------] 47% 14.229s Measuring progress: [####################>-------------------] 50% 14.806s Measuring progress: [####################>-------------------] 51% 15.48s Measuring progress: [#####################>------------------] 54% 16.056s Measuring progress: [######################>-----------------] 56% 16.633s Measuring progress: [#######################>----------------] 57% 17.21s Measuring progress: [########################>---------------] 60% 17.787s Measuring progress: [########################>---------------] 62% 18.46s Measuring progress: [#########################>--------------] 63% 19.036s Measuring progress: [##########################>-------------] 66% 19.613s Measuring progress: [###########################>------------] 68% 20.19s Measuring progress: [############################>-----------] 69% 20.768s Measuring progress: [############################>-----------] 72% 21.442s Measuring progress: [#############################>----------] 74% 22.018s Measuring progress: [##############################>---------] 75% 22.597s Measuring progress: [###############################>--------] 77% 23.174s Measuring progress: [################################>-------] 80% 23.75s Measuring progress: [################################>-------] 81% 24.424s Measuring progress: [#################################>------] 83% 25s Measuring progress: [##################################>-----] 86% 25.577s Measuring progress: [###################################>----] 87% 26.154s Measuring progress: [####################################>---] 89% 26.731s Measuring progress: [####################################>---] 92% 27.404s Measuring progress: [#####################################>--] 93% 27.982s Measuring progress: [######################################>-] 95% 28.559s Measuring progress: [#######################################>] 98% 29.135s Measuring progress: [########################################] 100% 29.712s Measuring progress: [########################################] 100% 29.811s
+ Warm-up progress:   [#>--------------------------------------] 3% 0.1s Warm-up progress:   [###>------------------------------------] 7% 0.197s Warm-up progress:   [####>-----------------------------------] 11% 0.292s Warm-up progress:   [######>---------------------------------] 15% 0.388s Warm-up progress:   [#######>--------------------------------] 19% 0.484s Warm-up progress:   [#########>------------------------------] 23% 0.581s Warm-up progress:   [##########>-----------------------------] 27% 0.675s Warm-up progress:   [############>---------------------------] 31% 0.771s Warm-up progress:   [##############>-------------------------] 35% 0.868s Warm-up progress:   [###############>------------------------] 39% 0.964s Warm-up progress:   [#################>----------------------] 42% 1.061s Warm-up progress:   [##################>---------------------] 46% 1.157s Warm-up progress:   [####################>-------------------] 50% 1.254s Warm-up progress:   [#####################>------------------] 54% 1.35s Warm-up progress:   [#######################>----------------] 58% 1.446s Warm-up progress:   [#########################>--------------] 62% 1.542s Warm-up progress:   [##########################>-------------] 66% 1.638s Warm-up progress:   [############################>-----------] 70% 1.734s Warm-up progress:   [#############################>----------] 74% 1.83s Warm-up progress:   [###############################>--------] 78% 1.926s Warm-up progress:   [################################>-------] 82% 2.023s Warm-up progress:   [##################################>-----] 85% 2.119s Warm-up progress:   [###################################>----] 89% 2.215s Warm-up progress:   [#####################################>--] 93% 2.311s Warm-up progress:   [#######################################>] 97% 2.407s Warm-up progress:   [########################################] 100% 2.466s
+ Measuring progress: [########>-------------------------------] 20% 0.653s Measuring progress: [################>-----------------------] 40% 1.306s Measuring progress: [########################>---------------] 60% 1.96s Measuring progress: [################################>-------] 80% 2.613s Measuring progress: [########################################] 100% 3.267s Measuring progress: [########################################] 100% 3.362s
 
- The simulation finished in 29.81 s. 
+ The simulation finished in 5.83 s. 
 
- Maximum of equal-time wrap error :  2.39284e-09
+ Maximum of equal-time wrap error :  5.54667e-10
 
- Maximum of dynamical wrap error :   1.76639e-09
+ Maximum of dynamical wrap error :   1.30811e-11
 
-              Double Occupancy   ->   0.387804026905 pm 0.002820995433
-                Kinetic energy   ->  -1.319915556602 pm 0.001866269789
-              Electron density   ->   0.033197633529 pm 0.000283873708
-     Local density correlation   ->   0.233494433242 pm 0.000353646038
-    Anti ferromagnetism factor   ->   0.006031673018 pm 0.000005986044
+                Filling number   ->   0.775251092025 pm 0.020856840331
+              Double occupancy   ->   0.265109273041 pm 0.011236132752
+                Kinetic energy   ->  -1.311434627404 pm 0.005547703585
+         Momentum distribution   ->   0.024553756528 pm 0.000913256385
+        Local spin correlation   ->   0.245032545943 pm 0.001835080056
+           SDW order parameter   ->   0.006096456456 pm 0.000018951788
+           CDW order parameter   ->   0.122128209705 pm 0.019523359593
             Average sign (abs)   ->   1.000000000000 pm 0.000000000000
-            Superfluid density   ->   0.061037011328 pm 0.008810147290
+          Superfluid stiffness   ->   0.024252858644 pm 0.011501712720
             Average sign (abs)   ->   1.000000000000 pm 0.000000000000

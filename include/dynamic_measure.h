@@ -3,12 +3,12 @@
 #pragma once
 
 /**
-  *  This head file includes module for time-displaced (dynamic) measuring.
+  *  This head file includes module for time-displaced (dynamical) measuring.
   *  Class: Measure::dynamicMeasure
   *  Measuring:
   *   1. Dynamical green's function of imaginary time: G(k, tau) = < c(k, tau) * c^+(k, 0) >
-  *   2. Superfluid density \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
-  *   3. Local density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
+  *   2. Superfluid stiffness \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
+  *   3. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
   *   4. ...
   */
 
@@ -33,11 +33,11 @@ namespace Measure{
         // dynamical correlation function of imaginary time G(k, \tua) = < c(k, \tau) * c^+(k, 0) >, with \tau > 0.
         std::vector<Measure::MeasureData> matsubara_greens;
 
-        // local density of states (LDOS) measurements 1/N * \sum_{i} G(\tau, 0)_{ii} or G(\tau, 0).trace()/N
+        // density of states (DOS) measurements 1/N * \sum_{i} G(\tau, 0)_{ii} or G(\tau, 0).trace()/N
         std::vector<Measure::MeasureData> density_of_states;
 
-        // superfluid density (helicity modulus) \rho_s of superconducting
-        MeasureData superfluid_density;
+        // superfluid stiffness (helicity modulus) \rho_s of superconducting
+        MeasureData superfluid_stiffness;
 //        Eigen::MatrixX<MeasureData> current_current_corr;
 
         // sign problem
@@ -80,11 +80,11 @@ namespace Measure{
         /** dynamical correlation function in momentum space < c(k,tau) * c^+(k,0) > */
         void measure_matsubara_greens(const int &t, const Model::Hubbard &hubbard);
 
-        /** local density of states (in imaginary time) 1/N * \sum_{i} G(tau, 0)_{ii} */
+        /** density of states (in imaginary time) 1/N * \sum_{i} G(tau, 0)_{ii} */
         void measure_density_of_states(const int &t, const Model::Hubbard &hubbard);
 
-        /** superfluid density (helicity modules) \rho_s */
-        void measure_superfluid_density(const Model::Hubbard &hubbard);
+        /** superfluid stiffness (helicity modules) \rho_s */
+        void measure_superfluid_stiffness(const Model::Hubbard &hubbard);
     };
 }
 

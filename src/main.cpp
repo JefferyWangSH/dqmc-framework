@@ -173,20 +173,24 @@ int main(int argc, char* argv[]) {
     if (dqmc->EqtimeMeasure) {
         // collect data from all processors
         Measure::MeasureData average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
-        Measure::MeasureData double_occu = Measure::gather(world, dqmc->EqtimeMeasure->double_occu);
+        Measure::MeasureData filling_number = Measure::gather(world, dqmc->EqtimeMeasure->filling_number);
+        Measure::MeasureData double_occupancy = Measure::gather(world, dqmc->EqtimeMeasure->double_occupancy);
         Measure::MeasureData kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
-        Measure::MeasureData electron_density = Measure::gather(world, dqmc->EqtimeMeasure->electron_density);
-        Measure::MeasureData local_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_corr);
-        Measure::MeasureData AFM_factor = Measure::gather(world, dqmc->EqtimeMeasure->AFM_factor);
-        std::vector<Measure::MeasureData> cooper_corr = Measure::gather(world, dqmc->EqtimeMeasure->cooper_corr);
+        Measure::MeasureData momentum_distribution = Measure::gather(world, dqmc->EqtimeMeasure->momentum_distribution);
+        Measure::MeasureData local_spin_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_spin_corr);
+        Measure::MeasureData SDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->spin_density_structure_factor);
+        Measure::MeasureData CDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->charge_density_structure_factor);
+        std::vector<Measure::MeasureData> pairing_corr = Measure::gather(world, dqmc->EqtimeMeasure->pairing_corr);
         
         // display of measuring results on terminal
         if (rank == master) {
-            ScreenOutput::screen_output_observable(double_occu, "Double Occupancy");
+            ScreenOutput::screen_output_observable(filling_number, "Filling number");
+            ScreenOutput::screen_output_observable(double_occupancy, "Double occupancy");
             ScreenOutput::screen_output_observable(kinetic_energy, "Kinetic energy");
-            ScreenOutput::screen_output_observable(electron_density, "Electron density");
-            ScreenOutput::screen_output_observable(local_corr, "Local density correlation");
-            ScreenOutput::screen_output_observable(AFM_factor, "Anti ferromagnetism factor");
+            ScreenOutput::screen_output_observable(momentum_distribution, "Momentum distribution");
+            ScreenOutput::screen_output_observable(local_spin_corr, "Local spin correlation");
+            ScreenOutput::screen_output_observable(SDW_factor, "SDW order parameter");
+            ScreenOutput::screen_output_observable(CDW_factor, "CDW order parameter");
             ScreenOutput::screen_output_observable(average_sign_eq, "Average sign (abs)");
         }
 
@@ -199,18 +203,18 @@ int main(int argc, char* argv[]) {
     if (dqmc->DynamicMeasure) {
         // collect data from all processors
         Measure::MeasureData average_sign_dy = Measure::gather(world, dqmc->DynamicMeasure->sign);
-        Measure::MeasureData superfluid_density = Measure::gather(world, dqmc->DynamicMeasure->superfluid_density);
+        Measure::MeasureData superfluid_stiffness = Measure::gather(world, dqmc->DynamicMeasure->superfluid_stiffness);
     
         // display of measuring results on terminal
         if (rank == master) {
-            ScreenOutput::screen_output_observable(superfluid_density, "Superfluid density");
+            ScreenOutput::screen_output_observable(superfluid_stiffness, "Superfluid stiffness");
             ScreenOutput::screen_output_observable(average_sign_dy, "Average sign (abs)");
         }
 
         // file output of measuring results
         if (rank == master) {
-            FileOutput::file_output_observable(superfluid_density, out_folder_path + "/out.dat", 0);
-            FileOutput::file_output_observable_bin(superfluid_density, out_folder_path + "/out_bin.dat", 0);
+            FileOutput::file_output_observable(superfluid_stiffness, out_folder_path + "/out.dat", 0);
+            FileOutput::file_output_observable_bin(superfluid_stiffness, out_folder_path + "/out_bin.dat", 0);
         }
     }
 

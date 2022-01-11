@@ -3,18 +3,18 @@
 # parmas for submitting
 partition="v6_384"
 nodes=1
-ntasks_per_node=24
+ntasks_per_node=20
 cpus_per_task=1
 
 # customized params
 exe="../build/dqmc_hubbard"
 ll=4
-lt=80
-beta=4.0
+lt=160
+beta=8.0
 u=-4.0
-mu=0.0
+mu=-0.2
 nwrap=10
-nbin=240
+nbin=20
 nsweep=100
 cb="false"
 warm_up="true"

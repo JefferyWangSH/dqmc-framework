@@ -8,10 +8,11 @@
   *  Measuring:
   *   1. Double occupancy D = < n_up*n_dn >
   *   2. Single particle kinetic energy
-  *   3. Density of electrons in momentum space
+  *   3. Distributions of electrons in momentum space
   *   4. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
-  *   5. Magnetic struct factor, that is, spin-spin correlation in momentum space
-  *   6. Space correlation of Copper-like order parameter
+  *   5. Spin density structure factor (SDW)
+  *   6. Charge density structure factor (CDW)
+  *   6. Space correlation of s-wave pairing
   *   7. ...
   */
 
@@ -34,12 +35,14 @@ namespace Measure{
 
         /* for equal-time (static) measurements */
         Measure::MeasureData sign;                              // average sign to keep track of sign problem
-        Measure::MeasureData double_occu;                       // double occupancy
+        Measure::MeasureData filling_number;                    // filling number <n>
+        Measure::MeasureData double_occupancy;                  // double occupancy
         Measure::MeasureData kinetic_energy;                    // kinetic energy
-        Measure::MeasureData electron_density;                  // electron density in momentum space
-        Measure::MeasureData local_corr;                        // local spin correlation
-        Measure::MeasureData AFM_factor;                        // AFM structure factor
-        std::vector<Measure::MeasureData> cooper_corr;          // space correlation of (local) Cooper order parameter
+        Measure::MeasureData momentum_distribution;             // particle distribution in momentum space
+        Measure::MeasureData local_spin_corr;                   // local spin correlation
+        Measure::MeasureData spin_density_structure_factor;     // order parameter of spin density wave (SDW)
+        Measure::MeasureData charge_density_structure_factor;   // order parameter of charge density wave (CDW)
+        std::vector<Measure::MeasureData> pairing_corr;         // space correlation of s-wave pairing
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
@@ -75,23 +78,29 @@ namespace Measure{
         void analyse_stats(const Model::Hubbard &hubbard);
 
     private:
+        /* filling number: <n> = \sum_i ( n_i_up + n_i_dn ) */
+        void measure_filling_number(const int &tau, const Model::Hubbard &hubbard);
+
         /** double occupation: D = < n_up * n_dn > */
-        void measure_double_occu(const int &tau, const Model::Hubbard &hubbard);
+        void measure_double_occupancy(const int &tau, const Model::Hubbard &hubbard);
 
         /** single particle kinetic energy */
         void measure_kinetic_energy(const int &tau, const Model::Hubbard &hubbard);
 
         /** momentum distribution of electrons: fourier transformation of real-space electron distribution */
-        void measure_electron_density(const int &tau, const Model::Hubbard &hubbard);
+        void measure_momentum_distribution(const int &tau, const Model::Hubbard &hubbard);
 
         /** local spin correlation: magnetization C(0,0) = < (n_up - n_dn)^2 > */
-        void measure_local_corr(const int &tau, const Model::Hubbard &hubbard);
+        void measure_local_spin_corr(const int &tau, const Model::Hubbard &hubbard);
 
-        /** Anti-ferromagnetic structure factor: fourier transformation of real-space pi-pi correlation of spins */
-        void measure_AFM_factor(const int &tau, const Model::Hubbard &hubbard);
+        /** spin density wave (SDW) structure factor S(q): fourier transformation of real-space correlation of spins */
+        void measure_spin_density_structure_factor(const int &tau, const Model::Hubbard &hubbard);
 
-        /** space correlation of (local) Cooper order parameter */
-        void measure_Cooper_corr(const int &tau, const Model::Hubbard &hubbard);
+        /* charge density wave (CDW) structure factor C(q) */
+        void measure_charge_density_structure_factor(const int &tau, const Model::Hubbard &hubbard);
+
+        /** space correlation of s-wave pairing order parameter */
+        void measure_pairing_corr(const int &tau, const Model::Hubbard &hubbard);
     };
 }
 

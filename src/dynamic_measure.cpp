@@ -11,7 +11,7 @@ void Measure::DynamicMeasure::resize(const int &_nbin) {
 
 void Measure::DynamicMeasure::initial(const Model::Hubbard &hubbard) {
     this->sign.set_size_of_bin(this->nbin);
-    this->superfluid_density.set_size_of_bin(this->nbin);
+    this->superfluid_stiffness.set_size_of_bin(this->nbin);
 
     this->matsubara_greens.reserve(hubbard.lt);
     this->density_of_states.reserve(hubbard.lt);
@@ -30,7 +30,7 @@ void Measure::DynamicMeasure::initial(const Model::Hubbard &hubbard) {
 
 void Measure::DynamicMeasure::clear_temporary(const Model::Hubbard &hubbard) {
     this->sign.clear_temporary();
-    this->superfluid_density.clear_temporary();
+    this->superfluid_stiffness.clear_temporary();
     for (auto &green : this->matsubara_greens) {
         green.clear_temporary();
     }
@@ -52,12 +52,12 @@ void Measure::DynamicMeasure::time_displaced_measure(const Model::Hubbard &hubba
         this->measure_matsubara_greens(l, hubbard);
         this->measure_density_of_states(l, hubbard);
     }
-    this->measure_superfluid_density(hubbard);
+    this->measure_superfluid_stiffness(hubbard);
 }
 
 void Measure::DynamicMeasure::normalize_stats(const Model::Hubbard &hubbard) {
     this->sign.tmp_value() /= this->sign.counts();
-    this->superfluid_density.tmp_value() /= this->superfluid_density.counts() * this->sign.tmp_value();
+    this->superfluid_stiffness.tmp_value() /= this->superfluid_stiffness.counts() * this->sign.tmp_value();
     for (auto &green : this->matsubara_greens) {
         green.tmp_value() /= green.counts() * this->sign.tmp_value();
     }
@@ -74,7 +74,7 @@ void Measure::DynamicMeasure::normalize_stats(const Model::Hubbard &hubbard) {
 
 void Measure::DynamicMeasure::write_stats_to_bins(const int &bin, const Model::Hubbard &hubbard) {
     this->sign.bin_data()[bin] = this->sign.tmp_value();
-    this->superfluid_density.bin_data()[bin] = this->superfluid_density.tmp_value();
+    this->superfluid_stiffness.bin_data()[bin] = this->superfluid_stiffness.tmp_value();
     for (auto &green : this->matsubara_greens) {
         green.bin_data()[bin] = green.tmp_value();
     }
@@ -123,7 +123,7 @@ void Measure::DynamicMeasure::measure_density_of_states(const int &t, const Mode
     ++this->density_of_states[t];
 }
 
-void Measure::DynamicMeasure::measure_superfluid_density(const Model::Hubbard &hubbard) {
+void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard &hubbard) {
     // momentum qx and qy
     const Eigen::VectorXd qx = ( Eigen::VectorXd(2) << 2 * M_PI / hubbard.ll, 0.0 ).finished();
     const Eigen::VectorXd qy = ( Eigen::VectorXd(2) << 0.0, 2 * M_PI / hubbard.ll ).finished();
@@ -186,13 +186,13 @@ void Measure::DynamicMeasure::measure_superfluid_density(const Model::Hubbard &h
         }
     }
     // average over base point i
-    this->superfluid_density.tmp_value() += 0.25 * tmp_rho_s / hubbard.ls / hubbard.ls;
-    ++this->superfluid_density;
+    this->superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / hubbard.ls / hubbard.ls;
+    ++this->superfluid_stiffness;
 }
 
 void Measure::DynamicMeasure::analyse_stats(const Model::Hubbard &hubbard) {
     this->sign.analyse();
-    this->superfluid_density.analyse();
+    this->superfluid_stiffness.analyse();
     for (auto &green : this->matsubara_greens) {
         green.analyse();
     }

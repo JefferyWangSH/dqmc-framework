@@ -126,7 +126,7 @@ namespace ScreenOutput {
         const std::string joiner = "->";
 
         if (!dqmc.bool_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
-        else { std::cout << " Configurations of aux field set to random with no input configs. \n" << std::endl;}
+        else { std::cout << " Configurations of aux field set to random. \n" << std::endl;}
         std::cout << " Initialization finished. \n\n"
                   << " The simulation is going to get started with parameters shown below : \n" << std::endl;
         std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubb->ll << std::endl;
