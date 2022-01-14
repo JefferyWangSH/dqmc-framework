@@ -292,7 +292,7 @@ void Model::Hubbard::sweep_0_to_beta(int stable_pace) {
             tmpD = Eigen::MatrixXd::Identity(ls, ls);
         }
 
-        // in the end stop at l = lt + 1
+        // finally stop at l = lt + 1
         this->current_tau++;
     }
 
@@ -452,7 +452,7 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             this->max_wrap_error_displaced = std::max(this->max_wrap_error_displaced, std::max(tmp_wrap_error_t0_up, tmp_wrap_error_t0_dn));
 
             StableGreens::matrix_compare_error(tmp_green_0t_up, this->green_0t_up, tmp_wrap_error_0t_up);
-            StableGreens::matrix_compare_error(tmp_green_t0_dn, this->green_t0_dn, tmp_wrap_error_t0_dn);
+            StableGreens::matrix_compare_error(tmp_green_0t_dn, this->green_0t_dn, tmp_wrap_error_0t_dn);
             this->max_wrap_error_displaced = std::max(this->max_wrap_error_displaced, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
 
             this->green_t0_up = tmp_green_t0_up;
@@ -471,7 +471,7 @@ void Model::Hubbard::sweep_0_to_beta_displaced(int stable_pace) {
             tmpD = Eigen::MatrixXd::Identity(ls, ls);
         }
 
-        // in the end stop at l = lt + 1
+        // finally stop at l = lt + 1
         this->current_tau++;
     }
 }

@@ -127,35 +127,24 @@ void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard 
     // momentum qx and qy
     const Eigen::VectorXd qx = ( Eigen::VectorXd(2) << 2 * M_PI / hubbard.ll, 0.0 ).finished();
     const Eigen::VectorXd qy = ( Eigen::VectorXd(2) << 0.0, 2 * M_PI / hubbard.ll ).finished();
-
-    // fourier transformation in time-energy space
+    
+    // Superfluid stiffness \rho_s = 1/4 * ( Gamma^L - Gamma^T )
     double tmp_rho_s = 0.0;
-    Eigen::MatrixXd gt0_up, g0t_up, gtt_up, g00_up;
-    Eigen::MatrixXd gt0_dn, g0t_dn, gtt_dn, g00_dn;
+    Eigen::MatrixXd gt0_up, g0t_up, gtt_up;
+    Eigen::MatrixXd gt0_dn, g0t_dn, gtt_dn;
+    const Eigen::MatrixXd g00_up = hubbard.vec_green_tt_up[hubbard.lt-1]; 
+    const Eigen::MatrixXd g00_dn = hubbard.vec_green_tt_dn[hubbard.lt-1]; 
 
     for (int l = 0; l < hubbard.lt; ++l) {
-        if ( l == 0 ) {
-            gt0_up = hubbard.vec_green_tt_up[hubbard.lt - 1];
-            gt0_dn = hubbard.vec_green_tt_dn[hubbard.lt - 1];
-            g0t_up = gt0_up;
-            gtt_up = gt0_up;
-            g00_up = gt0_up;
-            g0t_dn = gt0_dn;
-            gtt_dn = gt0_dn;
-            g00_dn = gt0_dn;
-        }
-        else {
-            gt0_up = hubbard.vec_green_t0_up[l-1];
-            g0t_up = hubbard.vec_green_0t_up[l-1];
-            gtt_up = hubbard.vec_green_tt_up[l-1];
-            g00_up = hubbard.vec_green_tt_up[hubbard.lt - 1];
-            gt0_dn = hubbard.vec_green_t0_dn[l-1];
-            g0t_dn = hubbard.vec_green_0t_dn[l-1];
-            gtt_dn = hubbard.vec_green_tt_dn[l-1];
-            g00_dn = hubbard.vec_green_tt_dn[hubbard.lt - 1];
-        }
+        const int tau = (l == 0)? hubbard.lt-1 : l-1;
+        gt0_up = hubbard.vec_green_t0_up[tau];
+        g0t_up = hubbard.vec_green_0t_up[tau];
+        gtt_up = hubbard.vec_green_tt_up[tau];
+        gt0_dn = hubbard.vec_green_t0_dn[tau];
+        g0t_dn = hubbard.vec_green_0t_dn[tau];
+        gtt_dn = hubbard.vec_green_tt_dn[tau];
 
-        // space point i is chosen as our base point, which is to be averaged
+        // space point i is chosen as our base point, which is going to be averaged
         for (int xi = 0; xi < hubbard.ll; ++xi) {
             for (int yi = 0; yi < hubbard.ll; ++yi) {
                 const int i = xi + hubbard.ll * yi;
@@ -172,20 +161,23 @@ void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard 
                         const double factor = hubbard.config_sign * (cos(r.dot(qx)) - cos(r.dot(qy)));
 
                         tmp_rho_s += hubbard.t * hubbard.t * factor * (
+                                // uncorrelated part
                                 - ( gtt_up(j, jpx) - gtt_up(jpx, j) + gtt_dn(j, jpx) - gtt_dn(jpx, j) ) *
                                   ( g00_up(i, ipx) - g00_up(ipx, i) + g00_dn(i, ipx) - g00_dn(ipx, i) )
-
+                                
+                                // correlated part
                                 - g0t_up(ipx, jpx) * gt0_up(j, i) - g0t_dn(ipx, jpx) * gt0_dn(j, i)
                                 + g0t_up(i, jpx) * gt0_up(j, ipx) + g0t_dn(i, jpx) * gt0_dn(j, ipx)
                                 + g0t_up(ipx, j) * gt0_up(jpx, i) + g0t_dn(ipx, j) * gt0_dn(jpx, i)
-                                - g0t_up(i, j) * gt0_up(jpx, ipx) - g0t_dn(i, j) * gt0_dn(jpx, ipx)
-                        );
+                                - g0t_up(i, j) * gt0_up(jpx, ipx) - g0t_dn(i, j) * gt0_dn(jpx, ipx) );
                     }
                 }
             }
         }
     }
     // average over base point i
+    // the 1/4 prefactor is due to Cooper pairs with charge 2
+    // see https://arxiv.org/pdf/1912.08848.pdf
     this->superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / hubbard.ls / hubbard.ls;
     ++this->superfluid_stiffness;
 }
