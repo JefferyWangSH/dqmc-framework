@@ -13,7 +13,7 @@ set(BOOSTROOT /public1/soft/boost/1-55-0)
 set(Boost_USE_RELEASE_lIBS ON)
 set(Boost_USE_MULTITHREAD ON)
 
-set(EIGENROOT /public1/home/sc81233/xuchengwang/local/eigen-3.4.0)
+set(EIGENROOT /public1/home/sc81233/xuchengwang/local/eigen/eigen-3.4.0)
 
 include_directories(
         ${MKLROOT}/include
