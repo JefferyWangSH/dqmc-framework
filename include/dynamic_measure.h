@@ -18,30 +18,28 @@
 #include <vector>
 #include "measure_data.h"
 
+
 // forward declaration
 namespace Model { class Hubbard; }
-namespace Measure { class MeasureData; }
-
 
 namespace Measure{
-
     class DynamicMeasure {
     public:
         int nbin{20};
 
         /* for time-displaced measurements */
         // dynamical correlation function of imaginary time G(k, \tua) = < c(k, \tau) * c^+(k, 0) >, with \tau > 0.
-        std::vector<Measure::MeasureData> matsubara_greens;
+        Measure::MeasureData<Eigen::VectorXd> matsubara_greens;
 
         // density of states (DOS) measurements 1/N * \sum_{i} G(\tau, 0)_{ii} or G(\tau, 0).trace()/N
-        std::vector<Measure::MeasureData> density_of_states;
+        Measure::MeasureData<Eigen::VectorXd> density_of_states;
 
         // superfluid stiffness (helicity modulus) \rho_s of superconducting
-        MeasureData superfluid_stiffness;
-//        Eigen::MatrixX<MeasureData> current_current_corr;
+        Measure::MeasureData<double> superfluid_stiffness;
+        // Measure::MeasureData<Eigen::MatrixXd> current_current_corr;
 
         // sign problem
-        MeasureData sign;
+        Measure::MeasureData<double> sign;
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);

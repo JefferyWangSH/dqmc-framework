@@ -11,82 +11,60 @@ void Measure::DynamicMeasure::resize(const int &_nbin) {
 
 void Measure::DynamicMeasure::initial(const Model::Hubbard &hubbard) {
     this->sign.set_size_of_bin(this->nbin);
+    this->matsubara_greens.set_size_of_bin(this->nbin);
+    this->density_of_states.set_size_of_bin(this->nbin);
     this->superfluid_stiffness.set_size_of_bin(this->nbin);
+    // this->current_current_corr.set_size_of_bin(this->nbin);
 
-    this->matsubara_greens.reserve(hubbard.lt);
-    this->density_of_states.reserve(hubbard.lt);
-    for (int l = 0; l < hubbard.lt; ++l) {
-        this->matsubara_greens.emplace_back(this->nbin);
-        this->density_of_states.emplace_back(this->nbin);
-    }
+    this->sign.set_zero_element(0.0);
+    this->matsubara_greens.set_zero_element(Eigen::VectorXd(hubbard.lt));
+    this->density_of_states.set_zero_element(Eigen::VectorXd(hubbard.lt));
+    this->superfluid_stiffness.set_zero_element(0.0);
+    // this->current_current_corr.set_zero_elements(Eigen::MatrixXd(hubbard.ls, hubbard.ls));
 
-//    this->current_current_corr.resize(hubbard.ls, hubbard.ls);
-//    for (int i = 0; i < hubbard.ls; ++i) {
-//        for (int j = 0; j < hubbard.ls; ++j) {
-//            this->current_current_corr(i, j).set_size_of_bin(this->nbin);
-//        }
-//    }
+    this->sign.allocate();
+    this->matsubara_greens.allocate();
+    this->density_of_states.allocate();
+    this->superfluid_stiffness.allocate();
+    // this->current_current_corr.allocate();
 }
 
 void Measure::DynamicMeasure::clear_temporary(const Model::Hubbard &hubbard) {
     this->sign.clear_temporary();
+    this->matsubara_greens.clear_temporary();
+    this->density_of_states.clear_temporary();
     this->superfluid_stiffness.clear_temporary();
-    for (auto &green : this->matsubara_greens) {
-        green.clear_temporary();
-    }
-    for (auto &dos : this->density_of_states) {
-        dos.clear_temporary();
-    }
-
-//    for (int i = 0; i < hubbard.ls; ++i) {
-//        for (int j = 0; j < hubbard.ls; ++j) {
-//            this->current_current_corr(i, j).clear_temporary();
-//        }
-//    }
+    // this->current_current_corr.clear_temporary();
 }
 
 void Measure::DynamicMeasure::time_displaced_measure(const Model::Hubbard &hubbard) {
     this->sign.tmp_value() += hubbard.config_sign;
-    ++this->sign;
     for (int l = 0; l < hubbard.lt; ++l) {
         this->measure_matsubara_greens(l, hubbard);
         this->measure_density_of_states(l, hubbard);
     }
     this->measure_superfluid_stiffness(hubbard);
+
+    ++this->sign;
+    ++this->matsubara_greens;
+    ++this->density_of_states;
+    ++this->superfluid_stiffness;
 }
 
 void Measure::DynamicMeasure::normalize_stats(const Model::Hubbard &hubbard) {
     this->sign.tmp_value() /= this->sign.counts();
+    this->matsubara_greens.tmp_value() /= this->matsubara_greens.counts() * this->sign.tmp_value();
+    this->density_of_states.tmp_value() /= this->density_of_states.counts() * this->sign.tmp_value();
     this->superfluid_stiffness.tmp_value() /= this->superfluid_stiffness.counts() * this->sign.tmp_value();
-    for (auto &green : this->matsubara_greens) {
-        green.tmp_value() /= green.counts() * this->sign.tmp_value();
-    }
-    for (auto &dos : this->density_of_states) {
-        dos.tmp_value() /= dos.counts() * this->sign.tmp_value();
-    }
-
-//    for (int i = 0; i < hubbard.ls; ++i) {
-//        for (int j = 0; j < hubbard.ls; ++j) {
-//            this->current_current_corr(i, j).tmp_value() /= current_current_corr(i, j).counts() * this->sign.tmp_value();
-//        }
-//    }
+    // this->current_current_corr.tmp_value() /= this->current_current_corr.counts() * this->sign.tmp_value();
 }
 
 void Measure::DynamicMeasure::write_stats_to_bins(const int &bin, const Model::Hubbard &hubbard) {
     this->sign.bin_data()[bin] = this->sign.tmp_value();
+    this->matsubara_greens.bin_data()[bin] = this->matsubara_greens.tmp_value();
+    this->density_of_states.bin_data()[bin] = this->density_of_states.tmp_value();
     this->superfluid_stiffness.bin_data()[bin] = this->superfluid_stiffness.tmp_value();
-    for (auto &green : this->matsubara_greens) {
-        green.bin_data()[bin] = green.tmp_value();
-    }
-    for (auto &dos : this->density_of_states) {
-        dos.bin_data()[bin] = dos.tmp_value();
-    }
-
-//    for (int i = 0; i < hubbard.ls; ++i) {
-//        for (int j = 0; j < hubbard.ls; ++j) {
-//            this->current_current_corr(i, j).bin_data()[bin] = current_current_corr(j, i).tmp_value();
-//        }
-//    }
+    // this->current_current_corr.bin_data()[bin] = this->current_current_corr.tmp_value();
 }
 
 void Measure::DynamicMeasure::measure_matsubara_greens(const int &t, const Model::Hubbard &hubbard) {
@@ -105,12 +83,11 @@ void Measure::DynamicMeasure::measure_matsubara_greens(const int &t, const Model
                 for (int dy = 0; dy < hubbard.ll; ++dy) {
                     const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
                     const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
-                    this->matsubara_greens[t].tmp_value() += hubbard.config_sign * cos(-r.dot(this->q)) * gt0(j, i) / hubbard.ls;
+                    this->matsubara_greens.tmp_value()(t) += hubbard.config_sign * cos(-r.dot(this->q)) * gt0(j, i) / hubbard.ls;
                 }
             }
         }
     }
-    ++this->matsubara_greens[t];
 }
 
 void Measure::DynamicMeasure::measure_density_of_states(const int &t, const Model::Hubbard &hubbard) {
@@ -119,8 +96,7 @@ void Measure::DynamicMeasure::measure_density_of_states(const int &t, const Mode
     const Eigen::MatrixXd gt0 = ( t == 0 )?
               0.5 * (hubbard.vec_green_tt_up[hubbard.lt-1] + hubbard.vec_green_tt_up[hubbard.lt-1])
             : 0.5 * (hubbard.vec_green_t0_up[t-1] + hubbard.vec_green_t0_up[t-1]);
-    this->density_of_states[t].tmp_value() += hubbard.config_sign * gt0.trace() / hubbard.ls;
-    ++this->density_of_states[t];
+    this->density_of_states.tmp_value()(t) += hubbard.config_sign * gt0.trace() / hubbard.ls;
 }
 
 void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard &hubbard) {
@@ -179,22 +155,12 @@ void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard 
     // the 1/4 prefactor is due to Cooper pairs with charge 2
     // see https://arxiv.org/pdf/1912.08848.pdf
     this->superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / hubbard.ls / hubbard.ls;
-    ++this->superfluid_stiffness;
 }
 
 void Measure::DynamicMeasure::analyse_stats(const Model::Hubbard &hubbard) {
     this->sign.analyse();
+    this->matsubara_greens.analyse();
+    this->density_of_states.analyse();
     this->superfluid_stiffness.analyse();
-    for (auto &green : this->matsubara_greens) {
-        green.analyse();
-    }
-    for (auto &dos : this->density_of_states) {
-        dos.analyse();
-    }
-
-//    for (int i = 0; i < hubbard.ls; ++i) {
-//        for (int j = 0; j < hubbard.ls; ++j) {
-//            this->current_current_corr(i, j).analyse();
-//        }
-//    }
+    // this->current_current_corr.analyse();
 }

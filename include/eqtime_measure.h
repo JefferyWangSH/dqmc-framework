@@ -22,27 +22,25 @@
 #include <vector>
 #include "measure_data.h"
 
+
 // forward declaration
 namespace Model { class Hubbard; }
-namespace Measure { class MeasureData; }
-
 
 namespace Measure{
-
     class EqtimeMeasure {
     public:
         int nbin{20};
 
         /* for equal-time (static) measurements */
-        Measure::MeasureData sign;                              // average sign to keep track of sign problem
-        Measure::MeasureData filling_number;                    // filling number <n>
-        Measure::MeasureData double_occupancy;                  // double occupancy
-        Measure::MeasureData kinetic_energy;                    // kinetic energy
-        Measure::MeasureData momentum_distribution;             // particle distribution in momentum space
-        Measure::MeasureData local_spin_corr;                   // local spin correlation
-        Measure::MeasureData spin_density_structure_factor;     // order parameter of spin density wave (SDW)
-        Measure::MeasureData charge_density_structure_factor;   // order parameter of charge density wave (CDW)
-        std::vector<Measure::MeasureData> pairing_corr;         // space correlation of s-wave pairing
+        Measure::MeasureData<double> sign;                              // average sign to keep track of sign problem
+        Measure::MeasureData<double> filling_number;                    // filling number <n>
+        Measure::MeasureData<double> double_occupancy;                  // double occupancy
+        Measure::MeasureData<double> kinetic_energy;                    // kinetic energy
+        Measure::MeasureData<double> momentum_distribution;             // particle distribution in momentum space
+        Measure::MeasureData<double> local_spin_corr;                   // local spin correlation
+        Measure::MeasureData<double> spin_density_structure_factor;     // order parameter of spin density wave (SDW)
+        Measure::MeasureData<double> charge_density_structure_factor;   // order parameter of charge density wave (CDW)
+        std::vector<Measure::MeasureData<double>> pairing_corr;         // space correlation of s-wave pairing
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);

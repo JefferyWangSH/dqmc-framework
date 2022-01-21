@@ -172,15 +172,15 @@ int main(int argc, char* argv[]) {
     // collect data and output results
     if (dqmc->EqtimeMeasure) {
         // collect data from all processors
-        Measure::MeasureData average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
-        Measure::MeasureData filling_number = Measure::gather(world, dqmc->EqtimeMeasure->filling_number);
-        Measure::MeasureData double_occupancy = Measure::gather(world, dqmc->EqtimeMeasure->double_occupancy);
-        Measure::MeasureData kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
-        Measure::MeasureData momentum_distribution = Measure::gather(world, dqmc->EqtimeMeasure->momentum_distribution);
-        Measure::MeasureData local_spin_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_spin_corr);
-        Measure::MeasureData SDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->spin_density_structure_factor);
-        Measure::MeasureData CDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->charge_density_structure_factor);
-        std::vector<Measure::MeasureData> pairing_corr = Measure::gather(world, dqmc->EqtimeMeasure->pairing_corr);
+        Measure::MeasureData<double> average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
+        Measure::MeasureData<double> filling_number = Measure::gather(world, dqmc->EqtimeMeasure->filling_number);
+        Measure::MeasureData<double> double_occupancy = Measure::gather(world, dqmc->EqtimeMeasure->double_occupancy);
+        Measure::MeasureData<double> kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
+        Measure::MeasureData<double> momentum_distribution = Measure::gather(world, dqmc->EqtimeMeasure->momentum_distribution);
+        Measure::MeasureData<double> local_spin_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_spin_corr);
+        Measure::MeasureData<double> SDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->spin_density_structure_factor);
+        Measure::MeasureData<double> CDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->charge_density_structure_factor);
+        std::vector<Measure::MeasureData<double>> pairing_corr = Measure::gather(world, dqmc->EqtimeMeasure->pairing_corr);
         
         // display of measuring results on terminal
         if (rank == master) {
@@ -202,8 +202,8 @@ int main(int argc, char* argv[]) {
 
     if (dqmc->DynamicMeasure) {
         // collect data from all processors
-        Measure::MeasureData average_sign_dy = Measure::gather(world, dqmc->DynamicMeasure->sign);
-        Measure::MeasureData superfluid_stiffness = Measure::gather(world, dqmc->DynamicMeasure->superfluid_stiffness);
+        Measure::MeasureData<double> average_sign_dy = Measure::gather(world, dqmc->DynamicMeasure->sign);
+        Measure::MeasureData<double> superfluid_stiffness = Measure::gather(world, dqmc->DynamicMeasure->superfluid_stiffness);
     
         // display of measuring results on terminal
         if (rank == master) {

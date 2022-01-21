@@ -3,33 +3,30 @@
 #pragma once
 
 /**
-  *  This head file includes data structure `MeasureData` designed for the measurements of physical observables.
-  *  and the seiraliztion of class are realized using boost.
+  *  This head file includes data structure `MeasureData`,
+  *  designed for the measurements of physical observables.
+  *  Support data types of double, Eigen::VectorXd and Eigen::MatrixXd using templates.
   */
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
-#include <boost/serialization/access.hpp>
+#include <vector>
 
 
 namespace Measure {
-
+    template<class DataStructure>
     class MeasureData {
     private:
-        double _mean_value = 0.0;
-        double _error_bar = 0.0;
-        double _tmp_data = 0.0;
+        using BinStructure = std::vector<DataStructure>;
+        DataStructure _mean_value{};
+        DataStructure _error_bar{};
+        DataStructure _tmp_data{};
+        DataStructure _zero_elem{};
 
-        int _count = 0;
-
-        int _size_of_bin = 0.0;
-        Eigen::VectorXd _bins{};
-
-    private:
-        friend class boost::serialization::access;
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version);
+        int _count{0};
+        int _size_of_bin{0};
+        BinStructure _bins{};
 
     public:
         MeasureData() = default;
@@ -41,19 +38,25 @@ namespace Measure {
 
         int size_of_bin() const;
 
-        double mean_value() const;
+        const DataStructure& zero_element() const; 
 
-        double error_bar() const;
+        const DataStructure& mean_value() const;
 
-        double tmp_value() const;
+        const DataStructure& error_bar() const;
 
-        double& tmp_value();
+        const DataStructure& tmp_value() const;
 
-        const Eigen::VectorXd& bin_data() const;
+        DataStructure& tmp_value();
 
-        Eigen::VectorXd& bin_data();
+        const BinStructure& bin_data() const;
+
+        BinStructure& bin_data();
 
         void set_size_of_bin(const int &size_of_bin);
+
+        void set_zero_element(const DataStructure& zero_elem);
+
+        void allocate();
 
         void clear();
 
@@ -67,6 +70,138 @@ namespace Measure {
 
         void analyse();
     };
+
+
+    /* Implements of member functions with templates */
+
+    template<class DataStructure>
+    Measure::MeasureData<DataStructure>::MeasureData(const int &size_of_bin) {
+        this->set_size_of_bin(size_of_bin);
+    }
+
+    template<class DataStructure>
+    int Measure::MeasureData<DataStructure>::counts() const {
+        return this->_count;
+    }
+
+    template<class DataStructure>
+    int Measure::MeasureData<DataStructure>::size_of_bin() const {
+        assert( this->_size_of_bin == this->_bins.size() );
+        return this->_size_of_bin;
+    }
+
+    template<class DataStructure>
+    const DataStructure& Measure::MeasureData<DataStructure>::zero_element() const {
+        return this->_zero_elem;
+    }
+
+    template<class DataStructure>
+    const DataStructure& Measure::MeasureData<DataStructure>::mean_value() const {
+        return this->_mean_value;
+    }
+
+    template<class DataStructure>
+    const DataStructure& Measure::MeasureData<DataStructure>::error_bar() const {
+        return this->_error_bar;
+    }
+
+    template<class DataStructure>
+    const DataStructure& Measure::MeasureData<DataStructure>::tmp_value() const {
+        return this->_tmp_data;
+    }
+
+    template<class DataStructure>
+    DataStructure& Measure::MeasureData<DataStructure>::tmp_value() {
+        return this->_tmp_data;
+    }
+
+    template<class DataStructure>
+    std::vector<DataStructure>& Measure::MeasureData<DataStructure>::bin_data() {
+        return this->_bins;
+    }
+
+    template<class DataStructure>
+    const std::vector<DataStructure>& Measure::MeasureData<DataStructure>::bin_data() const {
+        return this->_bins;
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::set_zero_element(const DataStructure &zero_elem) {
+        this->_zero_elem = zero_elem;
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::set_size_of_bin(const int &size_of_bin) {
+        this->_size_of_bin = size_of_bin;
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::allocate() {
+        this->_mean_value = this->_zero_elem;
+        this->_error_bar = this->_zero_elem;
+        this->_tmp_data = this->_zero_elem;
+
+        this->_bins.clear();
+        this->_bins.reserve(this->_size_of_bin);
+        for (int i = 0; i < this->_size_of_bin; ++i) {
+            this->_bins.emplace_back(this->_zero_elem);
+        }
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::clear() {
+        this->_mean_value = this->_zero_elem;
+        this->_error_bar = this->_zero_elem;
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::clear_temporary() {
+        this->_tmp_data = this->_zero_elem;
+        this->_count = 0;
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::clear_bin_data() {
+        for (auto bin_data : this->_bins) {
+            bin_data = this->_zero_elem;
+        }
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::calculate_mean_value() {
+        this->_mean_value = std::accumulate(this->_bins.begin(), this->_bins.end(), this->_zero_elem) / this->size_of_bin();
+    }
+
+    template<> inline void Measure::MeasureData<double>::calculate_error_bar() {
+        for (auto bin_data : this->_bins) {
+            this->_error_bar += std::pow(bin_data, 2);
+        }
+        this->_error_bar /= this->size_of_bin();
+        this->_error_bar = std::sqrt(this->_error_bar - std::pow(this->_mean_value,2)) / std::sqrt(this->size_of_bin()-1);
+    }
+
+    template<> inline void Measure::MeasureData<Eigen::VectorXd>::calculate_error_bar() {
+        for (auto bin_data : this->_bins) {
+            this->_error_bar += bin_data.array().square().matrix();
+        }
+        this->_error_bar /= this->size_of_bin();
+        this->_error_bar = (this->_error_bar.array() - this->_mean_value.array().square()).sqrt().matrix() / std::sqrt(this->size_of_bin()-1);
+    }
+
+    template<> inline void Measure::MeasureData<Eigen::MatrixXd>::calculate_error_bar() {
+        for (auto bin_data : this->_bins) {
+            this->_error_bar += bin_data.array().square().matrix();
+        }
+        this->_error_bar /= this->size_of_bin();
+        this->_error_bar = (this->_error_bar.array() - this->_mean_value.array().square()).sqrt().matrix() / std::sqrt(this->size_of_bin()-1);
+    }
+
+    template<class DataStructure>
+    void Measure::MeasureData<DataStructure>::analyse() {
+        this->clear();
+        this->calculate_mean_value();
+        this->calculate_error_bar();
+    }
 }
 
 #endif //DQMC_HUBBARD_MEASUREDATA_H

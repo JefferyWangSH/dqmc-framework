@@ -1,7 +1,5 @@
 #include "eqtime_measure.h"
-#include "measure_data.h"
 #include "hubbard.h"
-#include <iostream>
 
 Measure::EqtimeMeasure::EqtimeMeasure(const int &nbin) {
     this->nbin = nbin;
@@ -12,6 +10,7 @@ void Measure::EqtimeMeasure::resize(const int &_nbin) {
 }
 
 void Measure::EqtimeMeasure::initial(const Model::Hubbard &hubbard) {
+    this->sign.set_size_of_bin(this->nbin);
     this->filling_number.set_size_of_bin(this->nbin);
     this->double_occupancy.set_size_of_bin(this->nbin);
     this->kinetic_energy.set_size_of_bin(this->nbin);
@@ -19,10 +18,33 @@ void Measure::EqtimeMeasure::initial(const Model::Hubbard &hubbard) {
     this->local_spin_corr.set_size_of_bin(this->nbin);
     this->spin_density_structure_factor.set_size_of_bin(this->nbin);
     this->charge_density_structure_factor.set_size_of_bin(this->nbin);
-    this->sign.set_size_of_bin(this->nbin);
     this->pairing_corr.reserve(hubbard.ll/2+1);
     for (int i = 0; i < hubbard.ll/2+1; ++i) {
-        pairing_corr.emplace_back(this->nbin);
+        this->pairing_corr.emplace_back(this->nbin);
+    }
+
+    this->sign.set_zero_element(0.0);
+    this->filling_number.set_zero_element(0.0);
+    this->double_occupancy.set_zero_element(0.0);
+    this->kinetic_energy.set_zero_element(0.0);
+    this->momentum_distribution.set_zero_element(0.0);
+    this->local_spin_corr.set_zero_element(0.0);
+    this->spin_density_structure_factor.set_zero_element(0.0);
+    this->charge_density_structure_factor.set_zero_element(0.0);
+    for (auto &PairingCorr : this->pairing_corr) {
+        PairingCorr.set_zero_element(0.0);
+    }
+
+    this->sign.allocate();
+    this->filling_number.allocate();
+    this->double_occupancy.allocate();
+    this->kinetic_energy.allocate();
+    this->momentum_distribution.allocate();
+    this->local_spin_corr.allocate();
+    this->spin_density_structure_factor.allocate();
+    this->charge_density_structure_factor.allocate();
+    for (auto &PairingCorr : this->pairing_corr) {
+        PairingCorr.allocate();
     }
 }
 

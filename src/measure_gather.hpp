@@ -3,65 +3,75 @@
 #pragma once
 
 /**
-  *  This source file includes the subroutine to efficiently gather measured observable data over different processors
-  *  without realization of serialization of user-defined data types.
-  *  TODO: transmit STL or user-defined data type directly ( need further tests ).
+  *  This source file includes subroutines for efficiently 
+  *  gathering measured observable data over different processors.
+  *  Directly send/receive vectors of serialized data types or class objects.
   */ 
 
 
 #include <boost/mpi.hpp>
+#include <boost/serialization/vector.hpp>
+#include "eigen_boost_serialization.hpp"
 #include "measure_data.h"
 
 namespace Measure {
 
-    Measure::MeasureData gather(const boost::mpi::communicator &world, const Measure::MeasureData &obs) {
+    template<typename DataStructure>
+    Measure::MeasureData<DataStructure> gather(
+        const boost::mpi::communicator &world, const Measure::MeasureData<DataStructure> &obs) {
         const int master = 0;
         const int rank = world.rank();
 
         // collect data from all processors
         if (rank == master) {
-            std::vector<double> bin_data(world.size() * obs.size_of_bin());
+            std::vector<DataStructure> collected_data;
+            std::vector<std::vector<DataStructure>> tmp_data(world.size()-1);
             std::vector<boost::mpi::request> recvs;
 
-            // loop for bins and processors
-            for (int proc = 0; proc < world.size(); ++proc) {
-                for (int bin = 0; bin < obs.size_of_bin(); ++bin) {
-                    if (proc == master) {
-                        bin_data[bin] = obs.bin_data()[bin];
-                    }
-                    else {
-                        recvs.push_back(world.irecv(proc, bin, bin_data[bin + proc * obs.size_of_bin()]));
-                    }
-                }
+            // master processor
+            collected_data.insert(collected_data.end(), obs.bin_data().begin(), obs.bin_data().end());
+
+            // receive messages from other processors
+            // pass vectors of serialized objects directly
+            for (int proc = 1; proc < world.size(); ++proc) {
+                recvs.push_back(world.irecv(proc, proc, tmp_data[proc-1]));
             }
             boost::mpi::wait_all(recvs.begin(), recvs.end());
+            for (auto data : tmp_data) {
+                collected_data.insert(collected_data.end(), data.begin(), data.end());
+            }
 
-            Measure::MeasureData gathered_obs(bin_data.size());
-            gathered_obs.bin_data() = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(bin_data.data(), 1, bin_data.size());
+            Measure::MeasureData<DataStructure> collected_obs;
+            collected_obs.set_size_of_bin(collected_data.size());
+            collected_obs.set_zero_element(obs.zero_element());
+            collected_obs.allocate();
+            collected_obs.bin_data() = collected_data;
 
             // analysis
-            gathered_obs.analyse();
-            return gathered_obs;
+            collected_obs.analyse();
+            return collected_obs;
         }
         else {
             std::vector<boost::mpi::request> sends;
-            for (int bin = 0; bin < obs.size_of_bin(); ++bin) {
-                sends.push_back(world.isend(master, bin, obs.bin_data()[bin]));
-            }
+            sends.push_back(world.isend(master, rank, obs.bin_data()));
             boost::mpi::wait_all(sends.begin(), sends.end());
             return obs;
         }
     }
-
-    // TODO: rewrite in a more efficient manner, by directly transmitting stl vector
-    std::vector<Measure::MeasureData> gather(const boost::mpi::communicator &world, const std::vector<Measure::MeasureData> &obs_vec) {
-        std::vector<Measure::MeasureData> gathered_obs_vec;
-        for (int i = 0; i < obs_vec.size(); ++i) {
-            gathered_obs_vec.push_back(gather(world, obs_vec[i]));
-        }
-        return gathered_obs_vec;
-    }
     
+
+    template<typename DataStructure>
+    std::vector<Measure::MeasureData<DataStructure>> gather(
+        const boost::mpi::communicator &world, 
+        const std::vector<Measure::MeasureData<DataStructure>> &obs_vec) {
+        
+        std::vector<Measure::MeasureData<DataStructure>> collected_obs_vec;
+        for (auto obs : obs_vec) {
+            collected_obs_vec.push_back(Measure::gather(world, obs));
+        }
+        return collected_obs_vec;
+    }
+
 } // namespace Measure
 
 #endif //DQMC_HUBBARD_MEASURE_GATHER_HPP
