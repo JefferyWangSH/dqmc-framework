@@ -20,7 +20,7 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 #include <vector>
-#include "measure_data.h"
+#include "observable.h"
 
 
 // forward declaration
@@ -32,15 +32,15 @@ namespace Measure{
         int nbin{20};
 
         /* for equal-time (static) measurements */
-        Measure::MeasureData<double> sign;                              // average sign to keep track of sign problem
-        Measure::MeasureData<double> filling_number;                    // filling number <n>
-        Measure::MeasureData<double> double_occupancy;                  // double occupancy
-        Measure::MeasureData<double> kinetic_energy;                    // kinetic energy
-        Measure::MeasureData<double> momentum_distribution;             // particle distribution in momentum space
-        Measure::MeasureData<double> local_spin_corr;                   // local spin correlation
-        Measure::MeasureData<double> spin_density_structure_factor;     // order parameter of spin density wave (SDW)
-        Measure::MeasureData<double> charge_density_structure_factor;   // order parameter of charge density wave (CDW)
-        std::vector<Measure::MeasureData<double>> pairing_corr;         // space correlation of s-wave pairing
+        Measure::Observable<double> sign;                              // average sign to keep track of sign problem
+        Measure::Observable<double> filling_number;                    // filling number <n>
+        Measure::Observable<double> double_occupancy;                  // double occupancy
+        Measure::Observable<double> kinetic_energy;                    // kinetic energy
+        Measure::Observable<double> momentum_distribution;             // particle distribution in momentum space
+        Measure::Observable<double> local_spin_corr;                   // local spin correlation
+        Measure::Observable<double> spin_density_structure_factor;     // order parameter of spin density wave (SDW)
+        Measure::Observable<double> charge_density_structure_factor;   // order parameter of charge density wave (CDW)
+        std::vector<Measure::Observable<double>> pairing_corr;         // space correlation of s-wave pairing
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);

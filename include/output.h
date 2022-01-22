@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/format.hpp>
-#include "measure_data.h"
+#include "observable.h"
 
 
 // forward declaration
@@ -20,20 +20,20 @@ namespace Simulation { class DetQMC; }
 
 namespace FileOutput{
 
-    template<typename DataStructure>
-    void file_output_observable(const Measure::MeasureData<DataStructure> &obs, 
+    template<typename DataType>
+    void file_output_observable(const Measure::Observable<DataType> &obs, 
                                 const std::string &file_name, const int &mode);
 
-    template<typename DataStructure>
-    void file_output_observable_bin(const Measure::MeasureData<DataStructure> &obs, 
+    template<typename DataType>
+    void file_output_observable_bin(const Measure::Observable<DataType> &obs, 
                                     const std::string &file_name, const int &mode);
 
-    template<typename DataStructure>
-    void file_output_observable(const std::vector<Measure::MeasureData<DataStructure>> &obs_vec, 
+    template<typename DataType>
+    void file_output_observable(const std::vector<Measure::Observable<DataType>> &obs_vec, 
                                 const std::string &file_name, const int &mode);
 
-    template<typename DataStructure>
-    void file_output_observable_bin(const std::vector<Measure::MeasureData<DataStructure>> &obs_vec, 
+    template<typename DataType>
+    void file_output_observable_bin(const std::vector<Measure::Observable<DataType>> &obs_vec, 
                                     const std::string &file_name, const int &mode);
 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
@@ -44,8 +44,8 @@ namespace FileOutput{
 
     /* Implements of template functions */
 
-    template<typename DataStructure>
-    void file_output_observable(const Measure::MeasureData<DataStructure> &obs, 
+    template<typename DataType>
+    void file_output_observable(const Measure::Observable<DataType> &obs, 
                                 const std::string &file_name, const int &mode) {
         std::ofstream outfile;
         if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
@@ -57,8 +57,8 @@ namespace FileOutput{
         outfile.close();
     }
 
-    template<typename DataStructure>
-    void file_output_observable_bin(const Measure::MeasureData<DataStructure> &obs, 
+    template<typename DataType>
+    void file_output_observable_bin(const Measure::Observable<DataType> &obs, 
                                     const std::string &file_name, const int &mode) {
         std::ofstream outfile;
         if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
@@ -74,8 +74,8 @@ namespace FileOutput{
         outfile.close();
     }
 
-    template<typename DataStructure>
-    void file_output_observable(const std::vector<Measure::MeasureData<DataStructure>> &obs_vec, 
+    template<typename DataType>
+    void file_output_observable(const std::vector<Measure::Observable<DataType>> &obs_vec, 
                                 const std::string &file_name, const int &mode) {
         std::ofstream outfile;
         if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
@@ -89,8 +89,8 @@ namespace FileOutput{
         outfile.close(); 
     }
 
-    template<typename DataStructure>
-    void file_output_observable_bin(const std::vector<Measure::MeasureData<DataStructure>> &obs_vec, 
+    template<typename DataType>
+    void file_output_observable_bin(const std::vector<Measure::Observable<DataType>> &obs_vec, 
                                     const std::string &file_name, const int &mode) {
         std::ofstream outfile;
         if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
@@ -123,14 +123,14 @@ namespace ScreenOutput {
 
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
 
-    template<typename DataStructure>
-    void screen_output_observable(const Measure::MeasureData<DataStructure> &obs, const std::string &obs_name);
+    template<typename DataType>
+    void screen_output_observable(const Measure::Observable<DataType> &obs, const std::string &obs_name);
 
 
     /* Implements of template functions */
 
-    template<typename DataStructure>
-    void screen_output_observable(const Measure::MeasureData<DataStructure> &obs, const std::string &obs_name) {
+    template<typename DataType>
+    void screen_output_observable(const Measure::Observable<DataType> &obs, const std::string &obs_name) {
         boost::format fmt_obs("%| 30s|%| 5s|%| 17.12f| pm %.12f");
         const std::string joiner = "->";
         std::cout << fmt_obs % obs_name % joiner % obs.mean_value() % obs.error_bar() << std::endl;

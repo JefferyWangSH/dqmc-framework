@@ -12,20 +12,20 @@
 #include <boost/mpi.hpp>
 #include <boost/serialization/vector.hpp>
 #include "eigen_boost_serialization.hpp"
-#include "measure_data.h"
+#include "observable.h"
 
 namespace Measure {
 
-    template<typename DataStructure>
-    Measure::MeasureData<DataStructure> gather(
-        const boost::mpi::communicator &world, const Measure::MeasureData<DataStructure> &obs) {
+    template<typename DataType>
+    Measure::Observable<DataType> gather(
+        const boost::mpi::communicator &world, const Measure::Observable<DataType> &obs) {
         const int master = 0;
         const int rank = world.rank();
 
         // collect data from all processors
         if (rank == master) {
-            std::vector<DataStructure> collected_data;
-            std::vector<std::vector<DataStructure>> tmp_data(world.size()-1);
+            std::vector<DataType> collected_data;
+            std::vector<std::vector<DataType>> tmp_data(world.size()-1);
             std::vector<boost::mpi::request> recvs;
 
             // master processor
@@ -41,7 +41,7 @@ namespace Measure {
                 collected_data.insert(collected_data.end(), data.begin(), data.end());
             }
 
-            Measure::MeasureData<DataStructure> collected_obs;
+            Measure::Observable<DataType> collected_obs;
             collected_obs.set_size_of_bin(collected_data.size());
             collected_obs.set_zero_element(obs.zero_element());
             collected_obs.allocate();
@@ -60,12 +60,12 @@ namespace Measure {
     }
     
 
-    template<typename DataStructure>
-    std::vector<Measure::MeasureData<DataStructure>> gather(
+    template<typename DataType>
+    std::vector<Measure::Observable<DataType>> gather(
         const boost::mpi::communicator &world, 
-        const std::vector<Measure::MeasureData<DataStructure>> &obs_vec) {
+        const std::vector<Measure::Observable<DataType>> &obs_vec) {
         
-        std::vector<Measure::MeasureData<DataStructure>> collected_obs_vec;
+        std::vector<Measure::Observable<DataType>> collected_obs_vec;
         for (auto obs : obs_vec) {
             collected_obs_vec.push_back(Measure::gather(world, obs));
         }

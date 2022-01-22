@@ -106,6 +106,6 @@ namespace MatrixUtil {
         t = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(a, n, n);
     }
 
-} // namespce MatrixUtil
+} // namespace MatrixUtil
 
 #endif //MATRIX_UTIL_HPP

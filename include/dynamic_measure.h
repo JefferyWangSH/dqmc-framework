@@ -16,7 +16,7 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 #include <vector>
-#include "measure_data.h"
+#include "observable.h"
 
 
 // forward declaration
@@ -29,17 +29,17 @@ namespace Measure{
 
         /* for time-displaced measurements */
         // dynamical correlation function of imaginary time G(k, \tua) = < c(k, \tau) * c^+(k, 0) >, with \tau > 0.
-        Measure::MeasureData<Eigen::VectorXd> matsubara_greens;
+        Measure::Observable<Eigen::VectorXd> matsubara_greens;
 
         // density of states (DOS) measurements 1/N * \sum_{i} G(\tau, 0)_{ii} or G(\tau, 0).trace()/N
-        Measure::MeasureData<Eigen::VectorXd> density_of_states;
+        Measure::Observable<Eigen::VectorXd> density_of_states;
 
         // superfluid stiffness (helicity modulus) \rho_s of superconducting
-        Measure::MeasureData<double> superfluid_stiffness;
-        // Measure::MeasureData<Eigen::MatrixXd> current_current_corr;
+        Measure::Observable<double> superfluid_stiffness;
+        // Measure::Observable<Eigen::MatrixXd> current_current_corr;
 
         // sign problem
-        Measure::MeasureData<double> sign;
+        Measure::Observable<double> sign;
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
