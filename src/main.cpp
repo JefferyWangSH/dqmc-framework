@@ -130,11 +130,11 @@ int main(int argc, char* argv[]) {
     Random::set_seed(rank);
 
     // usage example
-    dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap, bool_checkerboard);
+    dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap);
     dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, nBetweenBins);
-    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic);
+    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic, bool_checkerboard);
     dqmc->set_lattice_momentum(1., 1.);
-    dqmc->init_measure();
+    dqmc->initial();
 
     // initialize output folder
     if (rank == master) {

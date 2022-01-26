@@ -109,10 +109,10 @@ namespace StableGreens {
     }
 
     /*
-     * returns (1 + USV^T)^-1, with method of QR decomposition
-     * if bool_measure_dynamic, return (1 + USV^T)^-1 * USV^T too.
+     * return (1 + USV^T)^-1, with method of QR decomposition
+     * if dynamical observables measured, return (1 + USV^T)^-1 * USV^T as well.
      */
-    void compute_Green_00_bb(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const Eigen::MatrixXd &V, Eigen::MatrixXd &gtt) {
+    void compute_greens_00_bb(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const Eigen::MatrixXd &V, Eigen::MatrixXd &gtt) {
         // split S = Sbi^-1 * Ss
         Eigen::VectorXd Sbi(S.size());
         Eigen::VectorXd Ss(S.size());
@@ -135,10 +135,10 @@ namespace StableGreens {
     }
 
     /*
-     * returns (1 + USV^T)^-1 * USV^T, with method of QR decomposition
+     * return (1 + USV^T)^-1 * USV^T, with method of QR decomposition
      * to obtain time-displaced Greens function G(\beta, 0)
      */
-    void compute_Green_b0(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const Eigen::MatrixXd &V, Eigen::MatrixXd &gt0) {
+    void compute_greens_b0(const Eigen::MatrixXd &U, const Eigen::VectorXd &S, const Eigen::MatrixXd &V, Eigen::MatrixXd &gt0) {
         // split S = Sbi^-1 * Ss
         Eigen::VectorXd Sbi(S.size());
         Eigen::VectorXd Ss(S.size());
@@ -161,32 +161,32 @@ namespace StableGreens {
     }
 
     /*
-     *  returns (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
+     *  return (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
      *  note: (1 + left * right^T)^-1 = (1 + (USV^T)_left * (VSU^T)_right)^-1
      */
-    void compute_Green_eqtime(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gtt) {
-        assert(left->n == right->n);
-        const int ndim = left->n;
+    void compute_greens_eqtime(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gtt) {
+        assert(left->dim() == right->dim());
+        const int ndim = left->dim();
 
         /* at l = 0 */
         if (left->empty()) {
-            compute_Green_00_bb(right->matrixV(), right->singularValues(), right->matrixU(), gtt);
+            compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gtt);
             return;
         }
 
         /* at l = lt */
         if (right->empty()) {
-            compute_Green_00_bb(left->matrixU(), left->singularValues(), left->matrixV(), gtt);
+            compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), gtt);
             return;
         }
 
         // local params
-        const Eigen::MatrixXd& ul = left->matrixU();
-        const Eigen::VectorXd& dl = left->singularValues();
-        const Eigen::MatrixXd& vl = left->matrixV();
-        const Eigen::MatrixXd& ur = right->matrixU();
-        const Eigen::VectorXd& dr = right->singularValues();
-        const Eigen::MatrixXd& vr = right->matrixV();
+        const Eigen::MatrixXd ul = left->MatrixU();
+        const Eigen::VectorXd dl = left->SingularValues();
+        const Eigen::MatrixXd vl = left->MatrixV();
+        const Eigen::MatrixXd ur = right->MatrixU();
+        const Eigen::VectorXd dr = right->SingularValues();
+        const Eigen::MatrixXd vr = right->MatrixV();
 
         Eigen::VectorXd dlmax(dl.size()), dlmin(dl.size());
         Eigen::VectorXd drmax(dr.size()), drmin(dr.size());
@@ -220,17 +220,17 @@ namespace StableGreens {
     }
 
     /*
-     *  returns time-displaced Greens function in a stable manner,
+     *  return time-displaced Greens function in a stable manner,
      *  with method of MGS factorization
      */
-    void compute_Green_displaced(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gt0, Eigen::MatrixXd &g0t) {
-        assert( left->n == right->n );
-        const int ndim = left->n;
+    void compute_greens_dynamic(SvdStack *left, SvdStack *right, Eigen::MatrixXd &gt0, Eigen::MatrixXd &g0t) {
+        assert( left->dim() == right->dim() );
+        const int ndim = left->dim();
 
         /* at l = 0 */
         if(left->empty()) {
             // gt0 = gtt at t = 0
-            compute_Green_00_bb(right->matrixV(), right->singularValues(), right->matrixU(), gt0);
+            compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gt0);
 
             // g0t = - ( 1 - gtt ）at t = 0
             // for convenience: in fact no definition for g0t at t = 0.
@@ -241,21 +241,21 @@ namespace StableGreens {
         /* at l = lt */
         if(right->empty()) {
             // gt0 = ( 1 + B(\beta, 0) )^-1 * B(\beta, 0)
-            compute_Green_b0(left->matrixU(), left->singularValues(), left->matrixV(), gt0);
+            compute_greens_b0(left->MatrixU(), left->SingularValues(), left->MatrixV(), gt0);
 
             // g0t = -gtt at t = beta
-            compute_Green_00_bb(left->matrixU(), left->singularValues(), left->matrixV(), g0t);
+            compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), g0t);
             g0t = -g0t;
             return;
         }
 
         // local params
-        const Eigen::MatrixXd& ul = left->matrixU();
-        const Eigen::VectorXd& dl = left->singularValues();
-        const Eigen::MatrixXd& vl = left->matrixV();
-        const Eigen::MatrixXd& ur = right->matrixU();
-        const Eigen::VectorXd& dr = right->singularValues();
-        const Eigen::MatrixXd& vr = right->matrixV();
+        const Eigen::MatrixXd ul = left->MatrixU();
+        const Eigen::VectorXd dl = left->SingularValues();
+        const Eigen::MatrixXd vl = left->MatrixV();
+        const Eigen::MatrixXd ur = right->MatrixU();
+        const Eigen::VectorXd dr = right->SingularValues();
+        const Eigen::MatrixXd vr = right->MatrixV();
 
         Eigen::VectorXd dlmax(dl.size()), dlmin(dl.size());
         Eigen::VectorXd drmax(dr.size()), drmin(dr.size());

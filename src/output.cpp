@@ -19,9 +19,9 @@ namespace FileOutput {
         // output sequence of imaginary-time grids
         boost::format fmt_tau_info("%| 20d|%| 20.2f|");
         boost::format fmt_tau_seq("%| 20d|%| 20.10f|");
-        outfile << fmt_tau_info % dqmc.hubb->lt % dqmc.hubb->beta << std::endl;
-        for (int l = 0; l < dqmc.hubb->lt; ++l) {
-            outfile << fmt_tau_seq % l % (l*dqmc.hubb->dtau) << std::endl;
+        outfile << fmt_tau_info % dqmc.hubbard->lt % dqmc.hubbard->beta << std::endl;
+        for (int l = 0; l < dqmc.hubbard->lt; ++l) {
+            outfile << fmt_tau_seq % l % (l*dqmc.hubbard->dtau) << std::endl;
         }
         outfile.close();
     }
@@ -34,10 +34,10 @@ namespace FileOutput {
         // output current configuration of aux fields
         boost::format fmt_field_info("%| 20d|%| 20d|");
         boost::format fmt_field_seq("%| 20d|%| 20d|%| 20.1f|");
-        outfile << fmt_field_info % dqmc.hubb->lt % dqmc.hubb->ls << std::endl;
-        for (int l = 0; l < dqmc.hubb->lt; ++l) {
-            for (int i = 0; i < dqmc.hubb->ls; ++i) {
-                outfile << fmt_field_seq % l % i % dqmc.hubb->s(i, l) << std::endl;
+        outfile << fmt_field_info % dqmc.hubbard->lt % dqmc.hubbard->ls << std::endl;
+        for (int l = 0; l < dqmc.hubbard->lt; ++l) {
+            for (int i = 0; i < dqmc.hubbard->ls; ++i) {
+                outfile << fmt_field_seq % l % i % (*dqmc.hubbard->s)(i, l) << std::endl;
             }
         }
         outfile.close();
@@ -71,11 +71,11 @@ namespace ScreenOutput {
         else { std::cout << " Configurations of aux field set to random. \n" << std::endl;}
         std::cout << " Initialization finished. \n\n"
                   << " The simulation is going to get started with parameters shown below : \n" << std::endl;
-        std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubb->ll << std::endl;
-        std::cout << fmt_param_int % "Imaginary-time length 'lt'" % joiner % dqmc.hubb->lt << std::endl;
-        std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubb->beta << std::endl;
-        std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubb->Uint << std::endl;
-        std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubb->mu << std::endl;
+        std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubbard->ll << std::endl;
+        std::cout << fmt_param_int % "Imaginary-time length 'lt'" % joiner % dqmc.hubbard->lt << std::endl;
+        std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubbard->beta << std::endl;
+        std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubbard->u_int << std::endl;
+        std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubbard->mu << std::endl;
         std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % dqmc.q[0] % dqmc.q[1] << std::endl;
         std::cout << std::endl;
 
@@ -110,9 +110,9 @@ namespace ScreenOutput {
         
         // print wrap error of the evaluation of Green's functions
         if (dqmc.bool_measure_eqtime || dqmc.bool_measure_dynamic || dqmc.bool_warm_up) {
-            std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubb->max_wrap_error_equal << std::endl;
+            std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubbard->max_wrap_error_equal << std::endl;
             if (dqmc.bool_measure_dynamic) {
-                std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubb->max_wrap_error_displaced << std::endl;
+                std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubbard->max_wrap_error_dynamic << std::endl;
             }
             std::cout << std::endl;
         }

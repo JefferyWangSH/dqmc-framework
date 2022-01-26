@@ -71,8 +71,8 @@ void Measure::DynamicMeasure::measure_matsubara_greens(const int &t, const Model
     assert( t >= 0 && t < hubbard.lt );
     // factor 1/2 comes from two degenerate spin states
     const Eigen::MatrixXd gt0 = ( t == 0 )?
-              0.5 * (hubbard.vec_green_tt_up[hubbard.lt-1] + hubbard.vec_green_tt_up[hubbard.lt-1])
-            : 0.5 * (hubbard.vec_green_t0_up[t-1] + hubbard.vec_green_t0_up[t-1]);
+              0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_up)[hubbard.lt-1])
+            : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_up)[t-1]);
 
     // base point i
     for (int xi = 0; xi < hubbard.ll; ++xi) {
@@ -94,8 +94,8 @@ void Measure::DynamicMeasure::measure_density_of_states(const int &t, const Mode
     assert( t >= 0 && t < hubbard.lt );
     // spin degenerate model
     const Eigen::MatrixXd gt0 = ( t == 0 )?
-              0.5 * (hubbard.vec_green_tt_up[hubbard.lt-1] + hubbard.vec_green_tt_up[hubbard.lt-1])
-            : 0.5 * (hubbard.vec_green_t0_up[t-1] + hubbard.vec_green_t0_up[t-1]);
+              0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_up)[hubbard.lt-1])
+            : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_up)[t-1]);
     this->density_of_states.tmp_value()(t) += hubbard.config_sign * gt0.trace() / hubbard.ls;
 }
 
@@ -108,17 +108,17 @@ void Measure::DynamicMeasure::measure_superfluid_stiffness(const Model::Hubbard 
     double tmp_rho_s = 0.0;
     Eigen::MatrixXd gt0_up, g0t_up, gtt_up;
     Eigen::MatrixXd gt0_dn, g0t_dn, gtt_dn;
-    const Eigen::MatrixXd g00_up = hubbard.vec_green_tt_up[hubbard.lt-1]; 
-    const Eigen::MatrixXd g00_dn = hubbard.vec_green_tt_dn[hubbard.lt-1]; 
+    const Eigen::MatrixXd g00_up = (*hubbard.vec_green_tt_up)[hubbard.lt-1]; 
+    const Eigen::MatrixXd g00_dn = (*hubbard.vec_green_tt_dn)[hubbard.lt-1]; 
 
     for (int l = 0; l < hubbard.lt; ++l) {
         const int tau = (l == 0)? hubbard.lt-1 : l-1;
-        gt0_up = hubbard.vec_green_t0_up[tau];
-        g0t_up = hubbard.vec_green_0t_up[tau];
-        gtt_up = hubbard.vec_green_tt_up[tau];
-        gt0_dn = hubbard.vec_green_t0_dn[tau];
-        g0t_dn = hubbard.vec_green_0t_dn[tau];
-        gtt_dn = hubbard.vec_green_tt_dn[tau];
+        gt0_up = (*hubbard.vec_green_t0_up)[tau];
+        g0t_up = (*hubbard.vec_green_0t_up)[tau];
+        gtt_up = (*hubbard.vec_green_tt_up)[tau];
+        gt0_dn = (*hubbard.vec_green_t0_dn)[tau];
+        g0t_dn = (*hubbard.vec_green_0t_dn)[tau];
+        gtt_dn = (*hubbard.vec_green_tt_dn)[tau];
 
         // space point i is chosen as our base point, which is going to be averaged
         for (int xi = 0; xi < hubbard.ll; ++xi) {

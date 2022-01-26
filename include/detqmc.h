@@ -8,15 +8,15 @@
   *  including: MC sampling (measuring) and output of statistical results.
   */
 
+#include <chrono>
+#include <memory>
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
-#include <chrono>
+#include "hubbard.h"
+#include "eqtime_measure.h"
+#include "dynamic_measure.h"
 
-class SvdStack;
-namespace Model { class Hubbard; }
-namespace Measure { class EqtimeMeasure; class DynamicMeasure; }
-namespace Simulation { class DetQMC; }
 namespace FileOutput { 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
     void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
@@ -32,7 +32,7 @@ namespace Simulation {
     class DetQMC {
     private:
         // model parameters
-        Model::Hubbard *hubb{};
+        std::unique_ptr<Model::Hubbard> hubbard{};
 
         int nwrap{10}, nwarm{300};
         int nbin{20}, nsweep{100}, n_between_bins{10};
@@ -50,10 +50,10 @@ namespace Simulation {
 
     public:
         // for equal-time measurements
-        Measure::EqtimeMeasure *EqtimeMeasure{};
+        std::unique_ptr<Measure::EqtimeMeasure> EqtimeMeasure{};
 
         // for time-displaced (dynamical) measurements
-        Measure::DynamicMeasure *DynamicMeasure{};
+        std::unique_ptr<Measure::DynamicMeasure> DynamicMeasure{};
 
         // friend function
         friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
@@ -63,20 +63,18 @@ namespace Simulation {
 
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
         DetQMC() = default;
-
-        ~DetQMC();
+        ~DetQMC() = default;
 
         /** functions to set up params and initialization before DQMC calculation starts */
         /* set up model parameters */
-        void set_model_params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap, bool is_checkerboard);
+        void set_model_params(int ll, int lt, double beta, double t, double Uint, double mu, int nwrap);
 
         /* set up parameters for Monte Carlo simulation */
         void set_Monte_Carlo_params(int nwarm, int nbin, int nsweep, int n_between_bins);
 
         /* set up bool parameters */
-        void set_controlling_params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic);
+        void set_controlling_params(bool bool_warm_up, bool bool_measure_eqtime, bool bool_measure_dynamic, bool is_checkerboard);
 
         /* set up lattice momentum q for momentum measurements */
         void set_lattice_momentum(double qx, double qy);
@@ -86,8 +84,8 @@ namespace Simulation {
 
 
         /** Critical functions for DQMC calculations, including Monte Carlo updates and measurements **/
-        /* initialization, especially preparing for measuring */
-        void init_measure();
+        /* initialization, especially allocating memory for monte carlo and measurements */
+        void initial();
 
         /* run a dqmc simulation */
         void run(bool bool_display_process);

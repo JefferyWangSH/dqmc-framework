@@ -21,7 +21,7 @@
 //    assert( sigma == 1 || sigma == -1 );
 //
 //    const int tau = (l==0)? lt-1 : l-1;
-//    const int eff_sigma = (u_is_attractive)? +1 : sigma;
+//    const int eff_sigma = (is_attractive_u)? +1 : sigma;
 //
 //    Eigen::MatrixXd r;
 //    if (this->checkerboard->is_checker_board()) {
@@ -31,7 +31,7 @@
 //    else { r = this->checkerboard->exp_dtK;}
 //
 //    for (int i = 0; i < ls; ++i) {
-//        r.row(i) *= exp(+ eff_sigma * alpha * s(i, tau));
+//        r.row(i) *= exp(+ eff_sigma * this->alpha * (*this->s)(i, tau));
 //    }
 //    return r;
 //}
@@ -47,10 +47,10 @@ void Model::Hubbard::mult_B_from_left(Eigen::MatrixXd &A, int l, int sigma) {
     assert( sigma == 1 || sigma == -1 );
 
     const int tau = (l==0)? this->lt-1 : l-1;
-    const int eff_sigma = (this->u_is_attractive)? +1 : sigma;
+    const int eff_sigma = (this->is_attractive_u)? +1 : sigma;
     this->checkerboard->mult_expK_from_left(A);
     for (int i = 0; i < this->ls; ++i) {
-        A.row(i) *= exp(+ eff_sigma * alpha * s(i, tau));
+        A.row(i) *= exp(+ eff_sigma * this->alpha * (*this->s)(i, tau));
     }
 }
 
@@ -65,9 +65,9 @@ void Model::Hubbard::mult_B_from_right(Eigen::MatrixXd &A, int l, int sigma) {
     assert( sigma == 1 || sigma == -1 );
 
     const int tau = (l==0)? this->lt-1 : l-1;
-    const int eff_sigma = (this->u_is_attractive)? +1 : sigma;
+    const int eff_sigma = (this->is_attractive_u)? +1 : sigma;
     for (int i = 0; i < this->ls; ++i) {
-        A.col(i) *= exp(+ eff_sigma * alpha * s(i, tau));
+        A.col(i) *= exp(+ eff_sigma * this->alpha * (*this->s)(i, tau));
     }
     this->checkerboard->mult_expK_from_right(A);
 }
@@ -83,9 +83,9 @@ void Model::Hubbard::mult_invB_from_left(Eigen::MatrixXd &A, int l, int sigma) {
     assert( sigma == 1 || sigma == -1 );
 
     const int tau = (l==0)? this->lt-1 : l-1;
-    const int eff_sigma = (this->u_is_attractive)? +1 : sigma;
+    const int eff_sigma = (this->is_attractive_u)? +1 : sigma;
     for (int i = 0; i < this->ls; ++i) {
-        A.row(i) *= exp(- eff_sigma * alpha * s(i, tau));
+        A.row(i) *= exp(- eff_sigma * this->alpha * (*this->s)(i, tau));
     }
     this->checkerboard->mult_inv_expK_from_left(A);
 }
@@ -101,10 +101,10 @@ void Model::Hubbard::mult_invB_from_right(Eigen::MatrixXd &A, int l, int sigma) 
     assert( sigma == 1 || sigma == -1 );
 
     const int tau = (l==0)? this->lt-1 : l-1;
-    const int eff_sigma = (this->u_is_attractive)? +1 : sigma;
+    const int eff_sigma = (this->is_attractive_u)? +1 : sigma;
     this->checkerboard->mult_inv_expK_from_right(A);
     for (int i = 0; i < this->ls; ++i) {
-        A.col(i) *= exp(- eff_sigma * alpha * s(i, tau));
+        A.col(i) *= exp(- eff_sigma * this->alpha * (*this->s)(i, tau));
     }
 }
 
@@ -119,9 +119,9 @@ void Model::Hubbard::mult_transB_from_left(Eigen::MatrixXd &A, int l, int sigma)
     assert( sigma == 1 || sigma == -1 );
 
     const int tau = (l==0)? this->lt-1 : l-1;
-    const int eff_sigma = (this->u_is_attractive)? +1 : sigma;
+    const int eff_sigma = (this->is_attractive_u)? +1 : sigma;
     for (int i = 0; i < this->ls; ++i) {
-        A.row(i) *= exp(+ eff_sigma * alpha * s(i, tau));
+        A.row(i) *= exp(+ eff_sigma * this->alpha * (*this->s)(i, tau));
     }
     this->checkerboard->mult_trans_expK_from_left(A);
 }

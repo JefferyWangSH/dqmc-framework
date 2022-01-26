@@ -108,16 +108,16 @@ void Measure::EqtimeMeasure::write_stats_to_bins(int bin) {
 
 void Measure::EqtimeMeasure::measure_filling_number(const int &t, const Model::Hubbard &hubbard) {
     assert( t >= 0 && t < hubbard.lt );
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
     this->filling_number.tmp_value() += hubbard.config_sign * (2 - (gu.trace()+gd.trace())/hubbard.ls);
     ++this->filling_number;
 }
 
 void Measure::EqtimeMeasure::measure_double_occupancy(const int &t, const Model::Hubbard &hubbard) {
     assert( t >= 0 && t < hubbard.lt );
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     double tmp_double_occu = 0.0;
     for (int i = 0; i < hubbard.ls; ++i) {
@@ -130,8 +130,8 @@ void Measure::EqtimeMeasure::measure_double_occupancy(const int &t, const Model:
 void Measure::EqtimeMeasure::measure_kinetic_energy(const int &t, const Model::Hubbard &hubbard) {
     assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     double tmp_kinetic_energy = 0.0;
     for (int x = 0; x < ll; ++x) {
@@ -148,8 +148,8 @@ void Measure::EqtimeMeasure::measure_kinetic_energy(const int &t, const Model::H
 void Measure::EqtimeMeasure::measure_momentum_distribution(const int &t, const Model::Hubbard &hubbard) {
     assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     double tmp_momentum_dist = 0.0;
     // base point
@@ -172,8 +172,8 @@ void Measure::EqtimeMeasure::measure_momentum_distribution(const int &t, const M
 
 void Measure::EqtimeMeasure::measure_local_spin_corr(const int &t, const Model::Hubbard &hubbard) {
     assert( t >= 0 && t < hubbard.lt );
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     double tmp_local_spin_corr = 0.0;
     for (int i = 0; i < hubbard.ls; ++i) {
@@ -187,8 +187,8 @@ void Measure::EqtimeMeasure::measure_spin_density_structure_factor(const int &t,
     assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     // g(i,j)  = < c_i * c^+_j >
     // gc(i,j) = < c^+_i * c_j >
@@ -222,8 +222,8 @@ void Measure::EqtimeMeasure::measure_charge_density_structure_factor(const int &
     assert( t >= 0 && t < hubbard.lt );
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd gu = hubbard.vec_green_tt_up[t];
-    const Eigen::MatrixXd gd = hubbard.vec_green_tt_dn[t];
+    const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
+    const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
     // g(i,j)  = < c_i * c^+_j >
     // gc(i,j) = < c^+_i * c_j >
@@ -265,8 +265,8 @@ void Measure::EqtimeMeasure::measure_pairing_corr(const int &t, const Model::Hub
     // gc(i,j) = < c^+_i * c_j >
     const int ll = hubbard.ll;
     const int ls = hubbard.ls;
-    const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - hubbard.vec_green_tt_up[t].transpose();
-    const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - hubbard.vec_green_tt_dn[t].transpose();
+    const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_up)[t].transpose();
+    const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_dn)[t].transpose();
 
     // number of independent correlation length = ll/2 + 1 due to the periodical boundary condition
     // correlation length l1, l2 satisfying l1 + l2 = ll are identical
