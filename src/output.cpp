@@ -67,8 +67,8 @@ namespace ScreenOutput {
         boost::format fmt_param_k("%| 30s|%| 5s|%| 7.2f| pi, %.2f pi");
         const std::string joiner = "->";
 
-        if (!dqmc.bool_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
-        else { std::cout << " Configurations of aux field set to random. \n" << std::endl;}
+        if (!dqmc.is_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
+        else { std::cout << " Configurations of aux fields set to random. \n" << std::endl;}
         std::cout << " Initialization finished. \n\n"
                   << " The simulation is going to get started with parameters shown below : \n" << std::endl;
         std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubbard->ll << std::endl;
@@ -109,9 +109,9 @@ namespace ScreenOutput {
         else { std::cout << boost::format("\n The simulation finished in %.2f s. \n") % sec << std::endl; }
         
         // print wrap error of the evaluation of Green's functions
-        if (dqmc.bool_measure_eqtime || dqmc.bool_measure_dynamic || dqmc.bool_warm_up) {
+        if (dqmc.is_eqtime_measure || dqmc.is_dynamic_measure || dqmc.is_warm_up) {
             std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubbard->max_wrap_error_equal << std::endl;
-            if (dqmc.bool_measure_dynamic) {
+            if (dqmc.is_dynamic_measure) {
                 std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubbard->max_wrap_error_dynamic << std::endl;
             }
             std::cout << std::endl;

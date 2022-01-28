@@ -13,10 +13,10 @@
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
-#include <checker_board.h>
-#include <svd_stack.h>
+#include "checker_board.h"
+#include "svd_stack.h"
 
-namespace Measure { class EqtimeMeasure; class DynamicMeasure; }
+namespace Measure { class Methods; class Measure;}
 namespace Simulation { class DetQMC; }
 namespace FileOutput { 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
@@ -45,6 +45,7 @@ namespace Model {
         int current_tau{0};
 
         double config_sign{0.0};
+        std::unique_ptr<std::vector<double>> vec_config_sign{};
 
         double max_wrap_error_equal{0.0};
         double max_wrap_error_dynamic{0.0};
@@ -77,7 +78,7 @@ namespace Model {
         std::unique_ptr<SvdStack> stack_right_up{};
         std::unique_ptr<SvdStack> stack_right_dn{};
 
-        // using unique_ptr may sacrifice performance while memory-saving
+        // using unique_ptr may sacrifice performance while memory-saving and safe
         // compared with creating variables directly
 
     public:
@@ -105,8 +106,8 @@ namespace Model {
         // friend classes and functions
         friend class Simulation::DetQMC;
         friend class CheckerBoard::CheckerBoard;
-        friend class Measure::EqtimeMeasure;
-        friend class Measure::DynamicMeasure;
+        friend class Measure::Methods;
+        friend class Measure::Measure;
         friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
         friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);

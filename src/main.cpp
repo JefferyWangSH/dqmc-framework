@@ -1,11 +1,7 @@
-#include "hubbard.h"
 #include "detqmc.h"
-#include "eqtime_measure.h"
-#include "dynamic_measure.h"
-#include "observable.h"
-#include "measure_gather.hpp"
 #include "random.h"
 #include "output.h"
+#include "measure_gather.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -38,8 +34,7 @@
   *   15. generalized model and lattice module supporting simulations of customized physical systems (missing)
   *   16. using fftw3 for fast fourier transformation of measurements in momentum space (missing)
   *   17. independent random (and seed) module (done)
-  *   18. high-efficient measurements of linear observables (missing)
-  *   19. ...
+  *   18. ...
   */
 
 
@@ -53,22 +48,27 @@ int main(int argc, char* argv[]) {
     double t = 1.0;
     double u = -4.0;
     double mu = 0.0;
-    bool bool_checkerboard = false;
 
     int nwrap = 10;
     int nwarm = (int)(4*ll*ll*beta);
 
     int nbin = 20;
     int nsweep = 100;
-    int nBetweenBins = 10;
+    int n_between_bins = 10;
 
-    bool bool_display_process = true;
-    bool bool_warm_up = true;
-    bool bool_measure_eqtime = true;
-    bool bool_measure_dynamic = true;
+    bool is_checkerboard = false;
+    bool is_warm_up = true;
+    bool is_eqtime_measure = true;
+    bool is_dynamic_measure = true;
 
     std::string out_folder_path = "../results/example";
 
+    std::vector<std::string> observable_supported = {"filling_number", "double_occupancy", "kinetic_energy",
+                                                     "momentum_distribution", "local_spin_corr", 
+                                                     "spin_density_structure_factor", "charge_density_structure_factor", 
+                                                     "matsubara_greens", "density_of_states", 
+                                                     "superfluid_stiffness", };
+    std::vector<std::string> obs_list = observable_supported;
 
     /** read params from command line */
     boost::program_options::options_description opts("Program options");
@@ -82,22 +82,23 @@ int main(int argc, char* argv[]) {
         ("t", boost::program_options::value<double>(&t)->default_value(1.0), "hopping strength, default: 1.0")
         ("u", boost::program_options::value<double>(&u)->default_value(-4.0), "interaction strength, u > 0 for repulsive and u < 0 for attractive case, default: -4.0")
         ("mu", boost::program_options::value<double>(&mu)->default_value(0.0), "chemical potential, default: 0.0")
-        ("checkerboard", boost::program_options::value<bool>(&bool_checkerboard)->default_value(false), "whether to perform checkerboard break-up, default: false")
+        ("checker-board", boost::program_options::value<bool>(&is_checkerboard)->default_value(false), "whether to perform checkerboard break-up, default: false")
         ("nwrap", boost::program_options::value<int>(&nwrap)->default_value(10), "pace of stabilization process, default: 10")
         ("nwarm", boost::program_options::value<int>(&nwarm)->default_value((int)(4*ll*ll*beta)), "number of warmup sweeps, default: 4*ll*ll*beta")
         ("nbin", boost::program_options::value<int>(&nbin)->default_value(20), "number of bins, default: 20")
         ("nsweep", boost::program_options::value<int>(&nsweep)->default_value(100), "number of measurement sweeps in a bin, default: 100")
-        ("nbetweenbins", boost::program_options::value<int>(&nBetweenBins)->default_value(10), "number of sweeps between bins to avoid correlation, default: 10")
-        ("warm-up", boost::program_options::value<bool>(&bool_warm_up)->default_value(true), "whether to warm up, default: true")
-        ("eqtime-measure", boost::program_options::value<bool>(&bool_measure_eqtime)->default_value(true), "whether to do equal-time measurements, default: true")
-        ("dynamic-measure", boost::program_options::value<bool>(&bool_measure_dynamic)->default_value(true), "whether to do dynamic measurements, default: true")
+        ("n-between-bins", boost::program_options::value<int>(&n_between_bins)->default_value(10), "number of sweeps between bins to avoid correlation, default: 10")
+        ("warm-up", boost::program_options::value<bool>(&is_warm_up)->default_value(true), "whether to warm up, default: true")
+        ("eqtime-measure", boost::program_options::value<bool>(&is_eqtime_measure)->default_value(true), "whether to do equal-time measurements, default: true")
+        ("dynamic-measure", boost::program_options::value<bool>(&is_dynamic_measure)->default_value(true), "whether to do dynamic measurements, default: true")
+        ("observable-list", boost::program_options::value<std::vector<std::string>>(&obs_list)->multitoken(), "list of physical observables to be measured, default: all")
         ("out-folder-path", boost::program_options::value<std::string>(&out_folder_path)->default_value("../results/example"), "path of the output folder, default: ../results/example");
     
     try {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
     }
     catch (...) {
-        std::cerr << " Got undefined options from command line! "<< std::endl;
+        std::cerr << " Undefined options got from command line! "<< std::endl;
         exit(1);
     }
     boost::program_options::notify(vm);
@@ -107,7 +108,14 @@ int main(int argc, char* argv[]) {
         std::cerr << opts << std::endl;
         exit(1);
     }
-
+    if (vm.count("observable-list")) {
+        if (obs_list.size() == 1 && obs_list[0] == "all") {
+            obs_list = observable_supported;
+        }
+        if (obs_list.size() == 1 && obs_list[0] == "none") {
+            obs_list = std::vector<std::string>();
+        }
+    }
     if ((!vm["ll"].defaulted() || !vm["beta"].defaulted()) && vm["nwarm"].defaulted()) {
         nwarm = 4 * vm["ll"].as<int>() * vm["ll"].as<int>() * (int)vm["beta"].as<double>();
     }
@@ -131,25 +139,27 @@ int main(int argc, char* argv[]) {
 
     // usage example
     dqmc->set_model_params(ll, lt, beta, t, u, mu, nwrap);
-    dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, nBetweenBins);
-    dqmc->set_controlling_params(bool_warm_up, bool_measure_eqtime, bool_measure_dynamic, bool_checkerboard);
+    dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, n_between_bins);
+    dqmc->set_controlling_params(is_warm_up, is_eqtime_measure, is_dynamic_measure, is_checkerboard);
+    dqmc->set_observable_list(obs_list);
     dqmc->set_lattice_momentum(1., 1.);
-    dqmc->initial();
 
     // initialize output folder
     if (rank == master) {
         if ( access(out_folder_path.c_str(), 0) != 0 ) {
             const std::string command = "mkdir " + out_folder_path;
             if ( system(command.c_str()) != 0 ) {
-                std::cerr << boost::format(" fail to creat folder at %s . \n") % out_folder_path << std::endl;
+                std::cerr << boost::format(" Fail to creat folder at %s . \n") % out_folder_path << std::endl;
             }
         }
     }
-
     // read in configurations of aux fields
-    if (!bool_warm_up) {
-        dqmc->read_aux_field_configs(out_folder_path + "/config.dat");
+    if (!is_warm_up) {    
+        dqmc->set_aux_field_configs(out_folder_path + "/config.dat");
     }
+
+    // initialization
+    dqmc->initial();
     
     // the master processor
     if (rank == master) {
@@ -158,8 +168,8 @@ int main(int argc, char* argv[]) {
     }
 
     // MC simulation process ...
-    bool_display_process = (rank == master);
-    dqmc->run(bool_display_process);
+    const bool show_running_process = (rank == master);
+    dqmc->run(show_running_process);
 
     // output the ending information, include time cost and wrap errors
     if (rank == master) {
@@ -170,53 +180,30 @@ int main(int argc, char* argv[]) {
     dqmc->analyse_stats();
 
     // collect data and output results
-    if (dqmc->EqtimeMeasure) {
+    if (dqmc->measure) {
         // collect data from all processors
-        Measure::Observable<double> average_sign_eq = Measure::gather(world, dqmc->EqtimeMeasure->sign);
-        Measure::Observable<double> filling_number = Measure::gather(world, dqmc->EqtimeMeasure->filling_number);
-        Measure::Observable<double> double_occupancy = Measure::gather(world, dqmc->EqtimeMeasure->double_occupancy);
-        Measure::Observable<double> kinetic_energy = Measure::gather(world, dqmc->EqtimeMeasure->kinetic_energy);
-        Measure::Observable<double> momentum_distribution = Measure::gather(world, dqmc->EqtimeMeasure->momentum_distribution);
-        Measure::Observable<double> local_spin_corr = Measure::gather(world, dqmc->EqtimeMeasure->local_spin_corr);
-        Measure::Observable<double> SDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->spin_density_structure_factor);
-        Measure::Observable<double> CDW_factor = Measure::gather(world, dqmc->EqtimeMeasure->charge_density_structure_factor);
-        std::vector<Measure::Observable<double>> pairing_corr = Measure::gather(world, dqmc->EqtimeMeasure->pairing_corr);
-        
-        // display of measuring results on terminal
-        if (rank == master) {
-            ScreenOutput::screen_output_observable(filling_number, "Filling number");
-            ScreenOutput::screen_output_observable(double_occupancy, "Double occupancy");
-            ScreenOutput::screen_output_observable(kinetic_energy, "Kinetic energy");
-            ScreenOutput::screen_output_observable(momentum_distribution, "Momentum distribution");
-            ScreenOutput::screen_output_observable(local_spin_corr, "Local spin correlation");
-            ScreenOutput::screen_output_observable(SDW_factor, "SDW order parameter");
-            ScreenOutput::screen_output_observable(CDW_factor, "CDW order parameter");
-            ScreenOutput::screen_output_observable(average_sign_eq, "Average sign (abs)");
-        }
+        // Todo: redesign interface of measure and container class
+        Measure::GatherMPI gather_mpi{};
+        gather_mpi.gather_from_all_processors(world, *dqmc->measure);
 
-        // file output of measuring results
         if (rank == master) {
+            // display measuring results on terminal
+            if (dqmc->measure->is_eqtime_measure()) {
+                ScreenOutput::screen_output_observable(dqmc->measure->sign_eqtime(), "Averaged sign (abs)");
+            }
+            if (dqmc->measure->is_dynamic_measure()) {
+                ScreenOutput::screen_output_observable(dqmc->measure->sign_dynamic(), "Averaged sign (abs)");
+            }
+            for (auto obs : dqmc->measure->obs_list_double()) {
+                ScreenOutput::screen_output_observable(obs, obs.name());
+            }
+
+            // file output of measuring results
             // TODO
+
         }
     }
 
-    if (dqmc->DynamicMeasure) {
-        // collect data from all processors
-        Measure::Observable<double> average_sign_dy = Measure::gather(world, dqmc->DynamicMeasure->sign);
-        Measure::Observable<double> superfluid_stiffness = Measure::gather(world, dqmc->DynamicMeasure->superfluid_stiffness);
-    
-        // display of measuring results on terminal
-        if (rank == master) {
-            ScreenOutput::screen_output_observable(superfluid_stiffness, "Superfluid stiffness");
-            ScreenOutput::screen_output_observable(average_sign_dy, "Average sign (abs)");
-        }
-
-        // file output of measuring results
-        if (rank == master) {
-            FileOutput::file_output_observable(superfluid_stiffness, out_folder_path + "/out.dat", 0);
-            FileOutput::file_output_observable_bin(superfluid_stiffness, out_folder_path + "/out_bin.dat", 0);
-        }
-    }
 
     // configuration output of aux fields
     if (rank == master) {

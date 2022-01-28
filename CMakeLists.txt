@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
-
+set(CMAKE_CXX_STANDARD 11)
 project(dqmc_hubbard)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -march=native -O3 -fopenmp")
+set(CMAKE_CXX_FLAGS "-march=native -O3 -fopenmp")
 
-set(MKLROOT /public1/soft/intel/2020/compilers_and_libraries_2020.4.304/linux/mkl)
-set(MPIROOT /public1/soft/intel/2020/compilers_and_libraries_2020.4.304/linux/mpi/intel64)
+set(MKLROOT /public1/soft/oneAPI/2022.1/mkl/latest)
+set(MPIROOT /public1/soft/oneAPI/2022.1/mpi/latest)
 set(CMAKE_CXX_COMPILER ${MPIROOT}/bin/mpicxx)
 set(CMAKE_C_COMPILER ${MPIROOT}/bin/mpicc)
 

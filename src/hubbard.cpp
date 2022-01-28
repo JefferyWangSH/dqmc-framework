@@ -75,20 +75,21 @@ void Model::Hubbard::allocate() {
 
     // resize matrices and svdStacks
     this->s = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-    this->green_tt_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-    this->green_tt_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
+    this->green_tt_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
+    this->green_tt_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
     if (this->is_eqtime_measure) {
         this->vec_green_tt_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
                                 (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
         this->vec_green_tt_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
                                 (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
+        this->vec_config_sign = std::unique_ptr<std::vector<double>>(new std::vector<double>(this->lt, 0.0));
     }
 
     if (this->is_dynamic_measure) {
-        this->green_t0_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-        this->green_t0_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-        this->green_0t_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-        this->green_0t_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
+        this->green_t0_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
+        this->green_t0_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
+        this->green_0t_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
+        this->green_0t_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
         this->vec_green_t0_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
                                 (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
         this->vec_green_t0_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
@@ -96,7 +97,7 @@ void Model::Hubbard::allocate() {
         this->vec_green_0t_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
                                 (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
         this->vec_green_0t_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));      
+                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
     }
 
     this->stack_left_up = std::unique_ptr<SvdStack>(new SvdStack(this->ls, this->lt));
@@ -109,8 +110,8 @@ void Model::Hubbard::allocate() {
 
 void Model::Hubbard::init_field_to_random() {
     // set field configuration to random
-    assert( (*this->s).rows() == this->ls );
-    assert( (*this->s).cols() == this->lt );
+    assert( this->s->rows() == this->ls );
+    assert( this->s->cols() == this->lt );
 
     std::bernoulli_distribution dist(0.5);
     for(int i = 0; i < this->ls; ++i) {
@@ -124,18 +125,18 @@ void Model::Hubbard::initial() {
     // allocate memory
     this->allocate();
 
-    // set field config to random
-    this->init_field_to_random();
-
     // initialize checkerboard
     this->checkerboard->init_from_model(*this);
     this->is_checkerboard = this->checkerboard->is_checker_board();
+
+    // set field config to random
+    this->init_field_to_random();
 
     // initialize udv stacks for sweep use, stabilize every nwrap slices
     this->init_stacks();
 
     // determine sign of current configuration
-    this->config_sign = ((*this->green_tt_up).determinant() * (*this->green_tt_dn).determinant() >= 0)? +1.0 : -1.0;
+    this->config_sign = (this->green_tt_up->determinant() * this->green_tt_dn->determinant() >= 0)? +1.0 : -1.0;
 }
 
 void Model::Hubbard::metropolis_update(int l) {
@@ -175,8 +176,8 @@ void Model::Hubbard::metropolis_update(int l) {
             double factor_dn = (!this->is_attractive_u)? 
                                (exp(+2 * this->alpha * (*this->s)(i, tau)) - 1) / (1 + (1 - (*this->green_tt_dn)(i, i))
                              * (exp(+2 * this->alpha * (*this->s)(i, tau)) - 1)) : factor_up;
-            (*this->green_tt_dn) -= factor_dn * (*this->green_tt_dn).col(i)
-                                              * (Eigen::VectorXd::Unit(this->ls, i).transpose() - (*this->green_tt_dn).row(i));
+            (*this->green_tt_dn) -= factor_dn * this->green_tt_dn->col(i)
+                                              * (Eigen::VectorXd::Unit(this->ls, i).transpose() - this->green_tt_dn->row(i));
 
             // flip aux field
             (*this->s)(i, tau) = -(*this->s)(i, tau);
@@ -225,8 +226,8 @@ void Model::Hubbard::init_stacks() {
      *  sweep process will start from 0 to beta, so we initialize stack_right here.
      *  stabilize the process every nwrap steps
      */
-    assert( (*this->stack_left_up).empty() && (*this->stack_left_dn).empty() );
-    assert( (*this->stack_right_up).empty() && (*this->stack_right_dn).empty() );
+    assert( this->stack_left_up->empty() && this->stack_left_dn->empty() );
+    assert( this->stack_right_up->empty() && this->stack_right_dn->empty() );
 
     Eigen::MatrixXd tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
     Eigen::MatrixXd tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
@@ -238,8 +239,8 @@ void Model::Hubbard::init_stacks() {
 
         // stabilize every nwrap steps with svd decomposition
         if ((l - 1) % this->nwrap == 0) {
-            (*this->stack_right_up).push(tmp_up);
-            (*this->stack_right_dn).push(tmp_dn);
+            this->stack_right_up->push(tmp_up);
+            this->stack_right_dn->push(tmp_dn);
             tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
             tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
         }
@@ -260,8 +261,8 @@ void Model::Hubbard::sweep_0_to_beta() {
 
     int nlen = (this->lt % this->nwrap == 0)? this->lt/this->nwrap : this->lt/this->nwrap +1;
     assert( this->current_tau == 1 );
-    assert( (*this->stack_left_up).empty() && (*this->stack_left_dn).empty() );
-    assert( (*this->stack_right_up).length() == nlen && (*this->stack_right_dn).length() == nlen );
+    assert( this->stack_left_up->empty() && this->stack_left_dn->empty() );
+    assert( this->stack_right_up->length() == nlen && this->stack_right_dn->length() == nlen );
 
     // temporary matrices
     Eigen::MatrixXd tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
@@ -274,18 +275,21 @@ void Model::Hubbard::sweep_0_to_beta() {
 
         // update aux field and record new greens
         this->metropolis_update(l);
-        (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
-        (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+        if (this->is_eqtime_measure) {
+            (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
+            (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+            (*this->vec_config_sign)[l-1] = this->config_sign;
+        }
 
         this->mult_B_from_left(tmp_up, l, +1);
         this->mult_B_from_left(tmp_dn, l, -1);
 
         if (l % this->nwrap == 0 || l == this->lt) {
             // wrap greens function
-            (*this->stack_right_up).pop();
-            (*this->stack_right_dn).pop();
-            (*this->stack_left_up).push(tmp_up);
-            (*this->stack_left_dn).push(tmp_dn);
+            this->stack_right_up->pop();
+            this->stack_right_dn->pop();
+            this->stack_left_up->push(tmp_up);
+            this->stack_left_dn->push(tmp_dn);
 
             Eigen::MatrixXd tmp_green_tt_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
             Eigen::MatrixXd tmp_green_tt_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
@@ -306,8 +310,10 @@ void Model::Hubbard::sweep_0_to_beta() {
             *this->green_tt_up = tmp_green_tt_up;
             *this->green_tt_dn = tmp_green_tt_dn;
 
-            (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
-            (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+            if (this->is_eqtime_measure) {
+                (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
+                (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+            }
 
             tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
             tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
@@ -318,8 +324,10 @@ void Model::Hubbard::sweep_0_to_beta() {
     }
 
     // end with fresh green functions
-    (*this->vec_green_tt_up)[lt-1] = *this->green_tt_up;
-    (*this->vec_green_tt_dn)[lt-1] = *this->green_tt_dn;
+    if (this->is_eqtime_measure) {
+        (*this->vec_green_tt_up)[lt-1] = *this->green_tt_up;
+        (*this->vec_green_tt_dn)[lt-1] = *this->green_tt_dn;
+    }
 }
 
 void Model::Hubbard::sweep_beta_to_0() {
@@ -332,8 +340,8 @@ void Model::Hubbard::sweep_beta_to_0() {
 
     int nlen = (this->lt % this->nwrap == 0)? this->lt/this->nwrap : this->lt/this->nwrap + 1;
     assert( this->current_tau == this->lt );
-    assert( (*this->stack_right_up).empty() && (*this->stack_right_dn).empty() );
-    assert( (*this->stack_left_up).length() == nlen && (*this->stack_left_dn).length() == nlen );
+    assert( this->stack_right_up->empty() && this->stack_right_dn->empty() );
+    assert( this->stack_left_up->length() == nlen && this->stack_left_dn->length() == nlen );
 
     // temporary matrices
     Eigen::MatrixXd tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
@@ -343,10 +351,10 @@ void Model::Hubbard::sweep_beta_to_0() {
     for (int l = this->lt; l >= 1; --l) {
         if (l % this->nwrap == 0 && l != this->lt) {
             // update udv stacks
-            (*this->stack_left_up).pop();
-            (*this->stack_left_dn).pop();
-            (*this->stack_right_up).push(tmp_up);
-            (*this->stack_right_dn).push(tmp_dn);
+            this->stack_left_up->pop();
+            this->stack_left_dn->pop();
+            this->stack_right_up->push(tmp_up);
+            this->stack_right_dn->push(tmp_dn);
 
             Eigen::MatrixXd tmp_green_tt_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
             Eigen::MatrixXd tmp_green_tt_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
@@ -370,8 +378,11 @@ void Model::Hubbard::sweep_beta_to_0() {
 
         // update aux field and record new greens
         this->metropolis_update(l);
-        (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
-        (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+        if (this->is_eqtime_measure) {
+            (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
+            (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+            (*this->vec_config_sign)[l-1] = this->config_sign;
+        }
 
         this->mult_transB_from_left(tmp_up, l, +1);
         this->mult_transB_from_left(tmp_dn, l, -1);
@@ -382,17 +393,19 @@ void Model::Hubbard::sweep_beta_to_0() {
     }
 
     // at l = 0
-    (*this->stack_left_up).pop();
-    (*this->stack_left_dn).pop();
-    (*this->stack_right_up).push(tmp_up);
-    (*this->stack_right_dn).push(tmp_dn);
+    this->stack_left_up->pop();
+    this->stack_left_dn->pop();
+    this->stack_right_up->push(tmp_up);
+    this->stack_right_dn->push(tmp_dn);
 
     StableGreens::compute_greens_eqtime(this->stack_left_up.get(), this->stack_right_up.get(), *this->green_tt_up);
     StableGreens::compute_greens_eqtime(this->stack_left_dn.get(), this->stack_right_dn.get(), *this->green_tt_dn);
 
     // end with fresh green functions
-    (*this->vec_green_tt_up)[lt-1] = *this->green_tt_up;
-    (*this->vec_green_tt_dn)[lt-1] = *this->green_tt_dn;
+    if (this->is_eqtime_measure) {
+        (*this->vec_green_tt_up)[lt-1] = *this->green_tt_up;
+        (*this->vec_green_tt_dn)[lt-1] = *this->green_tt_dn;
+    }
 }
 
 void Model::Hubbard::sweep_0_to_beta_dynamic() {
@@ -404,95 +417,97 @@ void Model::Hubbard::sweep_0_to_beta_dynamic() {
      *  Cautious that equal-time green's functions are also re-calculated according to the current configurations of aux field.
      *  Data is stored in vec_green_tt_up/dn
      */
-    this->current_tau++;
+    if (this->is_dynamic_measure) {
 
-    int nlen = (this->lt % this->nwrap == 0)? this->lt/this->nwrap : this->lt/this->nwrap + 1;
-    assert( this->current_tau == 1 );
-    assert( (*this->stack_left_up).empty() && (*this->stack_left_dn).empty() );
-    assert( (*this->stack_right_up).length() == nlen && (*this->stack_right_dn).length() == nlen );
+        this->current_tau++;
+        int nlen = (this->lt % this->nwrap == 0)? this->lt/this->nwrap : this->lt/this->nwrap + 1;
+        assert( this->current_tau == 1 );
+        assert( this->stack_left_up->empty() && this->stack_left_dn->empty() );
+        assert( this->stack_right_up->length() == nlen && this->stack_right_dn->length() == nlen );
 
-    // initialize: at l = 0, gt0 = g00, g0t = g00 - 1
-    *this->green_t0_up = *this->green_tt_up;
-    *this->green_t0_dn = *this->green_tt_dn;
-    *this->green_0t_up = *this->green_tt_up - Eigen::MatrixXd::Identity(this->ls, this->ls);
-    *this->green_0t_dn = *this->green_tt_dn - Eigen::MatrixXd::Identity(this->ls, this->ls);
+        // initialize: at l = 0, gt0 = g00, g0t = g00 - 1
+        *this->green_t0_up = *this->green_tt_up;
+        *this->green_t0_dn = *this->green_tt_dn;
+        *this->green_0t_up = *this->green_tt_up - Eigen::MatrixXd::Identity(this->ls, this->ls);
+        *this->green_0t_dn = *this->green_tt_dn - Eigen::MatrixXd::Identity(this->ls, this->ls);
 
-    // temporary matrices
-    Eigen::MatrixXd tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
-    Eigen::MatrixXd tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
+        // temporary matrices
+        Eigen::MatrixXd tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
+        Eigen::MatrixXd tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
 
-    // sweep up from 0 to beta
-    for (int l = 1; l <= this->lt; ++l) {
-        // wrap equal time green function to current time slice l
-        this->wrap_0_to_beta(l-1);
-        (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
-        (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
-        
-        // calculate and record time-displaced green functions at different time slices
-        this->mult_B_from_left(*this->green_t0_up, l, +1);
-        this->mult_B_from_left(*this->green_t0_dn, l, -1);
-        (*this->vec_green_t0_up)[l-1] = *this->green_t0_up;
-        (*this->vec_green_t0_dn)[l-1] = *this->green_t0_dn;
-
-        this->mult_invB_from_right(*this->green_0t_up, l, +1);
-        this->mult_invB_from_right(*this->green_0t_dn, l, -1);
-        (*this->vec_green_0t_up)[l-1] = *this->green_0t_up;
-        (*this->vec_green_0t_dn)[l-1] = *this->green_0t_dn;
-
-        this->mult_B_from_left(tmp_up, l, +1);
-        this->mult_B_from_left(tmp_dn, l, -1);
-
-        if (l % this->nwrap == 0 || l == this->lt) {
-            // wrap greens function
-            (*this->stack_right_up).pop();
-            (*this->stack_right_dn).pop();
-            (*this->stack_left_up).push(tmp_up);
-            (*this->stack_left_dn).push(tmp_dn);
-
-            Eigen::MatrixXd tmp_green_t0_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
-            Eigen::MatrixXd tmp_green_t0_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
-            Eigen::MatrixXd tmp_green_0t_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
-            Eigen::MatrixXd tmp_green_0t_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
-            double tmp_wrap_error_t0_up = 0.0;
-            double tmp_wrap_error_t0_dn = 0.0;
-            double tmp_wrap_error_0t_up = 0.0;
-            double tmp_wrap_error_0t_dn = 0.0;
-
-            // compute fresh greens every nwrap steps
-            // stack_left = B(l-1) *...* B(0)
-            // stack_right = B(l)^T *...* B(L-1)^T
-            // equal time green's function are re-evaluated for current field configurations
-            StableGreens::compute_greens_eqtime(this->stack_left_up.get(), this->stack_right_up.get(), *this->green_tt_up);
-            StableGreens::compute_greens_eqtime(this->stack_left_dn.get(), this->stack_right_dn.get(), *this->green_tt_dn);
-            StableGreens::compute_greens_dynamic(this->stack_left_up.get(), this->stack_right_up.get(), tmp_green_t0_up, tmp_green_0t_up);
-            StableGreens::compute_greens_dynamic(this->stack_left_dn.get(), this->stack_right_dn.get(), tmp_green_t0_dn, tmp_green_0t_dn);
-
-            // calculate wrap error
-            StableGreens::matrix_compare_error(tmp_green_t0_up, *this->green_t0_up, tmp_wrap_error_t0_up);
-            StableGreens::matrix_compare_error(tmp_green_t0_dn, *this->green_t0_dn, tmp_wrap_error_t0_dn);
-            this->max_wrap_error_dynamic = std::max(this->max_wrap_error_dynamic, std::max(tmp_wrap_error_t0_up, tmp_wrap_error_t0_dn));
-
-            StableGreens::matrix_compare_error(tmp_green_0t_up, *this->green_0t_up, tmp_wrap_error_0t_up);
-            StableGreens::matrix_compare_error(tmp_green_0t_dn, *this->green_0t_dn, tmp_wrap_error_0t_dn);
-            this->max_wrap_error_dynamic = std::max(this->max_wrap_error_dynamic, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
-
-            *this->green_t0_up = tmp_green_t0_up;
-            *this->green_t0_dn = tmp_green_t0_dn;
-            *this->green_0t_up = tmp_green_0t_up;
-            *this->green_0t_dn = tmp_green_0t_dn;
-
+        // sweep up from 0 to beta
+        for (int l = 1; l <= this->lt; ++l) {
+            // wrap equal time green function to current time slice l
+            this->wrap_0_to_beta(l-1);
             (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
             (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+            
+            // calculate and record time-displaced green functions at different time slices
+            this->mult_B_from_left(*this->green_t0_up, l, +1);
+            this->mult_B_from_left(*this->green_t0_dn, l, -1);
             (*this->vec_green_t0_up)[l-1] = *this->green_t0_up;
             (*this->vec_green_t0_dn)[l-1] = *this->green_t0_dn;
+
+            this->mult_invB_from_right(*this->green_0t_up, l, +1);
+            this->mult_invB_from_right(*this->green_0t_dn, l, -1);
             (*this->vec_green_0t_up)[l-1] = *this->green_0t_up;
             (*this->vec_green_0t_dn)[l-1] = *this->green_0t_dn;
 
-            tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
-            tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
-        }
+            this->mult_B_from_left(tmp_up, l, +1);
+            this->mult_B_from_left(tmp_dn, l, -1);
 
-        // finally stop at l = lt + 1
-        this->current_tau++;
+            if (l % this->nwrap == 0 || l == this->lt) {
+                // wrap greens function
+                this->stack_right_up->pop();
+                this->stack_right_dn->pop();
+                this->stack_left_up->push(tmp_up);
+                this->stack_left_dn->push(tmp_dn);
+
+                Eigen::MatrixXd tmp_green_t0_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
+                Eigen::MatrixXd tmp_green_t0_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
+                Eigen::MatrixXd tmp_green_0t_up = Eigen::MatrixXd::Zero(this->ls, this->ls);
+                Eigen::MatrixXd tmp_green_0t_dn = Eigen::MatrixXd::Zero(this->ls, this->ls);
+                double tmp_wrap_error_t0_up = 0.0;
+                double tmp_wrap_error_t0_dn = 0.0;
+                double tmp_wrap_error_0t_up = 0.0;
+                double tmp_wrap_error_0t_dn = 0.0;
+
+                // compute fresh greens every nwrap steps
+                // stack_left = B(l-1) *...* B(0)
+                // stack_right = B(l)^T *...* B(L-1)^T
+                // equal time green's function are re-evaluated for current field configurations
+                StableGreens::compute_greens_eqtime(this->stack_left_up.get(), this->stack_right_up.get(), *this->green_tt_up);
+                StableGreens::compute_greens_eqtime(this->stack_left_dn.get(), this->stack_right_dn.get(), *this->green_tt_dn);
+                StableGreens::compute_greens_dynamic(this->stack_left_up.get(), this->stack_right_up.get(), tmp_green_t0_up, tmp_green_0t_up);
+                StableGreens::compute_greens_dynamic(this->stack_left_dn.get(), this->stack_right_dn.get(), tmp_green_t0_dn, tmp_green_0t_dn);
+
+                // calculate wrap error
+                StableGreens::matrix_compare_error(tmp_green_t0_up, *this->green_t0_up, tmp_wrap_error_t0_up);
+                StableGreens::matrix_compare_error(tmp_green_t0_dn, *this->green_t0_dn, tmp_wrap_error_t0_dn);
+                this->max_wrap_error_dynamic = std::max(this->max_wrap_error_dynamic, std::max(tmp_wrap_error_t0_up, tmp_wrap_error_t0_dn));
+
+                StableGreens::matrix_compare_error(tmp_green_0t_up, *this->green_0t_up, tmp_wrap_error_0t_up);
+                StableGreens::matrix_compare_error(tmp_green_0t_dn, *this->green_0t_dn, tmp_wrap_error_0t_dn);
+                this->max_wrap_error_dynamic = std::max(this->max_wrap_error_dynamic, std::max(tmp_wrap_error_0t_up, tmp_wrap_error_0t_dn));
+
+                *this->green_t0_up = tmp_green_t0_up;
+                *this->green_t0_dn = tmp_green_t0_dn;
+                *this->green_0t_up = tmp_green_0t_up;
+                *this->green_0t_dn = tmp_green_0t_dn;
+
+                (*this->vec_green_tt_up)[l-1] = *this->green_tt_up;
+                (*this->vec_green_tt_dn)[l-1] = *this->green_tt_dn;
+                (*this->vec_green_t0_up)[l-1] = *this->green_t0_up;
+                (*this->vec_green_t0_dn)[l-1] = *this->green_t0_dn;
+                (*this->vec_green_0t_up)[l-1] = *this->green_0t_up;
+                (*this->vec_green_0t_dn)[l-1] = *this->green_0t_dn;
+
+                tmp_up = Eigen::MatrixXd::Identity(this->ls, this->ls);
+                tmp_dn = Eigen::MatrixXd::Identity(this->ls, this->ls);
+            }
+
+            // finally stop at l = lt + 1
+            this->current_tau++;
+        }
     }
 }
