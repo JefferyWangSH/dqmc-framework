@@ -45,11 +45,11 @@ namespace Measure {
         else {return false; }
     }
 
-    bool Container::is_eqtime_obs(const std::string &obs) {
+    bool Container::is_eqtime_obs(std::string obs) const {
         return (std::find(this->_supported_obs_eqtime.begin(), this->_supported_obs_eqtime.end(), obs) != this->_supported_obs_eqtime.end());
     }
 
-    bool Container::is_dynamic_obs(const std::string &obs) {
+    bool Container::is_dynamic_obs(std::string obs) const {
         return (std::find(this->_supported_obs_dynamic.begin(), this->_supported_obs_dynamic.end(), obs) != this->_supported_obs_dynamic.end());
     }
 

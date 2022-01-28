@@ -53,12 +53,12 @@ namespace Measure {
         friend class Simulation::DetQMC;
 
     public:
-        // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         /* (de)construct functions */
         Measure()  = default;
         ~Measure() = default;
 
+        /* interfaces */
         int nbin() const;
         bool is_eqtime_measure() const;
         bool is_dynamic_measure() const;
@@ -68,10 +68,10 @@ namespace Measure {
         Observable<double> sign_eqtime() const;
         Observable<double> sign_dynamic() const;
 
-        template<typename DataType>
-        Observable<DataType> operator[](std::string obs) {
-            // TODO
-        }
+        bool find(std::string obs_name) const; 
+        Observable<double> find_double_obs(std::string obs_name) const;
+        Observable<Eigen::VectorXd> find_vector_obs(std::string obs_name) const;
+        Observable<Eigen::MatrixXd> find_matrix_obs(std::string obs_name) const;
 
         /* set up the size of bins */
         void set_size_of_bin(const int &nbin);
@@ -82,7 +82,7 @@ namespace Measure {
         /* set up lattice momentum q */
         void set_lattice_momentum(const Eigen::VectorXd &q);
 
-        /* prepare for measuring */
+        /* initialize and prepare for measurements */
         void initial(const Model::Hubbard &hubbard);
 
         /* clear temporary data */

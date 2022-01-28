@@ -55,7 +55,7 @@ namespace Measure {
         Container() = default;
         ~Container() = default;
 
-        // output lists of observables
+        // interface for the output of observables
         StringList list() const;
         StringList eqtime_list() const;
         StringList dynamic_list() const;
@@ -65,8 +65,8 @@ namespace Measure {
 
         bool is_eqtime_measure() const;
         bool is_dynamic_measure() const;
-        bool is_eqtime_obs(const std::string &obs);
-        bool is_dynamic_obs(const std::string &obs);
+        bool is_eqtime_obs(std::string obs) const;
+        bool is_dynamic_obs(std::string obs) const;
 
         // read list of observables which are to be measured
         void read_list(const StringList &obs_list);

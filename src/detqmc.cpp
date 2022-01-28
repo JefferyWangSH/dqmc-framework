@@ -42,6 +42,8 @@ void Simulation::DetQMC::set_aux_field_configs(const std::string &config_file) {
 
 void Simulation::DetQMC::set_lattice_momentum(double qx, double qy) {
     this->q = (Eigen::VectorXd(2) << qx, qy).finished();
+    // useful when scanning the momentum space
+    if (this->measure) { this->measure->set_lattice_momentum(M_PI*this->q); }
 }
 
 void Simulation::DetQMC::read_configs_from_file(const std::string &config_file) {

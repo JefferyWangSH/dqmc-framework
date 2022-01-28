@@ -20,6 +20,41 @@ namespace Measure {
         return ((this->is_dynamic_measure())? *this->_container._sign_dynamic : Observable<double>()); 
     }
 
+    bool Measure::find(std::string obs_name) const {
+        if (this->_container.is_eqtime_obs(obs_name) || this->_container.is_dynamic_obs(obs_name)) {
+            return true;
+        }
+        else { return false; }
+        // return ((this->_container.is_eqtime_obs(obs_name) || this->_container.is_dynamic_obs(obs_name))? true : false);
+    }
+
+    Observable<double> Measure::find_double_obs(std::string obs_name) const {
+        for (auto obs : this->obs_list_double()) {
+            if (obs_name == obs.name()) {
+                return obs;
+            }
+        }
+        return Observable<double>();
+    }
+
+    Observable<Eigen::VectorXd> Measure::find_vector_obs(std::string obs_name) const {
+        for (auto obs : this->obs_list_vector()) {
+            if (obs_name == obs.name()) {
+                return obs;
+            }
+        }
+        return Observable<Eigen::VectorXd>();
+    }
+
+    Observable<Eigen::MatrixXd> Measure::find_matrix_obs(std::string obs_name) const {
+        for (auto obs : this->obs_list_matrix()) {
+            if (obs_name == obs.name()) {
+                return obs;
+            }
+        }
+        return Observable<Eigen::MatrixXd>();
+    }
+
     void Measure::set_size_of_bin(const int &nbin) {
         this->_nbin = nbin;
     }

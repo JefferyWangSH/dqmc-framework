@@ -1,8 +1,8 @@
- Current time : 2022-Jan-11 23:32:03
+ Current time : 2022-Jan-29 03:48:18
 
- Distribute tasks to 20 processors, with the master processor being ca0706.para.bscc. 
+ Distribute tasks to 20 processors, with the master processor being cc0802.para.bscc. 
 
- Configurations of aux field set to random. 
+ Configurations of aux fields set to random. 
 
  Initialization finished. 
 
@@ -19,22 +19,22 @@
          Number of bins 'nbin'   ->     20
        Sweeps per bin 'nsweep'   ->    100
 
- Warm-up progress:   [#>--------------------------------------] 3% 0.1s Warm-up progress:   [###>------------------------------------] 7% 0.197s Warm-up progress:   [####>-----------------------------------] 11% 0.292s Warm-up progress:   [######>---------------------------------] 15% 0.388s Warm-up progress:   [#######>--------------------------------] 19% 0.484s Warm-up progress:   [#########>------------------------------] 23% 0.581s Warm-up progress:   [##########>-----------------------------] 27% 0.675s Warm-up progress:   [############>---------------------------] 31% 0.771s Warm-up progress:   [##############>-------------------------] 35% 0.868s Warm-up progress:   [###############>------------------------] 39% 0.964s Warm-up progress:   [#################>----------------------] 42% 1.061s Warm-up progress:   [##################>---------------------] 46% 1.157s Warm-up progress:   [####################>-------------------] 50% 1.254s Warm-up progress:   [#####################>------------------] 54% 1.35s Warm-up progress:   [#######################>----------------] 58% 1.446s Warm-up progress:   [#########################>--------------] 62% 1.542s Warm-up progress:   [##########################>-------------] 66% 1.638s Warm-up progress:   [############################>-----------] 70% 1.734s Warm-up progress:   [#############################>----------] 74% 1.83s Warm-up progress:   [###############################>--------] 78% 1.926s Warm-up progress:   [################################>-------] 82% 2.023s Warm-up progress:   [##################################>-----] 85% 2.119s Warm-up progress:   [###################################>----] 89% 2.215s Warm-up progress:   [#####################################>--] 93% 2.311s Warm-up progress:   [#######################################>] 97% 2.407s Warm-up progress:   [########################################] 100% 2.466s
- Measuring progress: [########>-------------------------------] 20% 0.653s Measuring progress: [################>-----------------------] 40% 1.306s Measuring progress: [########################>---------------] 60% 1.96s Measuring progress: [################################>-------] 80% 2.613s Measuring progress: [########################################] 100% 3.267s Measuring progress: [########################################] 100% 3.362s
+ Warm-up progress:   [#>--------------------------------------] 3% 0.109s Warm-up progress:   [###>------------------------------------] 7% 0.21s Warm-up progress:   [####>-----------------------------------] 11% 0.31s Warm-up progress:   [######>---------------------------------] 15% 0.41s Warm-up progress:   [#######>--------------------------------] 19% 0.51s Warm-up progress:   [#########>------------------------------] 23% 0.611s Warm-up progress:   [##########>-----------------------------] 27% 0.713s Warm-up progress:   [############>---------------------------] 31% 0.813s Warm-up progress:   [##############>-------------------------] 35% 0.913s Warm-up progress:   [###############>------------------------] 39% 1.015s Warm-up progress:   [#################>----------------------] 42% 1.116s Warm-up progress:   [##################>---------------------] 46% 1.216s Warm-up progress:   [####################>-------------------] 50% 1.316s Warm-up progress:   [#####################>------------------] 54% 1.417s Warm-up progress:   [#######################>----------------] 58% 1.517s Warm-up progress:   [#########################>--------------] 62% 1.617s Warm-up progress:   [##########################>-------------] 66% 1.717s Warm-up progress:   [############################>-----------] 70% 1.818s Warm-up progress:   [#############################>----------] 74% 1.918s Warm-up progress:   [###############################>--------] 78% 2.02s Warm-up progress:   [################################>-------] 82% 2.12s Warm-up progress:   [##################################>-----] 85% 2.22s Warm-up progress:   [###################################>----] 89% 2.321s Warm-up progress:   [#####################################>--] 93% 2.421s Warm-up progress:   [#######################################>] 97% 2.521s Warm-up progress:   [########################################] 100% 2.581s
+ Measuring progress: [########>-------------------------------] 20% 0.668s Measuring progress: [################>-----------------------] 40% 1.336s Measuring progress: [########################>---------------] 60% 2.003s Measuring progress: [################################>-------] 80% 2.673s Measuring progress: [########################################] 100% 3.341s Measuring progress: [########################################] 100% 3.441s
 
- The simulation finished in 5.83 s. 
+ The simulation finished in 6.02 s. 
 
- Maximum of equal-time wrap error :  5.54667e-10
+ Maximum of equal-time wrap error :  1.43878e-10
 
- Maximum of dynamical wrap error :   1.30811e-11
+ Maximum of dynamical wrap error :   2.03493e-12
 
-                Filling number   ->   0.775251092025 pm 0.020856840331
-              Double occupancy   ->   0.265109273041 pm 0.011236132752
-                Kinetic energy   ->  -1.311434627404 pm 0.005547703585
-         Momentum distribution   ->   0.024553756528 pm 0.000913256385
-        Local spin correlation   ->   0.245032545943 pm 0.001835080056
-           SDW order parameter   ->   0.006096456456 pm 0.000018951788
-           CDW order parameter   ->   0.122128209705 pm 0.019523359593
-            Average sign (abs)   ->   1.000000000000 pm 0.000000000000
-          Superfluid stiffness   ->   0.024252858644 pm 0.011501712720
-            Average sign (abs)   ->   1.000000000000 pm 0.000000000000
+                Filling number   ->   0.766916988986 pm 0.017226276213
+              Double occupancy   ->   0.260046291940 pm 0.009454833618
+                Kinetic energy   ->  -1.316959148294 pm 0.002996831673
+         Momentum distribution   ->   0.023185755693 pm 0.000718342856
+        Local spin correlation   ->   0.246824405105 pm 0.001917080176
+           SDW order parameter   ->   0.006126810997 pm 0.000019157895
+           CDW order parameter   ->   0.106760520798 pm 0.010440440205
+    Averaged sign (equal-time)   ->   1.000000000000 pm 0.000000000000
+          Superfluid stiffness   ->   0.031742304295 pm 0.020877253485
+       Averaged sign (dynamic)   ->   1.000000000000 pm 0.000000000000
