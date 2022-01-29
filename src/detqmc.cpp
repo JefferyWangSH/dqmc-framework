@@ -40,10 +40,14 @@ void Simulation::DetQMC::set_aux_field_configs(const std::string &config_file) {
     this->config_file = std::unique_ptr<std::string>(new std::string(config_file));
 }
 
-void Simulation::DetQMC::set_lattice_momentum(double qx, double qy) {
-    this->q = (Eigen::VectorXd(2) << qx, qy).finished();
-    // useful when scanning the momentum space
-    if (this->measure) { this->measure->set_lattice_momentum(M_PI*this->q); }
+void Simulation::DetQMC::set_lattice_momentum(const Eigen::VectorXd &q) {
+    this->q = q;
+    // // useful when scanning the momentum space
+    // if (this->measure) { this->measure->set_lattice_momentum(this->q); }
+}
+
+void Simulation::DetQMC::set_lattice_momentum_list(const std::vector<Eigen::VectorXd> &q_list) {
+    this->q_list = q_list;
 }
 
 void Simulation::DetQMC::read_configs_from_file(const std::string &config_file) {
@@ -115,7 +119,7 @@ void Simulation::DetQMC::initial() {
         this->measure = std::unique_ptr<Measure::Measure>(new Measure::Measure());
         this->measure->set_size_of_bin(this->nbin);
         this->measure->set_observable_list(*this->obs_list);
-        this->measure->set_lattice_momentum(M_PI*this->q);
+        this->measure->set_lattice_momentum(this->q);
         this->measure->initial(*this->hubbard);
     }
 

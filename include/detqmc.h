@@ -10,9 +10,6 @@
 
 #include <chrono>
 #include <memory>
-#define EIGEN_USE_MKL_ALL
-#define EIGEN_VECTORIZE_SSE4_2
-#include <Eigen/Core>
 #include "hubbard.h"
 #include "measure.h"
 
@@ -47,6 +44,7 @@ namespace Simulation {
 
         // lattice momentum q
         Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
+        std::vector<Eigen::VectorXd> q_list{};
 
         // time cost of one single measuring process
         std::chrono::steady_clock::time_point begin_t{}, end_t{};
@@ -83,7 +81,8 @@ namespace Simulation {
         void set_aux_field_configs(const std::string &config_file);
 
         /* set up lattice momentum q for measurements in momentum space */
-        void set_lattice_momentum(double qx, double qy);
+        void set_lattice_momentum(const Eigen::VectorXd &q);
+        void set_lattice_momentum_list(const std::vector<Eigen::VectorXd> &q_list);
 
         /** Critical functions for DQMC calculations, including Monte Carlo updates and measurements **/
         /* initialization, especially allocating memory for monte carlo and measurements */

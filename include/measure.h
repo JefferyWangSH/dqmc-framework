@@ -21,9 +21,6 @@
 
 #include <memory>
 #include <vector>
-#define EIGEN_USE_MKL_ALL
-#define EIGEN_VECTORIZE_SSE4_2
-#include <Eigen/Core>
 #include "observable.h"
 #include "measure_container.h"
 

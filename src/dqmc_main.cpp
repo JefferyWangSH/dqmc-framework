@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, n_between_bins);
     dqmc->set_controlling_params(is_warm_up, is_eqtime_measure, is_dynamic_measure, is_checkerboard);
     dqmc->set_observable_list(obs_list);
-    dqmc->set_lattice_momentum(1., 1.);
+    dqmc->set_lattice_momentum((Eigen::VectorXd(2) << 1.0*M_PI, 1.0*M_PI).finished());
 
     // initialize output folder
     if (rank == master) {
@@ -224,7 +224,15 @@ int main(int argc, char* argv[]) {
             }
 
             // file output of measuring results
-            // TODO
+            // customize here
+            if (dqmc->measure->find("superfluid_stiffness")) {
+                FileOutput::file_output_observable(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.bin", 0);
+            }
+            if (dqmc->measure->find("matsubara_greens")) {
+                FileOutput::file_output_observable(dqmc->measure->find_vector_obs("matsubara_greens"), out_folder_path + "/greens.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_vector_obs("matsubara_greens"), out_folder_path + "/greens.bin", 0);
+            }
 
         }
     }

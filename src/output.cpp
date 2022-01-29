@@ -2,7 +2,9 @@
 #include "detqmc.h"
 #include "hubbard.h"
 
+#include <iostream>
 #include <fstream>
+
 #include <boost/format.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -10,6 +12,113 @@
 
 
 namespace FileOutput {
+
+    void file_output_observable(const Measure::Observable<double> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // for specfic measuring object of double type, output mean value, error bar and relative error in order. 
+        boost::format fmt_obs("%| 20.10f|%| 20.10f|%| 20.10f|");
+        outfile << fmt_obs % obs.mean_value() % obs.error_bar() % (obs.error_bar()/obs.mean_value()) << std::endl;
+        outfile.close();
+    }
+
+    void file_output_observable(const Measure::Observable<Eigen::VectorXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // output of vector type observable 
+        boost::format fmt_info("%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20.10f|%| 20.10f|%| 20.10f|");
+
+        const int size = obs.mean_value().size();
+        const Eigen::VectorXd relative_error = (obs.error_bar().array()/obs.mean_value().array()).matrix();
+        outfile << fmt_info % size << std::endl;
+        for (int i = 0; i < size; ++i) {
+            outfile << fmt_obs % i % obs.mean_value()(i) % obs.error_bar()(i) % relative_error(i) << std::endl;
+        }
+        outfile.close();
+    }
+
+    void file_output_observable(const Measure::Observable<Eigen::MatrixXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // output of vector type observable 
+        boost::format fmt_info("%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20.10f|%| 20.10f|%| 20.10f|");
+
+        const int row = obs.mean_value().rows();
+        const int col = obs.mean_value().cols();
+        const Eigen::MatrixXd relative_error = (obs.error_bar().array()/obs.mean_value().array()).matrix();
+        outfile << fmt_info % row % col << std::endl;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                outfile << fmt_obs % i % j % obs.mean_value()(i,j) % obs.error_bar()(i,j) % relative_error(i,j) << std::endl;
+            }
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<double> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        outfile << fmt_info % nbin << std::endl;
+        for (int bin = 0; bin < nbin; ++bin) {
+            outfile << fmt_obs % bin % obs.bin_data()[bin] << std::endl;
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<Eigen::VectorXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        int size = obs.mean_value().size();
+        outfile << fmt_info % size % nbin << std::endl;
+        for (int i = 0; i < size; ++i) {
+            for (int bin = 0; bin < nbin; ++bin) {
+                outfile << fmt_obs % i % bin % obs.bin_data()[bin](i) << std::endl;
+            }
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<Eigen::MatrixXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        int row = obs.mean_value().rows();
+        int col = obs.mean_value().cols();
+        outfile << fmt_info % row % col % nbin << std::endl;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                for (int bin = 0; bin < nbin; ++bin) {
+                    outfile << fmt_obs % i % j % bin % obs.bin_data()[bin](i,j) << std::endl;
+                }
+            }
+        }
+        outfile.close();
+    }
 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
         std::ofstream outfile;
@@ -76,7 +185,7 @@ namespace ScreenOutput {
         std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubbard->beta << std::endl;
         std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubbard->u_int << std::endl;
         std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubbard->mu << std::endl;
-        std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % dqmc.q[0] % dqmc.q[1] << std::endl;
+        std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % (dqmc.q[0]/M_PI) % (dqmc.q[1]/M_PI) << std::endl;
         std::cout << std::endl;
 
         std::cout << fmt_param_int % "Stablization pace 'nwrap'" % joiner % dqmc.nwrap << std::endl;
@@ -116,6 +225,12 @@ namespace ScreenOutput {
             }
             std::cout << std::endl;
         }
+    }
+
+    void screen_output_observable(const Measure::Observable<double> &obs, const std::string &obs_name) {
+        boost::format fmt_obs("%| 30s|%| 5s|%| 17.12f| pm %.12f");
+        const std::string joiner = "->";
+        std::cout << fmt_obs % obs_name % joiner % obs.mean_value() % obs.error_bar() << std::endl;
     }
 
 } // namespace ScreenOutput
