@@ -14,20 +14,20 @@
 
 
 /** Structure for svd  */
-class svd {
+class Svd {
 private:
-    Eigen::MatrixXd u;
-    Eigen::VectorXd s;
-    Eigen::MatrixXd v;
+    Eigen::MatrixXd _u;
+    Eigen::VectorXd _s;
+    Eigen::MatrixXd _v;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    svd() = default;
-    explicit svd(int n): u(), s(n), v(n, n) {}
+    Svd() = default;
+    explicit Svd(int dim): _u(dim, dim), _s(dim), _v(dim, dim) {}
 
-    Eigen::MatrixXd& matrixU() { return u; }
-    Eigen::VectorXd& singularValues() { return s; }
-    Eigen::MatrixXd& matrixV() { return v; }
+    Eigen::MatrixXd& MatrixU() { return _u; }
+    Eigen::VectorXd& SingularValues() { return _s; }
+    Eigen::MatrixXd& MatrixV() { return _v; }
 };
 
 
@@ -35,35 +35,37 @@ public:
 class SvdStack {
 
 public:
-    std::vector<svd> stack;
-    int n{};
-    Eigen::MatrixXd tmp{};
-    int len = 0;
+    std::vector<Svd> _stack;
+    int _dim{1};
+    int _len{0};
+    Eigen::MatrixXd _tmp_matrix{};
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     /* Construct functions */
     SvdStack() = default;
 
-    SvdStack(int n, int l);
-
-    void resize(int n, int l);
+    SvdStack(int dim, int len);
 
     bool empty() const;
+
+    int dim() const;
+
+    int length() const;
 
     void clear();
 
     /** prepends a matrix to the decomposition */
-    void push(const Eigen::MatrixXd &mat);
+    void push(const Eigen::MatrixXd &matrix);
 
     /** pop the last matrix from the decomposition */
     void pop();
 
-    Eigen::VectorXd singularValues();
+    const Eigen::VectorXd SingularValues();
 
-    Eigen::MatrixXd matrixU();
+    const Eigen::MatrixXd MatrixU();
 
-    Eigen::MatrixXd matrixV();
+    const Eigen::MatrixXd MatrixV();
 
 };
 

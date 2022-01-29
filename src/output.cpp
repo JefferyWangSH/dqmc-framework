@@ -2,7 +2,9 @@
 #include "detqmc.h"
 #include "hubbard.h"
 
+#include <iostream>
 #include <fstream>
+
 #include <boost/format.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -10,6 +12,113 @@
 
 
 namespace FileOutput {
+
+    void file_output_observable(const Measure::Observable<double> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // for specfic measuring object of double type, output mean value, error bar and relative error in order. 
+        boost::format fmt_obs("%| 20.10f|%| 20.10f|%| 20.10f|");
+        outfile << fmt_obs % obs.mean_value() % obs.error_bar() % (obs.error_bar()/obs.mean_value()) << std::endl;
+        outfile.close();
+    }
+
+    void file_output_observable(const Measure::Observable<Eigen::VectorXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // output of vector type observable 
+        boost::format fmt_info("%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20.10f|%| 20.10f|%| 20.10f|");
+
+        const int size = obs.mean_value().size();
+        const Eigen::VectorXd relative_error = (obs.error_bar().array()/obs.mean_value().array()).matrix();
+        outfile << fmt_info % size << std::endl;
+        for (int i = 0; i < size; ++i) {
+            outfile << fmt_obs % i % obs.mean_value()(i) % obs.error_bar()(i) % relative_error(i) << std::endl;
+        }
+        outfile.close();
+    }
+
+    void file_output_observable(const Measure::Observable<Eigen::MatrixXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+        
+        // output of vector type observable 
+        boost::format fmt_info("%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20.10f|%| 20.10f|%| 20.10f|");
+
+        const int row = obs.mean_value().rows();
+        const int col = obs.mean_value().cols();
+        const Eigen::MatrixXd relative_error = (obs.error_bar().array()/obs.mean_value().array()).matrix();
+        outfile << fmt_info % row % col << std::endl;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                outfile << fmt_obs % i % j % obs.mean_value()(i,j) % obs.error_bar()(i,j) % relative_error(i,j) << std::endl;
+            }
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<double> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        outfile << fmt_info % nbin << std::endl;
+        for (int bin = 0; bin < nbin; ++bin) {
+            outfile << fmt_obs % bin % obs.bin_data()[bin] << std::endl;
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<Eigen::VectorXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        int size = obs.mean_value().size();
+        outfile << fmt_info % size % nbin << std::endl;
+        for (int i = 0; i < size; ++i) {
+            for (int bin = 0; bin < nbin; ++bin) {
+                outfile << fmt_obs % i % bin % obs.bin_data()[bin](i) << std::endl;
+            }
+        }
+        outfile.close();
+    }
+
+    void file_output_observable_bin(const Measure::Observable<Eigen::MatrixXd> &obs, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output bin data of observables
+        boost::format fmt_info("%| 20d|%| 20d|%| 20d|");
+        boost::format fmt_obs("%| 20d|%| 20d|%| 20d|%| 20.10f|");
+        int nbin = obs.size_of_bin();
+        int row = obs.mean_value().rows();
+        int col = obs.mean_value().cols();
+        outfile << fmt_info % row % col % nbin << std::endl;
+        for (int i = 0; i < row; ++i) {
+            for (int j = 0; j < col; ++j) {
+                for (int bin = 0; bin < nbin; ++bin) {
+                    outfile << fmt_obs % i % j % bin % obs.bin_data()[bin](i,j) << std::endl;
+                }
+            }
+        }
+        outfile.close();
+    }
 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
         std::ofstream outfile;
@@ -19,9 +128,9 @@ namespace FileOutput {
         // output sequence of imaginary-time grids
         boost::format fmt_tau_info("%| 20d|%| 20.2f|");
         boost::format fmt_tau_seq("%| 20d|%| 20.10f|");
-        outfile << fmt_tau_info % dqmc.hubb->lt % dqmc.hubb->beta << std::endl;
-        for (int l = 0; l < dqmc.hubb->lt; ++l) {
-            outfile << fmt_tau_seq % l % (l*dqmc.hubb->dtau) << std::endl;
+        outfile << fmt_tau_info % dqmc.hubbard->lt % dqmc.hubbard->beta << std::endl;
+        for (int l = 0; l < dqmc.hubbard->lt; ++l) {
+            outfile << fmt_tau_seq % l % (l*dqmc.hubbard->dtau) << std::endl;
         }
         outfile.close();
     }
@@ -34,10 +143,10 @@ namespace FileOutput {
         // output current configuration of aux fields
         boost::format fmt_field_info("%| 20d|%| 20d|");
         boost::format fmt_field_seq("%| 20d|%| 20d|%| 20.1f|");
-        outfile << fmt_field_info % dqmc.hubb->lt % dqmc.hubb->ls << std::endl;
-        for (int l = 0; l < dqmc.hubb->lt; ++l) {
-            for (int i = 0; i < dqmc.hubb->ls; ++i) {
-                outfile << fmt_field_seq % l % i % dqmc.hubb->s(i, l) << std::endl;
+        outfile << fmt_field_info % dqmc.hubbard->lt % dqmc.hubbard->ls << std::endl;
+        for (int l = 0; l < dqmc.hubbard->lt; ++l) {
+            for (int i = 0; i < dqmc.hubbard->ls; ++i) {
+                outfile << fmt_field_seq % l % i % (*dqmc.hubbard->s)(i, l) << std::endl;
             }
         }
         outfile.close();
@@ -67,16 +176,16 @@ namespace ScreenOutput {
         boost::format fmt_param_k("%| 30s|%| 5s|%| 7.2f| pi, %.2f pi");
         const std::string joiner = "->";
 
-        if (!dqmc.bool_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
-        else { std::cout << " Configurations of aux field set to random. \n" << std::endl;}
+        if (!dqmc.is_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
+        else { std::cout << " Configurations of aux fields set to random. \n" << std::endl;}
         std::cout << " Initialization finished. \n\n"
                   << " The simulation is going to get started with parameters shown below : \n" << std::endl;
-        std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubb->ll << std::endl;
-        std::cout << fmt_param_int % "Imaginary-time length 'lt'" % joiner % dqmc.hubb->lt << std::endl;
-        std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubb->beta << std::endl;
-        std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubb->Uint << std::endl;
-        std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubb->mu << std::endl;
-        std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % dqmc.q[0] % dqmc.q[1] << std::endl;
+        std::cout << fmt_param_int % "Lattice length 'll'" % joiner % dqmc.hubbard->ll << std::endl;
+        std::cout << fmt_param_int % "Imaginary-time length 'lt'" % joiner % dqmc.hubbard->lt << std::endl;
+        std::cout << fmt_param_double % "Inverse temperature 'beta'" % joiner % dqmc.hubbard->beta << std::endl;
+        std::cout << fmt_param_double % "Interaction strength 'U'" % joiner % dqmc.hubbard->u_int << std::endl;
+        std::cout << fmt_param_double % "Chemical potential 'mu'" % joiner % dqmc.hubbard->mu << std::endl;
+        std::cout << fmt_param_k % "Lattice momentum 'k'" % joiner % (dqmc.q[0]/M_PI) % (dqmc.q[1]/M_PI) << std::endl;
         std::cout << std::endl;
 
         std::cout << fmt_param_int % "Stablization pace 'nwrap'" % joiner % dqmc.nwrap << std::endl;
@@ -109,13 +218,19 @@ namespace ScreenOutput {
         else { std::cout << boost::format("\n The simulation finished in %.2f s. \n") % sec << std::endl; }
         
         // print wrap error of the evaluation of Green's functions
-        if (dqmc.bool_measure_eqtime || dqmc.bool_measure_dynamic || dqmc.bool_warm_up) {
-            std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubb->max_wrap_error_equal << std::endl;
-            if (dqmc.bool_measure_dynamic) {
-                std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubb->max_wrap_error_displaced << std::endl;
+        if (dqmc.is_eqtime_measure || dqmc.is_dynamic_measure || dqmc.is_warm_up) {
+            std::cout << " Maximum of equal-time wrap error :  " << dqmc.hubbard->max_wrap_error_equal << std::endl;
+            if (dqmc.is_dynamic_measure) {
+                std::cout << "\n Maximum of dynamical wrap error :   " << dqmc.hubbard->max_wrap_error_dynamic << std::endl;
             }
             std::cout << std::endl;
         }
+    }
+
+    void screen_output_observable(const Measure::Observable<double> &obs, const std::string &obs_name) {
+        boost::format fmt_obs("%| 30s|%| 5s|%| 17.12f| pm %.12f");
+        const std::string joiner = "->";
+        std::cout << fmt_obs % obs_name % joiner % obs.mean_value() % obs.error_bar() << std::endl;
     }
 
 } // namespace ScreenOutput
