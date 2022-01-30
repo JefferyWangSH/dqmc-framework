@@ -167,6 +167,42 @@ namespace Measure {
         }
     }
 
+    void Methods::measure_s_wave_pairing_corr(Observable<double> &s_wave_pairing, Measure &measure, const Model::Hubbard &hubbard) {
+        const int ll = hubbard.ll;
+        const int ls = hubbard.ls;
+        for (int t = 0; t < hubbard.lt; ++t) {
+            // The s-wave pairing order parameter is defined as \Delta = 1/\sqrt(N) \sum_i c_up_i * c_dn_i
+            // Accordingly, the s-wave pairing correlation function P_s is defined as  
+            //   P_s = 1/2 ( \Delta^+ * \Delta + h.c. )
+            //       = 1/N \sum_ij ( (\delta_ij - G_up(t,t)_ji) * (\delta_ij - G_dn(t,t)_ji) )
+            // which is a extensive quantity. The 1/2 prefactor in definition of P_s cancels the duplicated counting of ij.
+            
+            // g(i,j)  = < c_i * c^+_j >
+            // gc(i,j) = < c^+_i * c_j >
+            const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_up)[t].transpose();
+            const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_dn)[t].transpose();
+
+            // loop for site i and average
+            double tmp_s_wave_pairing = 0.0;
+            for (int xi = 0; xi < ll; ++xi) {
+                for (int yi = 0; yi < ll; ++yi) {
+                    const int i = xi + ll * yi;
+                    // displacement
+                    for (int dx = 0; dx < ll; ++dx) {
+                        for (int dy = 0; dy < ll; ++dy) {
+                            const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
+                            const double factor = (*hubbard.vec_config_sign)[t];
+                            tmp_s_wave_pairing += (*hubbard.vec_config_sign)[t] * ( guc(i, j)* gdc(i, j) );
+                        }
+                    }
+                }
+            }
+            // entensive quantity
+            s_wave_pairing.tmp_value() += tmp_s_wave_pairing / hubbard.ls;
+            ++s_wave_pairing;
+        }
+    }
+
 
 
     /** Time-displaced ( Dynamical ) Measurements */

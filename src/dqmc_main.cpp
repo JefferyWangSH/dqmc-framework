@@ -65,7 +65,8 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> observable_supported = {"filling_number", "double_occupancy", "kinetic_energy",
                                                      "momentum_distribution", "local_spin_corr", 
-                                                     "spin_density_structure_factor", "charge_density_structure_factor", 
+                                                     "spin_density_structure_factor", "charge_density_structure_factor",
+                                                     "s_wave_pairing_corr", 
                                                      "matsubara_greens", "density_of_states", 
                                                      "superfluid_stiffness", };
     std::vector<std::string> obs_list = observable_supported;
@@ -210,7 +211,10 @@ int main(int argc, char* argv[]) {
             }
             if (dqmc->measure->find("charge_density_structure_factor")) {
                 ScreenOutput::screen_output_observable(dqmc->measure->find_double_obs("charge_density_structure_factor"), "CDW order parameter");
-            }            
+            }           
+            if (dqmc->measure->find("s_wave_pairing_corr")) {
+                ScreenOutput::screen_output_observable(dqmc->measure->find_double_obs("s_wave_pairing_corr"), "S-wave pairing correlation");
+            } 
             if (dqmc->measure->is_eqtime_measure()) {
                 ScreenOutput::screen_output_observable(dqmc->measure->sign_eqtime(), "Averaged sign (equal-time)");
             }
@@ -225,6 +229,10 @@ int main(int argc, char* argv[]) {
 
             // file output of measuring results
             // customize here
+            if (dqmc->measure->find("s_wave_pairing_corr")) {
+                FileOutput::file_output_observable(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.bin", 0);
+            }
             if (dqmc->measure->find("superfluid_stiffness")) {
                 FileOutput::file_output_observable(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.dat", 0);
                 FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.bin", 0);

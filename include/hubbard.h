@@ -16,7 +16,7 @@
 #include "checker_board.h"
 #include "svd_stack.h"
 
-namespace Measure { class Methods; class Measure;}
+namespace Measure { class Measure; class Methods; }
 namespace Simulation { class DetQMC; }
 namespace FileOutput { 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
@@ -106,8 +106,8 @@ namespace Model {
         // friend classes and functions
         friend class Simulation::DetQMC;
         friend class CheckerBoard::CheckerBoard;
-        friend class Measure::Methods;
         friend class Measure::Measure;
+        friend class Measure::Methods;
         friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
         friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);

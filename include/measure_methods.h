@@ -27,6 +27,7 @@ namespace Measure {
         //    5. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
         //    6. Spin density structure factor (SDW)
         //    7. Charge density structure factor (CDW)
+        //    8. S wave Cooper pairing correlation function
 
         // Todo: record the list of config_sign during MC updates
         static void measure_config_sign_eqtime(Observable<double> &sign_eqtime, Measure &measure, const Model::Hubbard &hubbard);
@@ -37,6 +38,7 @@ namespace Measure {
         static void measure_momentum_distribution(Observable<double> &momentum_dist, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_spin_density_structure_factor(Observable<double> &sdw_factor, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_charge_density_structure_factor(Observable<double> &cdw_factor, Measure &measure, const Model::Hubbard &hubbard);
+        static void measure_s_wave_pairing_corr(Observable<double> &s_wave_pairing, Measure &measure, const Model::Hubbard &hubbard);
 
 
         // Dynamical Measurements:

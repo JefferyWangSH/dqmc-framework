@@ -37,6 +37,7 @@ namespace Measure {
                                             "local_spin_corr", 
                                             "spin_density_structure_factor", 
                                             "charge_density_structure_factor", 
+                                            "s_wave_pairing_corr",
                                             };
 
         StringList _supported_obs_dynamic = {"matsubara_greens", 

@@ -176,6 +176,16 @@ namespace Measure {
                 this->_obs_double->push_back(cdw_factor);
             }
 
+            if (obs == "s_wave_pairing_corr") {
+                if (!this->_obs_double) {
+                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                }
+                Observable<double> s_wave_pairing;
+                s_wave_pairing.set_observable_name("s_wave_pairing_corr");
+                s_wave_pairing.add_method(Methods::measure_s_wave_pairing_corr);
+                this->_obs_double->push_back(s_wave_pairing);
+            }
+
             // adding new methods here
         }
 

@@ -13,10 +13,11 @@
   *   5. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
   *   6. Spin density structure factor (SDW)
   *   7. Charge density structure factor (CDW)
+  *   8. S-wave Cooper pairing correlation function
   * 
-  *   8. Dynamical green's function of imaginary time: G(k, tau) = < c(k, tau) * c^+(k, 0) >
-  *   9. Superfluid stiffness \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
-  *  10. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
+  *   9. Dynamical green's function of imaginary time: G(k, tau) = < c(k, tau) * c^+(k, 0) >
+  *  10. Superfluid stiffness \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
+  *  11. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
   */
 
 #include <memory>

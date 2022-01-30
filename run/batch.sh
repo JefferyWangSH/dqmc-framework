@@ -30,9 +30,10 @@ dynamic_measure="true"
 #   5. local_spin_corr                  (equal-time)
 #   6. spin_density_structure_factor    (equal-time)
 #   7. charge_density_structure_factor  (equal-time)
-#   8. matsubara_greens                 (dynamic)
-#   9. density_of_states                (dynamic)
-#  10. superfluid_stiffness             (dynamic)
+#   8. s_wave_pairing_corr              (equal-time)
+#   9. matsubara_greens                 (dynamic)
+#  10. density_of_states                (dynamic)
+#  11. superfluid_stiffness             (dynamic)
 #
 # options should be separated by space
 # option 'all' : measure all supported observables
