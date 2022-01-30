@@ -21,11 +21,7 @@ namespace Measure {
     }
 
     bool Measure::find(std::string obs_name) const {
-        if (this->_container.is_eqtime_obs(obs_name) || this->_container.is_dynamic_obs(obs_name)) {
-            return true;
-        }
-        else { return false; }
-        // return ((this->_container.is_eqtime_obs(obs_name) || this->_container.is_dynamic_obs(obs_name))? true : false);
+        return std::find(this->_container._obs_list->begin(), this->_container._obs_list->end(), obs_name) != this->_container._obs_list->end();
     }
 
     Observable<double> Measure::find_double_obs(std::string obs_name) const {
