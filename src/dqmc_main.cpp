@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
     if (vm.count("help")) {
         std::cerr << argv[0] << std::endl;
         std::cerr << opts << std::endl;
-        exit(1);
+        return 0;
     }
     if (vm.count("observable-list")) {
         if (obs_list.size() == 1 && obs_list[0] == "all") {

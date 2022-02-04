@@ -26,20 +26,20 @@ jobs:
           sudo apt-get update
         
       - name: Install Intel oneAPI
-        run: |
-          sudo apt-get install intel-oneapi-compiler-dpcpp-cpp
-          sudo apt-get install intel-oneapi-mpi 
-          sudo apt-get install intel-oneapi-mpi-devel 
-          sudo apt-get install intel-oneapi-mkl-devel
+        run: sudo apt-get install intel-oneapi-mkl-devel
       
       - name: Setup Intel oneAPI environment
         run: |
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
+
+      - name: Install OpenMPI
+        run: |
+          sudo apt-get install openmpi-bin
+          sudo apt-get install openmpi-doc
           
       - name: Install Boost
-        run: |
-          sudo apt-get install libboost-all-dev
+        run: sudo apt-get install libboost-all-dev
       
       - name: Install Eigen3
         run: sudo apt-get install libeigen3-dev
@@ -49,11 +49,14 @@ jobs:
 
       - name: Build with CMake
         run: |
-          mkdir build && cd build
+          cd ${{github.workspace}}/build
           cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}} && make
+
+      - name: Show helping messages
+        run: ${{github.workspace}}/build/dqmc_hubbard --help
       
-      - name: Run dqmc simualtion
+      - name: Run dqmc simulation
         run: |
-          mpirun -n 1 ${{github.workspace}}/build/dqmc_hubbard --help     # show helping messages
-          mpirun -n 4 ${{github.workspace}}/build/dqmc_hubbard
+          mkdir -p ${{github.workspace}}/results/example
+          mpirun -np 4 --oversubscribe ${{github.workspace}}/build/dqmc_hubbard
       
