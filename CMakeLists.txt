@@ -33,7 +33,7 @@ else()
 endif()
 
 # find Eigen3
-find_package(Eigen3 MODULE 3.4.0 REQUIRED)
+find_package(Eigen3 MODULE 3.3.7 REQUIRED)
 if (Eigen3_FOUND)
     message(STATUS "Found Eigen3 (eigen3_include_dir): ${EIGEN3_INCLUDE_DIR}")
     target_link_libraries (${PROJECT_NAME} PRIVATE Eigen3::Eigen)
