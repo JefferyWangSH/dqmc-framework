@@ -171,9 +171,9 @@ namespace ScreenOutput {
 
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc){
         // print simualtion parameters          
-        boost::format fmt_param_int("%| 30s|%| 5s|%| 7d|");
-        boost::format fmt_param_double("%| 30s|%| 5s|%| 7.2f|");
-        boost::format fmt_param_k("%| 30s|%| 5s|%| 7.2f| pi, %.2f pi");
+        boost::format fmt_param_int("%| 30s|%| 5s|%| 8d|");
+        boost::format fmt_param_double("%| 30s|%| 5s|%| 8.3f|");
+        boost::format fmt_param_k("%| 30s|%| 5s|%| 8.3f| pi, %.3f pi");
         const std::string joiner = "->";
 
         if (!dqmc.is_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
