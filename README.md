@@ -1,8 +1,9 @@
-# DQMC-Hubbard Model [![forthebadge](https://forthebadge.com/images/badges/works-on-my-machine.svg)](https://forthebadge.com)
+# DQMC-Hubbard Model
+![workflow](https://github.com/JefferyWangSH/dqmc-hubbard-model/actions/workflows/main.yml/badge.svg?branch=master)
 
-In this repository, we present a C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to the half-filled fermion Hubbard model.
+In this repository, we present a C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to fermion Hubbard model on two-dimensional square lattice.
 
-Some preliminary supports for doped cases are also realized by simple reweighting of configuration wights.
+Simulations of the model with both attractive and repulsive interaction are performed and tested in a large parameter range.
 
 ---
 
@@ -10,11 +11,11 @@ Some preliminary supports for doped cases are also realized by simple reweightin
 
 ### Prerequisite ###
 
-* `gcc/g++` `( version > 4.8.5 )` and `cmake` `( version > 2.8.12 )` installed.
-* `Boost C++ libraries` `( version > 1.71 )` installed.
-* `Eigen library` `( version > 3.4.0 )` providing a user-friendly interface of matrices.
+* `gcc/g++` `( version >= 4.8 )` and `cmake` `( version >= 3.21 )` installed.
+* `Boost C++ libraries` `( version >= 1.71 )` installed.
+* `Eigen library` `( version >= 3.3.7 )` providing a user-friendly interface of matrices.
 * `Intel Math Kernel Library (MKL)` for high-accuracy linear algebra and numerical stabilization.
-* `Intel implementation of Message Passing Interface (Intel MPI)` for large range of distributed parallel.
+* `Message Passing Interface (MPI)` for large scale of distributed parallelization. Both `OpenMPI` and `Intel MPI` are tested and work well.
 
 ### Usage ###
 
@@ -33,17 +34,20 @@ Some preliminary supports for doped cases are also realized by simple reweightin
     $ # build the program
     $ cd {PROGRAM_ROOT}/run && ./make.sh
     ```
-4. Run the script [`run/batch.sh`](run/batch.sh) to start the simulation if the program is successfully build. ( We use `Slurm` for the management of program tasks, hence the simulation parameters should be edited in the script [`run/run.sh`](run/run.sh). )
+4. Run the script [`run/batch.sh`](run/batch.sh) to start the simulation if the program is successfully build. ( We use `Slurm` for managements of program tasks, hence the simulation parameters should be edited in the script [`run/batch.sh`](run/batch.sh) in advance. )
     ```shell
-    $ # start simulation
-    $ ./batch.sh
+    $ # edit the simulation params
+    $ vim batch.sh
 
-    $ # edit the simulation params in `run.sh`
-    $ vim run.sh
+    $ # start simulation using Slurm
+    $ ./batch.sh
     ```
-5. One can always use command line option `--help` to see helping messages:
+5. Running the program directly with command `mpirun` also works, and one can always use option `--help` to see helping messages:
     ``` shell
-    $ # see helping messages
+    $ # start simulation
+    $ mpirun -np 4 --oversubscribe {PROGRAM_ROOT}/build/dqmc_hubbard
+    $
+    $ # show helping messages
     $ mpirun {PROGRAM_ROOT}/build/dqmc_hubbard --help
     ```
 
