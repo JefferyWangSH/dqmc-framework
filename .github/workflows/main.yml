@@ -1,0 +1,59 @@
+name: dqmc-hubbard
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CC: gcc
+      CXX: g++
+
+    steps:
+      - name: Add oneAPI to apt
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+          sudo apt-get update
+        
+      - name: Install Intel oneAPI
+        run: |
+          sudo apt-get install intel-oneapi-compiler-dpcpp-cpp
+          sudo apt-get install intel-oneapi-mpi 
+          sudo apt-get install intel-oneapi-mpi-devel 
+          sudo apt-get install intel-oneapi-mkl-devel
+      
+      - name: Setup Intel oneAPI environment
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+          
+      - name: Install Boost
+        run: |
+          sudo apt-get install libboost-all-dev
+      
+      - name: Install Eigen3
+        run: sudo apt-get install libeigen3-dev
+      
+      - name: Checkout project code
+        uses: actions/checkout@v2
+
+      - name: Build with CMake
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}} && make
+      
+      - name: Run dqmc simualtion
+        run: |
+          mpirun -n 1 ${{github.workspace}}/build/dqmc_hubbard --help     # show helping messages
+          mpirun -n 4 ${{github.workspace}}/build/dqmc_hubbard
+      
