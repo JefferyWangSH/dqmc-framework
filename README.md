@@ -11,7 +11,7 @@ Simulations of the model with both attractive and repulsive interaction are perf
 
 ### Prerequisite ###
 
-* `gcc/g++` `( version >= 4.8 )` and `cmake` `( version >= 3.21 )` installed.
+* `gcc/g++` `( version >= 7.1, support C++17 standard )` and `cmake` `( version >= 3.21 )` installed.
 * `Boost C++ libraries` `( version >= 1.71 )` installed.
 * `Eigen library` `( version >= 3.3.7 )` providing a user-friendly interface of matrices.
 * `Intel Math Kernel Library (MKL)` for high-accuracy linear algebra and numerical stabilization.
