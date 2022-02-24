@@ -61,8 +61,8 @@ jobname=$out_folder
 output=$out_folder_path"/log.log"
 error=$out_folder_path"/err.log"
 
-# set up new environment and pass variables to scripts
-sbatch --job-name=${jobname} --output=${output} --error=${error} \
+# submit mission
+sbatch --job-name=$jobname --output=$output --error=$error \
 --partition=$partition --nodes=$nodes --ntasks-per-node=$ntasks_per_node --cpus-per-task=$cpus_per_task \
 --export=exe=$exe,ll=$ll,lt=$lt,beta=$beta,u=$u,mu=$mu,\
 nwrap=$nwrap,nbin=$nbin,nsweep=$nsweep,checker_board=$checker_board,\
