@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# parmas for submitting
+# submitting parmas
 partition="v6_384"
 nodes=1
 ntasks_per_node=20
 cpus_per_task=1
 
-# customized params
+# program params
 exe="../build/dqmc_hubbard"
 ll=4
 lt=160

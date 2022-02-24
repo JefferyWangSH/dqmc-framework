@@ -74,38 +74,32 @@ void Model::Hubbard::allocate() {
     this->deallocate();
 
     // resize matrices and svdStacks
-    this->s = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->lt));
-    this->green_tt_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
-    this->green_tt_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
+    this->s = std::make_unique<Eigen::MatrixXd>(this->ls, this->lt);
+    this->green_tt_up = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+    this->green_tt_dn = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
     if (this->is_eqtime_measure) {
-        this->vec_green_tt_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
-        this->vec_green_tt_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
-        this->vec_config_sign = std::unique_ptr<std::vector<double>>(new std::vector<double>(this->lt, 0.0));
+        this->vec_green_tt_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_green_tt_dn = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_config_sign = std::make_unique<std::vector<double>>(this->lt, 0.0);
     }
 
     if (this->is_dynamic_measure) {
-        this->green_t0_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
-        this->green_t0_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
-        this->green_0t_up = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
-        this->green_0t_dn = std::unique_ptr<Eigen::MatrixXd>(new Eigen::MatrixXd(this->ls, this->ls));
-        this->vec_green_t0_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
-        this->vec_green_t0_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
-        this->vec_green_0t_up = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
-        this->vec_green_0t_dn = std::unique_ptr<std::vector<Eigen::MatrixXd>>
-                                (new std::vector<Eigen::MatrixXd>(this->lt, Eigen::MatrixXd(this->ls, this->ls)));
+        this->green_t0_up = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+        this->green_t0_dn = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+        this->green_0t_up = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+        this->green_0t_dn = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+        this->vec_green_t0_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_green_t0_dn = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_green_0t_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_green_0t_dn = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
     }
 
-    this->stack_left_up = std::unique_ptr<SvdStack>(new SvdStack(this->ls, this->lt));
-    this->stack_left_dn = std::unique_ptr<SvdStack>(new SvdStack(this->ls, this->lt));
-    this->stack_right_up = std::unique_ptr<SvdStack>(new SvdStack(this->ls, this->lt));
-    this->stack_right_dn = std::unique_ptr<SvdStack>(new SvdStack(this->ls, this->lt));
+    this->stack_left_up = std::make_unique<SvdStack>(this->ls, this->lt);
+    this->stack_left_dn = std::make_unique<SvdStack>(this->ls, this->lt);
+    this->stack_right_up = std::make_unique<SvdStack>(this->ls, this->lt);
+    this->stack_right_dn = std::make_unique<SvdStack>(this->ls, this->lt);
 
-    this->checkerboard = std::unique_ptr<CheckerBoard::CheckerBoard>(new CheckerBoard::CheckerBoard());
+    this->checkerboard = std::make_unique<CheckerBoard::CheckerBoard>();
 }
 
 void Model::Hubbard::init_field_to_random() {

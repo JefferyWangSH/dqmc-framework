@@ -68,7 +68,7 @@ namespace Measure {
             }
         }
         if (this->_obs_list) { this->_obs_list.reset(); }
-        this->_obs_list = std::unique_ptr<std::vector<std::string>>(new std::vector<std::string>(tmp_list));
+        this->_obs_list = std::make_unique<std::vector<std::string>>(tmp_list);
     }
 
     void Container::filter() {
@@ -80,14 +80,14 @@ namespace Measure {
             // catch equal-time observables
             if ( this->is_eqtime_obs(obs) ) {
                 if (!this->_obs_list_eqtime) {
-                    this->_obs_list_eqtime = std::unique_ptr<std::vector<std::string>>(new std::vector<std::string>());
+                    this->_obs_list_eqtime = std::make_unique<std::vector<std::string>>();
                 }
                 this->_obs_list_eqtime->push_back(obs);
             }
             // catch dynamical observables
             if ( this->is_dynamic_obs(obs) ) {
                 if (!this->_obs_list_dynamic) {
-                    this->_obs_list_dynamic = std::unique_ptr<std::vector<std::string>>(new std::vector<std::string>());
+                    this->_obs_list_dynamic = std::make_unique<std::vector<std::string>>();
                 }
                 this->_obs_list_dynamic->push_back(obs);
             }
@@ -106,7 +106,7 @@ namespace Measure {
         for (auto obs : this->eqtime_list()) {
             if (obs == "filling_number") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 // set up name and method for specific physical observable
                 // with bin size and zero element unassigned
@@ -118,7 +118,7 @@ namespace Measure {
 
             if (obs == "double_occupancy") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> double_occupancy;
                 double_occupancy.set_observable_name("double_occupancy");
@@ -128,7 +128,7 @@ namespace Measure {
 
             if (obs == "kinetic_energy") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> kinetic_energy;
                 kinetic_energy.set_observable_name("kinetic_energy");
@@ -138,7 +138,7 @@ namespace Measure {
 
             if (obs == "momentum_distribution") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> momentum_dist;
                 momentum_dist.set_observable_name("momentum_distribution");
@@ -148,7 +148,7 @@ namespace Measure {
 
             if (obs == "local_spin_corr") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> local_spin_corr;
                 local_spin_corr.set_observable_name("local_spin_corr");
@@ -158,7 +158,7 @@ namespace Measure {
 
             if (obs == "spin_density_structure_factor") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> sdw_factor;
                 sdw_factor.set_observable_name("spin_density_structure_factor");
@@ -168,7 +168,7 @@ namespace Measure {
 
             if (obs == "charge_density_structure_factor") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> cdw_factor;
                 cdw_factor.set_observable_name("charge_density_structure_factor");
@@ -178,7 +178,7 @@ namespace Measure {
 
             if (obs == "s_wave_pairing_corr") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> s_wave_pairing;
                 s_wave_pairing.set_observable_name("s_wave_pairing_corr");
@@ -194,7 +194,7 @@ namespace Measure {
         for (auto obs : this->dynamic_list()) {
             if (obs == "matsubara_greens") {
                 if (!this->_obs_vector) {
-                    this->_obs_vector = std::unique_ptr<std::vector<Observable<Eigen::VectorXd>>>(new std::vector<Observable<Eigen::VectorXd>>());
+                    this->_obs_vector = std::make_unique<std::vector<Observable<Eigen::VectorXd>>>();
                 }
                 Observable<Eigen::VectorXd> matsubara_greens;
                 matsubara_greens.set_observable_name("matsubara_greens");
@@ -204,7 +204,7 @@ namespace Measure {
 
             if (obs == "density_of_states") {
                 if (!this->_obs_vector) {
-                    this->_obs_vector = std::unique_ptr<std::vector<Observable<Eigen::VectorXd>>>(new std::vector<Observable<Eigen::VectorXd>>());
+                    this->_obs_vector = std::make_unique<std::vector<Observable<Eigen::VectorXd>>>();
                 }
                 Observable<Eigen::VectorXd> density_of_states;
                 density_of_states.set_observable_name("density_of_states");
@@ -214,7 +214,7 @@ namespace Measure {
 
             if (obs == "superfluid_stiffness") {
                 if (!this->_obs_double) {
-                    this->_obs_double = std::unique_ptr<std::vector<Observable<double>>>(new std::vector<Observable<double>>());
+                    this->_obs_double = std::make_unique<std::vector<Observable<double>>>();
                 }
                 Observable<double> superfluid_stiffness;
                 superfluid_stiffness.set_observable_name("superfluid_stiffness");
@@ -226,12 +226,12 @@ namespace Measure {
 
         // adding sign measurements manually to keep track of sign problem
         if (this->_obs_list_eqtime) {
-            this->_sign_eqtime = std::unique_ptr<Observable<double>>(new Observable<double>);
+            this->_sign_eqtime = std::make_unique<Observable<double>>();
             this->_sign_eqtime->set_observable_name("sign_eqtime");
             this->_sign_eqtime->add_method(Methods::measure_config_sign_eqtime);
         }
         if (this->_obs_list_dynamic) {
-            this->_sign_dynamic = std::unique_ptr<Observable<double>>(new Observable<double>);
+            this->_sign_dynamic = std::make_unique<Observable<double>>();
             this->_sign_dynamic->set_observable_name("sign_dynamic");
             this->_sign_dynamic->add_method(Methods::measure_config_sign_dynamic);
         }

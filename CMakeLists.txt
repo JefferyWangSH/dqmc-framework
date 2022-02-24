@@ -1,7 +1,7 @@
 # project
 cmake_minimum_required(VERSION 3.21)
 project(dqmc_hubbard)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-march=native -O3 -fopenmp")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -42,11 +42,11 @@ else()
 endif()
 
 # find Boost
-find_package(Boost MODULE 1.55.0 COMPONENTS program_options mpi serialization REQUIRED)
+find_package(Boost MODULE 1.71.0 COMPONENTS program_options mpi serialization REQUIRED)
 if (Boost_FOUND)
-    message(STATUS "Found Boost: version ${Boost_LIB_VERSION}")
+    message(STATUS "Found Boost: version ${Boost_VERSION}")
     message(STATUS "Found Boost (boost_include_dirs): ${Boost_INCLUDE_DIRS}")
-    message(STATUS "Found Boost (boost_libraries): ${Boost_LIBRARIES}")
+    message(STATUS "Found Boost (boost_library_dirs): ${Boost_LIBRARY_DIRS}")
     set(Boost_USE_RELEASE_lIBS ON)
     set(Boost_USE_MULTITHREAD ON)
     target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})

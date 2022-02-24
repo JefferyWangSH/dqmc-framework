@@ -9,7 +9,7 @@
 #include <boost/lexical_cast.hpp>
 
 void Simulation::DetQMC::set_model_params(int ll, int lt, double beta, double t, double u_int, double mu, int nwrap) {
-    if (!this->hubbard) { this->hubbard = std::unique_ptr<Model::Hubbard>(new Model::Hubbard()); }
+    if (!this->hubbard) { this->hubbard = std::make_unique<Model::Hubbard>(); }
     this->hubbard->set_model_params(ll, lt, beta, t, u_int, mu);
     this->hubbard->set_stabilization_pace(nwrap);
     this->nwrap = nwrap;
@@ -26,18 +26,18 @@ void Simulation::DetQMC::set_controlling_params(bool is_warm_up, bool is_eqtime_
     this->is_warm_up = is_warm_up;
     this->is_eqtime_measure = is_eqtime_measure;
     this->is_dynamic_measure = is_dynamic_measure;
-    if (!this->hubbard) { this->hubbard = std::unique_ptr<Model::Hubbard>(new Model::Hubbard()); }
+    if (!this->hubbard) { this->hubbard = std::make_unique<Model::Hubbard>(); }
     this->hubbard->set_bool_params(is_eqtime_measure, is_dynamic_measure, is_checkerboard);
 }
 
 void Simulation::DetQMC::set_observable_list(const std::vector<std::string> &obs_list) {
     if (this->obs_list) { this->obs_list.reset(); }
-    this->obs_list = std::unique_ptr<std::vector<std::string>>(new std::vector<std::string>(obs_list));
+    this->obs_list = std::make_unique<std::vector<std::string>>(obs_list);
 }
 
 void Simulation::DetQMC::set_aux_field_configs(const std::string &config_file) {
     if (this->config_file) { this->config_file.reset(); }
-    this->config_file = std::unique_ptr<std::string>(new std::string(config_file));
+    this->config_file = std::make_unique<std::string>(config_file);
 }
 
 void Simulation::DetQMC::set_lattice_momentum(const Eigen::VectorXd &q) {
@@ -116,7 +116,7 @@ void Simulation::DetQMC::initial() {
     // initialize measure class
     if (this->measure) { this->measure.reset(); }
     if (this->obs_list) {
-        this->measure = std::unique_ptr<Measure::Measure>(new Measure::Measure());
+        this->measure = std::make_unique<Measure::Measure>();
         this->measure->set_size_of_bin(this->nbin);
         this->measure->set_observable_list(*this->obs_list);
         this->measure->set_lattice_momentum(this->q);
