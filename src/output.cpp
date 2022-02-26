@@ -89,10 +89,10 @@ namespace FileOutput {
         boost::format fmt_obs("%| 20d|%| 20d|%| 20.10f|");
         int nbin = obs.size_of_bin();
         int size = obs.mean_value().size();
-        outfile << fmt_info % size % nbin << std::endl;
-        for (int i = 0; i < size; ++i) {
-            for (int bin = 0; bin < nbin; ++bin) {
-                outfile << fmt_obs % i % bin % obs.bin_data()[bin](i) << std::endl;
+        outfile << fmt_info % nbin % size << std::endl;
+        for (int bin = 0; bin < nbin; ++bin) {
+            for (int i = 0; i < size; ++i) {
+                outfile << fmt_obs % bin % i % obs.bin_data()[bin](i) << std::endl;
             }
         }
         outfile.close();
@@ -109,11 +109,11 @@ namespace FileOutput {
         int nbin = obs.size_of_bin();
         int row = obs.mean_value().rows();
         int col = obs.mean_value().cols();
-        outfile << fmt_info % row % col % nbin << std::endl;
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                for (int bin = 0; bin < nbin; ++bin) {
-                    outfile << fmt_obs % i % j % bin % obs.bin_data()[bin](i,j) << std::endl;
+        outfile << fmt_info % nbin % row % col << std::endl;
+        for (int bin = 0; bin < nbin; ++bin) {
+            for (int i = 0; i < row; ++i) {
+                for (int j = 0; j < col; ++j) {
+                    outfile << fmt_obs % bin % i % j % obs.bin_data()[bin](i,j) << std::endl;
                 }
             }
         }
@@ -126,7 +126,7 @@ namespace FileOutput {
         else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
 
         // output sequence of imaginary-time grids
-        boost::format fmt_tau_info("%| 20d|%| 20.2f|");
+        boost::format fmt_tau_info("%| 20d|%| 20.5f|");
         boost::format fmt_tau_seq("%| 20d|%| 20.10f|");
         outfile << fmt_tau_info % dqmc.hubbard->lt % dqmc.hubbard->beta << std::endl;
         for (int l = 0; l < dqmc.hubbard->lt; ++l) {
