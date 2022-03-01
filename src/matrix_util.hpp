@@ -36,32 +36,34 @@ namespace MatrixUtil {
     void mkl_lapack_dgesvd(const int &row, const int &col, const Eigen::MatrixXd &mat, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
         assert( row == mat.rows() );
         assert( col == mat.cols() );
+        // TODO: currently, the subroutine would fail if the input matrix has different number of rows and columns
+        assert( row == col );
 
         // matrix size
         int matrix_layout = LAPACK_ROW_MAJOR;
         lapack_int info, lda = row, ldu = row, ldvt = col;
 
         // local arrays
-        double _s[ldu * ldu], _u[ldu * row], _vt[ldvt * col];
-        double a[lda * col];
-        double superb[ldu * lda];
-        for (int i = 0; i < lda * col; ++i) {
-            a[i] = mat(i/lda, i%lda);
-        }
+        double tmp_s[ldu * ldu], tmp_u[ldu * row], tmp_vt[ldvt * col];
+        double mat_in[lda * col];
+        double super_mat[ldu * lda];
+
+        // convert eigen matrix to c-style array
+        Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(&mat_in[0], lda, col) = mat;
 
         // compute SVD
-        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', row, col, a, lda, _s, _u, ldu, _vt, ldvt, superb );
+        info = LAPACKE_dgesvd( matrix_layout, 'A', 'A', row, col, mat_in, lda, tmp_s, tmp_u, ldu, tmp_vt, ldvt, super_mat );
 
         // check for convergence
         if( info > 0 ) {
             std::cerr << "The algorithm computing SVD failed to converge." << std::endl;
-            exit( 1 );
+            exit(1);
         }
 
         // convert results to Eigen
-        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(_u, col, col);
-        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(_s, 1, col);
-        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(_vt, row, row);
+        u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(tmp_u, col, col);
+        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(tmp_s, 1, col);
+        v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(tmp_vt, row, row);
     }
 
 
@@ -84,26 +86,24 @@ namespace MatrixUtil {
 
         // locals params
         lapack_int n = size, lda = size, info;
-        double w[n];
-        double a[lda * n];
+        double tmp_s[n];
+        double mat_in[lda * n];
 
         // convert eigen matrix to c-style array
-        for (int i = 0; i < lda * n; ++i) {
-            a[i] = mat(i/lda, i%lda);
-        }
+        Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(&mat_in[0], lda, n) = mat;
 
         // solve eigen problem
-        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, a, lda, w );
+        info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, mat_in, lda, tmp_s );
 
         // check for convergence
         if( info > 0 ) {
             std::cerr << "The algorithm failed to compute eigenvalues." << std::endl;
-            exit( 1 );
+            exit(1);
         }
 
         // convert eigenvalues and eigenvectors to eigen style
-        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(w, 1, n);
-        t = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(a, n, n);
+        s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(tmp_s, 1, n);
+        t = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(mat_in, n, n);
     }
 
 } // namespace MatrixUtil
