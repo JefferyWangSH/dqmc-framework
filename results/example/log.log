@@ -1,0 +1,46 @@
+ Current time : 2022-Mar-03 00:42:20
+
+ Distribute tasks to 20 processors, with the master processor being cc0101.para.bscc. 
+
+ Configurations of aux fields set to random. 
+
+ Initialization finished. 
+
+ The simulation is going to get started with parameters shown below : 
+
+           Lattice length 'll'   ->                   4
+    Imaginary-time length 'lt'   ->                 160
+    Inverse temperature 'beta'   ->               8.000
+      Interaction strength 'U'   ->              -4.000
+       Chemical potential 'mu'   ->              -0.200
+          Lattice momentum 'k'   ->    1.00 pi, 1.00 pi
+
+     Stablization pace 'nwrap'   ->                  10
+    Sweeps for warm-up 'nwarm'   ->                 512
+         Number of bins 'nbin'   ->                  20
+       Sweeps per bin 'nsweep'   ->                 100
+
+          Warm up 'is_warm_up'   ->              'True'
+    Eqtime measure 'is_eqtime'   ->              'True'
+  Dynamic measure 'is_dynamic'   ->              'True'
+
+ Warm-up progress:   [#>--------------------------------------] 3% 0.095s Warm-up progress:   [###>------------------------------------] 7% 0.183s Warm-up progress:   [####>-----------------------------------] 11% 0.269s Warm-up progress:   [######>---------------------------------] 15% 0.355s Warm-up progress:   [#######>--------------------------------] 19% 0.441s Warm-up progress:   [#########>------------------------------] 23% 0.527s Warm-up progress:   [##########>-----------------------------] 27% 0.612s Warm-up progress:   [############>---------------------------] 31% 0.699s Warm-up progress:   [##############>-------------------------] 35% 0.785s Warm-up progress:   [###############>------------------------] 39% 0.87s Warm-up progress:   [#################>----------------------] 42% 0.957s Warm-up progress:   [##################>---------------------] 46% 1.043s Warm-up progress:   [####################>-------------------] 50% 1.129s Warm-up progress:   [#####################>------------------] 54% 1.216s Warm-up progress:   [#######################>----------------] 58% 1.302s Warm-up progress:   [#########################>--------------] 62% 1.388s Warm-up progress:   [##########################>-------------] 66% 1.472s Warm-up progress:   [############################>-----------] 70% 1.558s Warm-up progress:   [#############################>----------] 74% 1.643s Warm-up progress:   [###############################>--------] 78% 1.73s Warm-up progress:   [################################>-------] 82% 1.817s Warm-up progress:   [##################################>-----] 85% 1.902s Warm-up progress:   [###################################>----] 89% 1.988s Warm-up progress:   [#####################################>--] 93% 2.074s Warm-up progress:   [#######################################>] 97% 2.161s Warm-up progress:   [########################################] 100% 2.214s
+ Measuring progress: [########>-------------------------------] 20% 0.485s Measuring progress: [################>-----------------------] 40% 0.974s Measuring progress: [########################>---------------] 60% 1.47s Measuring progress: [################################>-------] 80% 1.972s Measuring progress: [########################################] 100% 2.48s Measuring progress: [########################################] 100% 2.568s
+
+ The simulation finished in 4.79 s. 
+
+ Maximum of equal-time wrap error :  2.17318e-10
+
+ Maximum of dynamical wrap error :   1.85231e-11
+
+                Filling number   ->   0.755449423304 pm 0.017984149618
+              Double occupancy   ->   0.254254783061 pm 0.009688512388
+                Kinetic energy   ->  -1.315466089811 pm 0.002238521417
+         Momentum distribution   ->   0.023315992880 pm 0.000777332017
+        Local spin correlation   ->   0.246939857183 pm 0.001644225853
+           SDW order parameter   ->   0.006115048756 pm 0.000015798712
+           CDW order parameter   ->   0.106493882895 pm 0.013313517995
+    S-wave pairing correlation   ->   1.481479900755 pm 0.066327900310
+    Averaged sign (equal-time)   ->   1.000000000000 pm 0.000000000000
+          Superfluid stiffness   ->   0.038739269828 pm 0.009945246646
+       Averaged sign (dynamic)   ->   1.000000000000 pm 0.000000000000
