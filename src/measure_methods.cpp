@@ -212,7 +212,7 @@ namespace Measure {
         ++sign_dynamic;
     }
 
-    void Methods::measure_matsubara_greens(Observable<Eigen::VectorXd> &matsubara_greens, Measure &measure, const Model::Hubbard &hubbard) {
+    void Methods::measure_greens_functions(Observable<Eigen::VectorXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard) {
         for (int t = 0; t < hubbard.lt; ++t) {
             // factor 1/2 comes from two degenerate spin states
             const Eigen::MatrixXd gt0 = ( t == 0 )?
@@ -228,13 +228,13 @@ namespace Measure {
                         for (int dy = 0; dy < hubbard.ll; ++dy) {
                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
                             const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
-                            matsubara_greens.tmp_value()(t) += hubbard.config_sign * cos(-r.dot(measure.q)) * gt0(j, i) / hubbard.ls;
+                            greens_functions.tmp_value()(t) += hubbard.config_sign * cos(-r.dot(measure.q)) * gt0(j, i) / hubbard.ls;
                         }
                     }
                 }
             }
         }
-        ++matsubara_greens;
+        ++greens_functions;
     }
 
     void Methods::measure_density_of_states(Observable<Eigen::VectorXd> &density_of_states, Measure &measure, const Model::Hubbard &hubbard) {

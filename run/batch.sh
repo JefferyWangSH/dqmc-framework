@@ -31,7 +31,7 @@ dynamic_measure="true"
 #   6. spin_density_structure_factor    (equal-time)
 #   7. charge_density_structure_factor  (equal-time)
 #   8. s_wave_pairing_corr              (equal-time)
-#   9. matsubara_greens                 (dynamic)
+#   9. greens_functions                 (dynamic)
 #  10. density_of_states                (dynamic)
 #  11. superfluid_stiffness             (dynamic)
 #

@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
                                                      "momentum_distribution", "local_spin_corr", 
                                                      "spin_density_structure_factor", "charge_density_structure_factor",
                                                      "s_wave_pairing_corr", 
-                                                     "matsubara_greens", "density_of_states", 
+                                                     "greens_functions", "density_of_states", 
                                                      "superfluid_stiffness", };
     std::vector<std::string> obs_list = observable_supported;
 
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
     }
     catch (...) {
-        std::cerr << " Undefined options got from command line! "<< std::endl;
+        std::cerr << " Undefined options got from command line!\n"<< std::endl;
         exit(1);
     }
     boost::program_options::notify(vm);
@@ -237,9 +237,9 @@ int main(int argc, char* argv[]) {
                 FileOutput::file_output_observable(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.dat", 0);
                 FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.bin", 0);
             }
-            if (dqmc->measure->find("matsubara_greens")) {
-                FileOutput::file_output_observable(dqmc->measure->find_vector_obs("matsubara_greens"), out_folder_path + "/greens.dat", 0);
-                FileOutput::file_output_observable_bin(dqmc->measure->find_vector_obs("matsubara_greens"), out_folder_path + "/greens.bin", 0);
+            if (dqmc->measure->find("greens_functions")) {
+                FileOutput::file_output_observable(dqmc->measure->find_vector_obs("greens_functions"), out_folder_path + "/greens.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_vector_obs("greens_functions"), out_folder_path + "/greens.bin", 0);
             }
 
         }

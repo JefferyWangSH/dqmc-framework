@@ -18,6 +18,7 @@ namespace Measure {
     class Methods {
         public:
         // definitions of measuring methods
+        // arguments of method functions should include Observable, Measure and Hubbard class
 
         // Equal-time Measurements:
         //    1. Filling number <n>
@@ -29,7 +30,6 @@ namespace Measure {
         //    7. Charge density structure factor (CDW)
         //    8. S wave Cooper pairing correlation function
 
-        // Todo: record the list of config_sign during MC updates
         static void measure_config_sign_eqtime(Observable<double> &sign_eqtime, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_filling_number(Observable<double> &filling_number, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_double_occupancy(Observable<double> &double_occupancy, Measure &measure, const Model::Hubbard &hubbard);
@@ -42,12 +42,12 @@ namespace Measure {
 
 
         // Dynamical Measurements:
-        //    1. Dynamical green's function of imaginary time: G(k, tau) = < c(k, tau) * c^+(k, 0) >
+        //    1. Dynamical green's functions in momentum space: G(k, tau) = < c(k, tau) * c^+(k, 0) >
         //    2. Superfluid stiffness \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
         //    3. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
         
         static void measure_config_sign_dynamic(Observable<double> &sign_eqtime, Measure &measure, const Model::Hubbard &hubbard);
-        static void measure_matsubara_greens(Observable<Eigen::VectorXd> &matsubara_greens, Measure &measure, const Model::Hubbard &hubbard);
+        static void measure_greens_functions(Observable<Eigen::VectorXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_density_of_states(Observable<Eigen::VectorXd> &density_of_states, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_superfluid_stiffness(Observable<double> &density_of_states, Measure &measure, const Model::Hubbard &hubbard);
     };

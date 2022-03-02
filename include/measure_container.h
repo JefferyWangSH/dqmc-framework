@@ -40,7 +40,7 @@ namespace Measure {
                                             "s_wave_pairing_corr",
                                             };
 
-        StringList _supported_obs_dynamic = {"matsubara_greens", 
+        StringList _supported_obs_dynamic = {"greens_functions", 
                                             "density_of_states", 
                                             "superfluid_stiffness", 
                                             };
