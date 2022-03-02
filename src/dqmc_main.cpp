@@ -143,12 +143,51 @@ int main(int argc, char* argv[]) {
     dqmc->set_Monte_Carlo_params(nwarm, bins_per_proc, nsweep, n_between_bins);
     dqmc->set_controlling_params(is_warm_up, is_eqtime_measure, is_dynamic_measure, is_checkerboard);
     dqmc->set_observable_list(obs_list);
-    dqmc->set_lattice_momentum((Eigen::VectorXd(2) << 1.0*M_PI, 1.0*M_PI).finished());
+
+    // set up lattice momentum for momentum-dependent measurements
+    // by default the momentum q is set to along the (pi, pi) direction
+    const Eigen::Vector2d q(1.0*M_PI, 1.0*M_PI);
+    dqmc->set_lattice_momentum(q);
+    
+    // settings of some typical momentum sequence q_list are shown below 
+    std::vector<Eigen::Vector2d> q_list;
+
+    // scanning only 1/8 of the 1st Brillouin zone due to the symmetry of greens functions
+    // here we choose the zone surrounded by loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0)
+    const int q_list_size = (std::floor(ll/2.0)+1)*(std::floor(ll/2.0)+2)/2;
+    q_list.reserve(q_list_size);
+    for (int i = std::ceil(ll/2.0); i <= ll; ++i) {
+        for (int j = std::ceil(ll/2.0); j <= i; ++j) {
+            const Eigen::Vector2d tmp_q((double)i/ll*2*M_PI-M_PI, (double)j/ll*2*M_PI-M_PI);
+            q_list.emplace_back(tmp_q);
+        }
+    }
+
+    // // momentum loop along (0,0) -> (pi,0) -> (pi,pi) -> (0,0)
+    // const int q_list_size = 3*(ll-std::ceil(ll/2.0));
+    // q_list.reserve(q_list_size);
+    // for (int i = std::ceil(ll/2.0); i <= ll; ++i) {
+    //     // along (0,0) -> (pi,0) direation
+    //     const Eigen::Vector2d tmp_q((double)i/ll*2*M_PI-M_PI, (double)std::ceil(ll/2.0)/ll*2*M_PI-M_PI);
+    //     q_list.emplace_back(tmp_q);
+    // }
+    // for (int j = std::ceil(ll/2.0)+1; j <= ll; ++j) {
+    //     // along (pi,0) -> (pi,pi) direction
+    //     const Eigen::Vector2d tmp_q(M_PI, (double)j/ll*2*M_PI-M_PI);
+    //     q_list.emplace_back(tmp_q);
+    // }
+    // for (int i = ll-1; i > std::ceil(ll/2.0); --i) {
+    //     // along (pi,pi) -> (0,0) direction
+    //     const int j = i;
+    //     const Eigen::Vector2d tmp_q((double)i/ll*2*M_PI-M_PI, (double)j/ll*2*M_PI-M_PI);
+    //     q_list.emplace_back(tmp_q);
+    // }
+    dqmc->set_lattice_momentum_list(q_list);
 
     // initialize output folder
     if (rank == master) {
         if ( access(out_folder_path.c_str(), 0) != 0 ) {
-            const std::string command = "mkdir " + out_folder_path;
+            const std::string command = "mkdir -p " + out_folder_path;
             if ( system(command.c_str()) != 0 ) {
                 std::cerr << boost::format(" Fail to creat folder at %s . \n") % out_folder_path << std::endl;
             }
@@ -184,8 +223,9 @@ int main(int argc, char* argv[]) {
     if (dqmc->measure) {
         // collect data from all processors
         // Todo: redesign interface of measure and container class
-        Measure::GatherMPI gather_mpi{};
-        gather_mpi.gather_from_all_processors(world, *dqmc->measure);
+        Measure::GatherMPI *gather_mpi = new Measure::GatherMPI();
+        gather_mpi->gather_from_all_processors(world, *dqmc->measure);
+        if (gather_mpi) { delete gather_mpi; }
 
         if (rank == master) {
             // display measuring results on terminal
@@ -228,33 +268,35 @@ int main(int argc, char* argv[]) {
             }
 
             // file output of measuring results
-            // customize here
-            if (dqmc->measure->find("s_wave_pairing_corr")) {
-                FileOutput::file_output_observable(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.dat", 0);
-                FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.bin", 0);
-            }
-            if (dqmc->measure->find("superfluid_stiffness")) {
-                FileOutput::file_output_observable(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.dat", 0);
-                FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.bin", 0);
-            }
+            // customize the output here
+            // if (dqmc->measure->find("s_wave_pairing_corr")) {
+            //     FileOutput::file_output_observable(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.dat", 0);
+            //     FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("s_wave_pairing_corr"), out_folder_path + "/swave.bin", 0);
+            // }
+            // if (dqmc->measure->find("superfluid_stiffness")) {
+            //     FileOutput::file_output_observable(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.dat", 0);
+            //     FileOutput::file_output_observable_bin(dqmc->measure->find_double_obs("superfluid_stiffness"), out_folder_path + "/sf.bin", 0);
+            // }
             if (dqmc->measure->find("greens_functions")) {
-                FileOutput::file_output_observable(dqmc->measure->find_vector_obs("greens_functions"), out_folder_path + "/greens.dat", 0);
-                FileOutput::file_output_observable_bin(dqmc->measure->find_vector_obs("greens_functions"), out_folder_path + "/greens.bin", 0);
+                FileOutput::file_output_qlist(*dqmc, out_folder_path + "/qlist.dat", 0);
+                FileOutput::file_output_observable(dqmc->measure->find_matrix_obs("greens_functions"), out_folder_path + "/greens.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_matrix_obs("greens_functions"), out_folder_path + "/greens.bin", 0);
+            }
+            if (dqmc->measure->find("density_of_states")) {
+                FileOutput::file_output_observable(dqmc->measure->find_vector_obs("density_of_states"), out_folder_path + "/dos.dat", 0);
+                FileOutput::file_output_observable_bin(dqmc->measure->find_vector_obs("density_of_states"), out_folder_path + "/dos.bin", 0);
             }
 
         }
     }
 
-
-    // configuration output of aux fields
     if (rank == master) {
+        // file output of aux fields configuration
         FileOutput::file_output_aux_field(*dqmc, out_folder_path + "/config.dat", 0);
-    }
 
-    // // file output of imaginary-time grids
-    // if (rank == master) {
-    //     FileOutput::file_output_tau(*dqmc, out_folder_path + "/tau.dat", 0)
-    // }
+        // file output of imaginary-time grids
+        FileOutput::file_output_tau(*dqmc, out_folder_path + "/tau.dat", 0);
+    }
 
     delete dqmc;
     return 0;

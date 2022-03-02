@@ -23,6 +23,7 @@ namespace FileOutput{
     void file_output_observable_bin(const Measure::Observable<Eigen::MatrixXd> &obs, const std::string &file_name, const int &mode);
 
     void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+    void file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
     void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
 
 } // namespace FileOutput

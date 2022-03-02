@@ -40,11 +40,13 @@ void Simulation::DetQMC::set_aux_field_configs(const std::string &config_file) {
     this->config_file = std::make_unique<std::string>(config_file);
 }
 
-void Simulation::DetQMC::set_lattice_momentum(const Eigen::VectorXd &q) {
+void Simulation::DetQMC::set_lattice_momentum(const Eigen::Vector2d &q) {
     this->q = q;
 }
 
-void Simulation::DetQMC::set_lattice_momentum_list(const std::vector<Eigen::VectorXd> &q_list) {
+void Simulation::DetQMC::set_lattice_momentum_list(const std::vector<Eigen::Vector2d> &q_list) {
+    // the momentum list should not be empty
+    assert( !q_list.empty() );
     this->q_list = q_list;
 }
 
@@ -67,8 +69,12 @@ void Simulation::DetQMC::read_configs_from_file(const std::string &config_file) 
     data.erase(std::remove(std::begin(data), std::end(data), ""), std::end(data));
     const int lt = boost::lexical_cast<int>(data[0]);
     const int ls = boost::lexical_cast<int>(data[1]); 
-    if ( (lt != this->hubbard->lt) || (ls != this->hubbard->ls) ) {
-        std::cerr << " Inconsistency between model settings and input configs (lt or ll). " << std::endl;
+    if ( lt != this->hubbard->lt ) {
+        std::cerr << " Inconsistency between model settings and input configs (lt). " << std::endl;
+        exit(1);
+    }
+    if ( ls != this->hubbard->ls ) {
+        std::cerr << " Inconsistency between model settings and input configs (ll). " << std::endl;
         exit(1);
     }
 
@@ -118,6 +124,7 @@ void Simulation::DetQMC::initial() {
         this->measure->set_size_of_bin(this->nbin);
         this->measure->set_observable_list(*this->obs_list);
         this->measure->set_lattice_momentum(this->q);
+        this->measure->set_lattice_momentum_list(this->q_list);
         this->measure->initial(*this->hubbard);
     }
 

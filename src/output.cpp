@@ -135,6 +135,25 @@ namespace FileOutput {
         outfile.close();
     }
 
+    void file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
+        std::ofstream outfile;
+        if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
+        else { outfile.open(file_name, std::ios::out | std::ios::trunc); }
+
+        // output momentum list
+        boost::format fmt_qlist_info("%| 20d|");
+        boost::format fmt_qlist_seq("%| 20d|%| 20d|%| 20d|%| 20.10f|%| 20.10f|");
+        const int ll = dqmc.hubbard->ll;
+        outfile << fmt_qlist_info % dqmc.q_list.size() << std::endl;
+        for (int i = 0; i < dqmc.q_list.size(); ++i) {
+            const auto q = dqmc.q_list[i];
+            const int idqx = std::lround((q(0)/M_PI+1.0)*ll/2.0);
+            const int idqy = std::lround((q(1)/M_PI+1.0)*ll/2.0);
+            outfile << fmt_qlist_seq % i % idqx % idqy % q(0) % q(1) << std::endl;
+        }
+        outfile.close();
+    }
+
     void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode) {
         std::ofstream outfile;
         if (mode) { outfile.open(file_name, std::ios::out | std::ios::app); }
@@ -165,15 +184,16 @@ namespace ScreenOutput {
 
     void screen_output_mpi(const std::string &master_proc_name, const int &world_size) {
         // print information of processors
-        std::cout << boost::format(" Distribute tasks to %s processors, with the master processor being %s. \n") % world_size % master_proc_name 
-                  << std::endl;
+        boost::format fmt_mpi(" Distribute tasks to %s processors, with the master processor being %s. \n");
+        std::cout << fmt_mpi % world_size % master_proc_name << std::endl;
     }
 
     void screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc){
         // print simualtion parameters          
-        boost::format fmt_param_int("%| 30s|%| 5s|%| 8d|");
-        boost::format fmt_param_double("%| 30s|%| 5s|%| 8.3f|");
-        boost::format fmt_param_k("%| 30s|%| 5s|%| 8.3f| pi, %.3f pi");
+        boost::format fmt_param_str("%| 30s|%| 5s|%| 20s|");
+        boost::format fmt_param_int("%| 30s|%| 5s|%| 20d|");
+        boost::format fmt_param_double("%| 30s|%| 5s|%| 20.3f|");
+        boost::format fmt_param_k("%| 30s|%| 5s|%| 8.2f| pi, %.2f pi");
         const std::string joiner = "->";
 
         if (!dqmc.is_warm_up) { std::cout << " Configurations of aux fields read from input config file. \n" << std::endl;}
@@ -189,8 +209,20 @@ namespace ScreenOutput {
         std::cout << std::endl;
 
         std::cout << fmt_param_int % "Stablization pace 'nwrap'" % joiner % dqmc.nwrap << std::endl;
-        std::cout << fmt_param_int % "Number of bins 'nbin'" % joiner % (dqmc.nbin * world_size) << std::endl;
-        std::cout << fmt_param_int % "Sweeps per bin 'nsweep'" % joiner % dqmc.nsweep << std::endl << std::endl;
+        if (dqmc.is_warm_up) {
+            std::cout << fmt_param_int % "Sweeps for warm-up 'nwarm'" % joiner % dqmc.nwarm << std::endl; 
+        }
+        if (dqmc.is_eqtime_measure || dqmc.is_dynamic_measure) {
+            std::cout << fmt_param_int % "Number of bins 'nbin'" % joiner % (dqmc.nbin * world_size) << std::endl;
+            std::cout << fmt_param_int % "Sweeps per bin 'nsweep'" % joiner % dqmc.nsweep << std::endl;
+        }
+        std::cout << std::endl;
+
+        auto bool2str = [](bool b) {if (b) return "'True'"; else return "'False'";};
+        std::cout << fmt_param_str % "Warm up 'is_warm_up'" % joiner % bool2str(dqmc.is_warm_up) << std::endl;
+        std::cout << fmt_param_str % "Eqtime measure 'is_eqtime'" % joiner % bool2str(dqmc.is_eqtime_measure) << std::endl;
+        std::cout << fmt_param_str % "Dynamic measure 'is_dynamic'" % joiner % bool2str(dqmc.is_dynamic_measure) << std::endl;
+        std::cout << std::endl;
     }
 
     void screen_output_init_info(const std::string &master_proc_name, const int &world_size, const Simulation::DetQMC &dqmc) {

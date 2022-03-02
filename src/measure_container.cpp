@@ -193,13 +193,13 @@ namespace Measure {
         // allocate for measurements of dynamic observables
         for (auto obs : this->dynamic_list()) {
             if (obs == "greens_functions") {
-                if (!this->_obs_vector) {
-                    this->_obs_vector = std::make_unique<std::vector<Observable<Eigen::VectorXd>>>();
+                if (!this->_obs_matrix) {
+                    this->_obs_matrix = std::make_unique<std::vector<Observable<Eigen::MatrixXd>>>();
                 }
-                Observable<Eigen::VectorXd> greens_functions;
+                Observable<Eigen::MatrixXd> greens_functions;
                 greens_functions.set_observable_name("greens_functions");
                 greens_functions.add_method(Methods::measure_greens_functions);
-                this->_obs_vector->push_back(greens_functions);
+                this->_obs_matrix->push_back(greens_functions);
             }
 
             if (obs == "density_of_states") {

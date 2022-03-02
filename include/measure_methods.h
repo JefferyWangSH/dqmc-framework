@@ -47,7 +47,7 @@ namespace Measure {
         //    3. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
         
         static void measure_config_sign_dynamic(Observable<double> &sign_eqtime, Measure &measure, const Model::Hubbard &hubbard);
-        static void measure_greens_functions(Observable<Eigen::VectorXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard);
+        static void measure_greens_functions(Observable<Eigen::MatrixXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_density_of_states(Observable<Eigen::VectorXd> &density_of_states, Measure &measure, const Model::Hubbard &hubbard);
         static void measure_superfluid_stiffness(Observable<double> &density_of_states, Measure &measure, const Model::Hubbard &hubbard);
     };

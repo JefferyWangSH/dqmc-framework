@@ -19,7 +19,8 @@
 namespace Measure { class Measure; class Methods; }
 namespace Simulation { class DetQMC; }
 namespace FileOutput { 
-    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+    void file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
     void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
 }
 namespace ScreenOutput {
@@ -109,6 +110,7 @@ namespace Model {
         friend class Measure::Measure;
         friend class Measure::Methods;
         friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+        friend void FileOutput::file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
         friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
         friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);

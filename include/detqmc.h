@@ -14,7 +14,8 @@
 #include "measure.h"
 
 namespace FileOutput { 
-    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
+    void file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+    void file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
     void file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
 }
 namespace ScreenOutput {
@@ -42,9 +43,9 @@ namespace Simulation {
         std::unique_ptr<std::string> config_file{};
         std::unique_ptr<std::vector<std::string>> obs_list{};
 
-        // lattice momentum q
-        Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
-        std::vector<Eigen::VectorXd> q_list{};
+        // lattice momentum q and q_list
+        Eigen::Vector2d q = Eigen::Vector2d();
+        std::vector<Eigen::Vector2d> q_list = std::vector<Eigen::Vector2d>(1, Eigen::Vector2d());
 
         // time cost of one single measuring process
         std::chrono::steady_clock::time_point begin_t{}, end_t{};
@@ -55,6 +56,7 @@ namespace Simulation {
 
         // friend function
         friend void FileOutput::file_output_tau(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
+        friend void FileOutput::file_output_qlist(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode);
         friend void FileOutput::file_output_aux_field(const Simulation::DetQMC &dqmc, const std::string &file_name, const int &mode); 
         friend void ScreenOutput::screen_output_params(const int &world_size, const Simulation::DetQMC &dqmc);
         friend void ScreenOutput::screen_output_end_info(const Simulation::DetQMC &dqmc);
@@ -80,9 +82,9 @@ namespace Simulation {
         /* set up input file of aux field configurations */
         void set_aux_field_configs(const std::string &config_file);
 
-        /* set up lattice momentum q for measurements in momentum space */
-        void set_lattice_momentum(const Eigen::VectorXd &q);
-        void set_lattice_momentum_list(const std::vector<Eigen::VectorXd> &q_list);
+        /* set up lattice momentum q's for measurements of momentum-dependent observables */
+        void set_lattice_momentum(const Eigen::Vector2d &q);
+        void set_lattice_momentum_list(const std::vector<Eigen::Vector2d> &q_list);
 
         /** Critical functions for DQMC calculations, including Monte Carlo updates and measurements **/
         /* initialization, especially allocating memory for monte carlo and measurements */

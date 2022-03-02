@@ -59,9 +59,14 @@ namespace Measure {
         this->_obs_list = obs_list;
     }
 
-    void Measure::set_lattice_momentum(const Eigen::VectorXd &q) {
-        assert( q.size() == 2 );
+    void Measure::set_lattice_momentum(const Eigen::Vector2d &q) {
         this->q = q;
+    }
+
+    void Measure::set_lattice_momentum_list(const std::vector<Eigen::Vector2d> &q_list) {
+        // the momentum list should not be empty
+        assert( !q_list.empty() );
+        this->q_list = q_list;
     }
 
     void Measure::initial(const Model::Hubbard &hubbard) {
@@ -92,6 +97,13 @@ namespace Measure {
                 obs_matrix.set_zero_element(Eigen::MatrixXd::Zero(hubbard.ls, hubbard.ls));
                 obs_matrix.set_size_of_bin(this->_nbin);
                 obs_matrix.allocate();
+
+                // specialize
+                if (obs_matrix.name() == "greens_functions") {
+                    obs_matrix.set_zero_element(Eigen::MatrixXd::Zero(this->q_list.size(), hubbard.lt));
+                    obs_matrix.set_size_of_bin(this->_nbin);
+                    obs_matrix.allocate();
+                }
             }
         }
 

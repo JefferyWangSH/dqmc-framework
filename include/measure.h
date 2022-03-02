@@ -44,7 +44,8 @@ namespace Measure {
         Container _container;
 
         // lattice momentum q
-        Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
+        Eigen::Vector2d q = Eigen::Vector2d();
+        std::vector<Eigen::Vector2d> q_list = std::vector<Eigen::Vector2d>(1, Eigen::Vector2d());
 
         friend class Methods;
         friend class GatherMPI;
@@ -78,7 +79,8 @@ namespace Measure {
         void set_observable_list(const std::vector<std::string> &obs_list);
 
         /* set up lattice momentum q */
-        void set_lattice_momentum(const Eigen::VectorXd &q);
+        void set_lattice_momentum(const Eigen::Vector2d &q);
+        void set_lattice_momentum_list(const std::vector<Eigen::Vector2d> &q_list);
 
         /* initialize and prepare for measurements */
         void initial(const Model::Hubbard &hubbard);

@@ -85,7 +85,7 @@ namespace Measure {
                     for (int dx = 0; dx < ll; ++dx) {
                         for (int dy = 0; dy < ll; ++dy) {
                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-                            const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
+                            const Eigen::Vector2d r(dx, dy);
                             tmp_momentum_dist += cos(-r.dot(measure.q)) * (gu(j, i) + gd(j, i));
                         }
                     }
@@ -117,7 +117,7 @@ namespace Measure {
                     for (int dx = 0; dx < ll; ++dx) {
                         for (int dy = 0; dy < ll; ++dy) {
                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-                            const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
+                            const Eigen::Vector2d r(dx, dy);
                             const double factor = (*hubbard.vec_config_sign)[t] * cos(-r.dot(measure.q));
                             // factor 1/4 comes from spin 1/2
                             tmp_sdw += 0.25 * factor * ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
@@ -153,7 +153,7 @@ namespace Measure {
                     for (int dx = 0; dx < ll; ++dx) {
                         for (int dy = 0; dy < ll; ++dy) {
                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-                            const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
+                            const Eigen::Vector2d r(dx, dy);
                             const double factor = (*hubbard.vec_config_sign)[t] * cos(-r.dot(measure.q));
                             tmp_cdw += factor * ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
                                                   + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
@@ -212,7 +212,7 @@ namespace Measure {
         ++sign_dynamic;
     }
 
-    void Methods::measure_greens_functions(Observable<Eigen::VectorXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard) {
+    void Methods::measure_greens_functions(Observable<Eigen::MatrixXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard) {
         for (int t = 0; t < hubbard.lt; ++t) {
             // factor 1/2 comes from two degenerate spin states
             const Eigen::MatrixXd gt0 = ( t == 0 )?
@@ -227,8 +227,11 @@ namespace Measure {
                     for (int dx = 0; dx < hubbard.ll; ++dx) {
                         for (int dy = 0; dy < hubbard.ll; ++dy) {
                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-                            const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
-                            greens_functions.tmp_value()(t) += hubbard.config_sign * cos(-r.dot(measure.q)) * gt0(j, i) / hubbard.ls;
+                            const Eigen::Vector2d r(dx, dy);
+                            // loop for momentum in qlist
+                            for (int idq = 0; idq < measure.q_list.size(); ++idq) {
+                                greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q)) * gt0(j, i) / hubbard.ls;
+                            }
                         }
                     }
                 }
@@ -282,7 +285,7 @@ namespace Measure {
                             * the current-current correlation Jx-Jx: \Gamma_xx (l, \tau) = < jx(l, \tau) * jx(0, 0) > */
                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
                             const int jpx = (xi + dx + 1) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-                            const Eigen::VectorXd r = ( Eigen::VectorXd(2) << dx, dy ).finished();
+                            const Eigen::Vector2d r(dx, dy);
                             const double factor = hubbard.config_sign * (cos(r.dot(qx)) - cos(r.dot(qy)));
 
                             tmp_rho_s += hubbard.t * hubbard.t * factor * (
