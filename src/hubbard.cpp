@@ -88,6 +88,8 @@ void Model::Hubbard::allocate() {
         this->green_t0_dn = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
         this->green_0t_up = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
         this->green_0t_dn = std::make_unique<Eigen::MatrixXd>(this->ls, this->ls);
+        this->vec_green_tt_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
+        this->vec_green_tt_dn = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
         this->vec_green_t0_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
         this->vec_green_t0_dn = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
         this->vec_green_0t_up = std::make_unique<std::vector<Eigen::MatrixXd>>(this->lt, Eigen::MatrixXd(this->ls, this->ls));
