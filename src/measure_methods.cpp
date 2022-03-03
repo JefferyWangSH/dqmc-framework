@@ -230,7 +230,7 @@ namespace Measure {
                             const Eigen::Vector2d r(dx, dy);
                             // loop for momentum in qlist
                             for (int idq = 0; idq < measure.q_list.size(); ++idq) {
-                                greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q)) * gt0(j, i) / hubbard.ls;
+                                greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q_list[idq])) * gt0(j, i) / hubbard.ls;
                             }
                         }
                     }
@@ -291,7 +291,7 @@ namespace Measure {
                             tmp_rho_s += hubbard.t * hubbard.t * factor * (
                                     // uncorrelated part
                                     - ( gtt_up(j, jpx) - gtt_up(jpx, j) + gtt_dn(j, jpx) - gtt_dn(jpx, j) ) *
-                                    ( g00_up(i, ipx) - g00_up(ipx, i) + g00_dn(i, ipx) - g00_dn(ipx, i) )
+                                      ( g00_up(i, ipx) - g00_up(ipx, i) + g00_dn(i, ipx) - g00_dn(ipx, i) )
                                     
                                     // correlated part
                                     - g0t_up(ipx, jpx) * gt0_up(j, i) - g0t_dn(ipx, jpx) * gt0_dn(j, i)
