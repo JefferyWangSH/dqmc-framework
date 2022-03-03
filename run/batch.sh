@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# submitting parmas
+####################################################################### submitting params
 partition="v6_384"
 nodes=1
 ntasks_per_node=20
 cpus_per_task=1
+mem_per_cpu=4G
 
-# program params
+####################################################################### program params
 exe="../build/dqmc_hubbard"
 ll=4
 lt=160
@@ -31,37 +32,28 @@ dynamic_measure="true"
 #   6. spin_density_structure_factor    (equal-time)
 #   7. charge_density_structure_factor  (equal-time)
 #   8. s_wave_pairing_corr              (equal-time)
-#   9. greens_functions                 (dynamic)
-#  10. density_of_states                (dynamic)
-#  11. superfluid_stiffness             (dynamic)
+#   9. greens_functions                 (dynamical)
+#  10. density_of_states                (dynamical)
+#  11. superfluid_stiffness             (dynamical)
 #
 # options should be separated by space
 # option 'all' : measure all supported observables
 # option 'none': no measurement
 obs_list="all"
 
-# # generate folder name according to input params
-# if [ `echo "$u < 0.0"|bc` -eq 1 ] ; then
-#     u=$(echo "0.0 - $u"|bc)
-#     out_folder="L"$ll"b"${beta%.*}"u"${u%.*}
-#     u=$(echo "0.0 - $u"|bc)
-# else
-#     out_folder="L"$ll"b"${beta%.*}"u"${u%.*}
-# fi
+####################################################################### create output folder if not exist
 out_folder="example"
-
-# create output folder if not exist
-out_folder_path="../results/"${out_folder}
-if [ ! -d ${out_folder_path} ]; then
-  mkdir -p ${out_folder_path}
+out_folder_path="../results"/$out_folder
+if [ ! -d $out_folder_path ]; then
+    mkdir -p $out_folder_path
 fi
 
+####################################################################### submit mission
 # set up jobname and log output name
 jobname=$out_folder
-output=$out_folder_path"/log.log"
-error=$out_folder_path"/err.log"
+output=$out_folder_path/"log.log"
+error=$out_folder_path/"err.log"
 
-# submit mission
 sbatch --job-name=$jobname --output=$output --error=$error \
 --partition=$partition --nodes=$nodes --ntasks-per-node=$ntasks_per_node --cpus-per-task=$cpus_per_task \
 --export=exe=$exe,ll=$ll,lt=$lt,beta=$beta,u=$u,mu=$mu,\
