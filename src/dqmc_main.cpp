@@ -152,7 +152,8 @@ int main(int argc, char* argv[]) {
     // settings of some typical momentum sequence q_list are shown below 
     std::vector<Eigen::Vector2d> q_list;
 
-    // scanning only 1/8 of the 1st Brillouin zone due to the symmetry of greens functions
+    // scanning only 1/8 of the 1st Brillouin zone due to the C4V symmetry of 2d square lattice,
+    // which is also called the irreducible BZ
     // here we choose the zone surrounded by loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0)
     const int q_list_size = (std::floor(ll/2.0)+1)*(std::floor(ll/2.0)+2)/2;
     q_list.reserve(q_list_size);
