@@ -34,16 +34,15 @@
 # Personal folders and files
 .git/*
 
-cmake-build-debug/*
-cmake-build-release/*
 .idea/*
 .vscode/*
+cmake-build-debug/*
+cmake-build-release/*
 
 build/*
+test/build/*
 !build/runcmake.sh
+!test/build/runcmake.sh
 
 results/*
-!results/critical-temperature/*
-!results/equal-time-measurments/*
-!results/fermi-surface/*
 !results/example/*

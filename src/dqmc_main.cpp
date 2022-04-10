@@ -3,11 +3,6 @@
 #include "output.h"
 #include "measure_gather.hpp"
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <unistd.h>
-
 #include <mpi.h>
 #include <boost/mpi.hpp>
 #include <boost/serialization/vector.hpp>
