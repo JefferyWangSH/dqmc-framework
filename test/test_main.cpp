@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "lattice/square2d.h"
-#include "lattice/square3d.h"
 #include "lattice/lattice_base.h"
+#include "lattice/square2d.h"
 
 // #include "random.h"
 // #include "hubbard.h"
@@ -29,9 +28,9 @@ int main() {
 
     std::cout << mylattice.HoppingMatrix() << std::endl;
 
-    // Lattice::Square3d mylattice(2);
-    // mylattice.initial();
-    // std::cout << mylattice.HoppingMatrix() << std::endl;
+    Lattice::LatticeBase* lattice = new Lattice::Square2d(3);
+    lattice->initial();
+    std::cout << lattice->HoppingMatrix() << std::endl;
 
     return 0;
 }

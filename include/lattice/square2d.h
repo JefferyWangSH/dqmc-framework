@@ -18,9 +18,10 @@ namespace Lattice {
     class Square2d : public LatticeBase {
         public:
             Square2d() = default;
-            Square2d(int space_size);
 
-            void initial();
+            Square2d(int space_size) : LatticeBase(space_size){};
+
+            double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp);
     };
     
 } // namespace Lattice
