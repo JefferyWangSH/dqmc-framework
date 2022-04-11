@@ -14,7 +14,8 @@
 #include "lattice/lattice_base.h"
 
 namespace Lattice {
-
+    
+    // --------------------Derived class Lattice::Square2d for 2d square lattice ----------------------------
     class Square2d : public LatticeBase {
         public:
             Square2d() = default;

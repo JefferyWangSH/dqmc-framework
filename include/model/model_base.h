@@ -23,28 +23,29 @@ namespace Lattice {
 
 namespace Model {
 
+    // -------------------------- Abstract base class Model::ModelBase -----------------------------
     class ModelBase {
         protected:
-            typedef int SpaceIndex;
-            typedef int TimeIndex;
-            typedef int Spin;
-            typedef QuantumMonteCarlo::DqmcWalker Walker;
-            typedef Lattice::LatticeBase Lattice;
-            typedef Eigen::MatrixXd GreensFunc;
+            using SpaceIndex = int;
+            using TimeIndex = int;
+            using Spin = int;
+            using Walker = QuantumMonteCarlo::DqmcWalker;
+            using Lattice = Lattice::LatticeBase;
+            using GreensFunc = Eigen::MatrixXd;
 
             ModelBase() = default;
 
             virtual void initial(const Lattice& lattice);
 
-            virtual double get_update_radio(SpaceIndex space_index, TimeIndex time_index, const Walker& walker);
+            virtual double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
 
-            virtual void local_update(SpaceIndex space_index, TimeIndex time_index, const Walker& walker);
+            virtual void local_update(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
 
-            virtual void mult_B_from_left(GreensFunc& green, TimeIndex time_index, Spin spin, const Walker& walker);
-            virtual void mult_B_from_right(GreensFunc& green, TimeIndex time_index, Spin spin, const Walker& walker);
-            virtual void mult_invB_from_left(GreensFunc& green, TimeIndex time_index, Spin spin, const Walker& walker);
-            virtual void mult_invB_from_right(GreensFunc& green, TimeIndex time_index, Spin spin, const Walker& walker);
-            virtual void mult_transB_from_left(GreensFunc& green, TimeIndex time_index, Spin spin, const Walker& walker);
+            virtual void mult_B_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
+            virtual void mult_B_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
+            virtual void mult_invB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
+            virtual void mult_invB_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
+            virtual void mult_transB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
     };
 }
 

@@ -14,6 +14,7 @@
 
 namespace Lattice {
 
+        // -------------------------- Abstract base class Lattice::LatticeBase ----------------------------
         class LatticeBase {
         protected:
             int m_space_dim{2};
@@ -44,11 +45,6 @@ namespace Lattice {
             // vector product of space vector r and moemntum p, depending on the geometry of lattice
             virtual double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp) = 0;
 
-            // // todo: add two space sites according to the topology of lattice, return index of site
-            // int add(int index1, int index2);
-            
-            // // todo: move one step along direction of the 1st space basis, return index of site
-            // int move1step(int index);
     };
 
 } // namespace Lattice
