@@ -9,7 +9,8 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 # add targets and links
 file(GLOB SOURCE_FILE 
-    ${PROJECT_SOURCE_DIR}/*/*.cpp ${PROJECT_SOURCE_DIR}/*/*.hpp 
+    # ${PROJECT_SOURCE_DIR}/*/*.cpp ${PROJECT_SOURCE_DIR}/*/*.hpp 
+    ${PROJECT_SOURCE_DIR}/test/*.cpp ${PROJECT_SOURCE_DIR}/test/*.hpp 
     ${PROJECT_SOURCE_DIR}/*/*/*.cpp  ${PROJECT_SOURCE_DIR}/*/*/*.hpp )
 list(REMOVE_ITEM SOURCE_FILE ${PROJECT_SOURCE_DIR}/src/dqmc_main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILE})

@@ -5,6 +5,9 @@
 
 #include "model/model_base.h"
 
+#include "measure/observable.h"
+#include "measure/observable_handler.h"
+
 // #include "random.h"
 // #include "hubbard.h"
 
@@ -15,10 +18,25 @@
 int main() {
 
 
+    // test measure
 
-    // test model
+    Observable::ObservableBase* obs = new Observable::Observable<Observable::ScalarType>();
 
-    Model::ModelBase* model = new Model::ModelBase();
+    Observable::Observable<Observable::ScalarType>* casted_obs = (dynamic_cast<Observable::Observable<Observable::ScalarType>*>(obs));
+    casted_obs->set_observable_name("filling");
+    std::cout << casted_obs->name() << std::endl;
+
+    Observable::ObservableHandler* handler = new Observable::ObservableHandler();
+
+
+
+
+
+
+
+
+    // // test model
+    // Model::ModelBase* model = new Model::ModelBase();
 
     
 
