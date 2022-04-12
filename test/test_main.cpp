@@ -8,6 +8,14 @@
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
 
+#include "dqmc_walker.h"
+
+#include "utils/svd_stack.h"
+#include "utils/fft_solver.h"
+#include "utils/linear_algebra.hpp"
+
+
+
 // #include "random.h"
 // #include "hubbard.h"
 
@@ -18,15 +26,39 @@
 int main() {
 
 
-    // test measure
 
-    Observable::ObservableBase* obs = new Observable::Observable<Observable::ScalarType>();
+    // test utils
 
-    Observable::Observable<Observable::ScalarType>* casted_obs = (dynamic_cast<Observable::Observable<Observable::ScalarType>*>(obs));
-    casted_obs->set_observable_name("filling");
-    std::cout << casted_obs->name() << std::endl;
+    Utils::SvdStack* svd_stack = new Utils::SvdStack(4,10);
+    // Utils::FFTSolver::FFTSolver2d* solver = new Utils::FFTSolver::FFTSolver2d();
 
-    Observable::ObservableHandler* handler = new Observable::ObservableHandler();
+    Eigen::MatrixXd mat = Eigen::MatrixXd::Random(4,4);
+    
+    svd_stack->push(mat);
+    svd_stack->push(mat);
+
+    const auto& u = svd_stack->MatrixU();
+    const auto& s = svd_stack->SingularValues().asDiagonal();
+    const auto& v = svd_stack->MatrixV();
+    std::cout << (u*s*v.transpose() - mat*mat).maxCoeff() << std::endl;
+
+
+
+
+
+
+
+
+
+    // // test measure
+
+    // Observable::ObservableBase* obs = new Observable::Observable<Observable::ScalarType>();
+
+    // Observable::Observable<Observable::ScalarType>* casted_obs = (dynamic_cast<Observable::Observable<Observable::ScalarType>*>(obs));
+    // casted_obs->set_observable_name("filling");
+    // std::cout << casted_obs->name() << std::endl;
+
+    // Observable::ObservableHandler* handler = new Observable::ObservableHandler();
 
 
 
