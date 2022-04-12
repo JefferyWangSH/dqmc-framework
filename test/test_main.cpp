@@ -10,9 +10,12 @@
 
 #include "dqmc_walker.h"
 
-#include "utils/svd_stack.h"
-#include "utils/fft_solver.h"
+#include "svd_stack.h"
+#include "fft_solver.h"
 #include "utils/linear_algebra.hpp"
+#include "utils/numerical_stable.hpp"
+#include "utils/progress_bar.hpp"
+#include "utils/random.hpp"
 
 
 
@@ -41,6 +44,8 @@ int main() {
     const auto& s = svd_stack->SingularValues().asDiagonal();
     const auto& v = svd_stack->MatrixV();
     std::cout << (u*s*v.transpose() - mat*mat).maxCoeff() << std::endl;
+
+    Utils::Random::set_seed(1);
 
 
 

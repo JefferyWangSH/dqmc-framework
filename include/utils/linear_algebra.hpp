@@ -113,4 +113,4 @@ namespace Utils {
 
 } // namespace Utils
 
-#endif //UTIL_LINEAR_ALGEBRA_HPP
+#endif // UTIL_LINEAR_ALGEBRA_HPP

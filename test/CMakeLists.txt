@@ -10,12 +10,14 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 # add targets and links
 file(GLOB SOURCE_FILE 
     # ${PROJECT_SOURCE_DIR}/*/*.cpp ${PROJECT_SOURCE_DIR}/*/*.hpp 
-    ${PROJECT_SOURCE_DIR}/test/*.cpp
+    ${PROJECT_SOURCE_DIR}/test/test_main.cpp
     ${PROJECT_SOURCE_DIR}/*/*/*.cpp  )
 # list(REMOVE_ITEM SOURCE_FILE ${PROJECT_SOURCE_DIR}/src/dqmc_main.cpp)
 add_executable(
     ${PROJECT_NAME}  ${SOURCE_FILE} 
     ${PROJECT_SOURCE_DIR}/src/dqmc_walker.cpp
+    ${PROJECT_SOURCE_DIR}/src/svd_stack.cpp
+    ${PROJECT_SOURCE_DIR}/src/fft_solver.cpp
     )
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
