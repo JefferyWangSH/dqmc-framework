@@ -12,11 +12,10 @@
   */
 
 
-#include <iostream>
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
-#include "mkl_lapacke.h"
+#include <mkl_lapacke.h>
 
 namespace Utils {
 
@@ -25,18 +24,24 @@ namespace Utils {
         public:
 
         /**
-         * SVD decomposition of arbitrary M * N real matrix, using MKL_LAPACK:
-         *      A  ->  U * S * V^T
-         * Remind that V is returned in this subroutine, not V transpose.
-         *
-         * @param row -> number of rows.
-         * @param col -> number of cols.
-         * @param mat -> arbitrary `row` * `col` real matrix to be solved.
-         * @param u -> u matrix in Eigen::Matrix, `row` * `row`.
-         * @param s -> eigenvalues s in Eigen::Vector, descending sorted.
-         * @param v -> v matrix in Eigen::Matrix, `col` * `col`.
-         */
-        static void mkl_lapack_dgesvd(const int &row, const int &col, const Eigen::MatrixXd &mat, Eigen::MatrixXd &u, Eigen::VectorXd &s, Eigen::MatrixXd &v) {
+          *  SVD decomposition of arbitrary M * N real matrix, using MKL_LAPACK:
+          *       A  ->  U * S * V^T
+          *  Remind that V is returned in this subroutine, not V transpose.
+          *
+          *  @param row -> number of rows.
+          *  @param col -> number of cols.
+          *  @param mat -> arbitrary `row` * `col` real matrix to be solved.
+          *  @param u -> u matrix in Eigen::Matrix, `row` * `row`.
+          *  @param s -> eigenvalues s in Eigen::Vector, descending sorted.
+          *  @param v -> v matrix in Eigen::Matrix, `col` * `col`.
+          */
+        static void mkl_lapack_dgesvd(  const int &row, 
+                                        const int &col, 
+                                        const Eigen::MatrixXd &mat, 
+                                        Eigen::MatrixXd &u, 
+                                        Eigen::VectorXd &s, 
+                                        Eigen::MatrixXd &v  ) 
+        {
             assert( row == mat.rows() );
             assert( col == mat.cols() );
             // TODO: currently, the subroutine would fail if the input matrix has different number of rows and columns
@@ -71,17 +76,21 @@ namespace Utils {
 
 
         /**
-         * Calculate eigenvalues and eigenstates given an arbitrary N * N real symmetric matrix, using MKL_LAPACK
-         *      A  ->  T^dagger * S * T
-         * where T is rotation matrix, which is orthogonal;
-         *       S is diagonal matrix with eigenvalues being diagonal elements.
-         *
-         * @param size -> number of rows/cols.
-         * @param mat -> arbitrary `size` * `size` real symmetric matrix to be solved.
-         * @param s -> diagonal eigen matrix.
-         * @param t -> rotation matrix, columns being eigenstates.
-         */
-        static void mkl_lapack_dsyev(const int &size, const Eigen::MatrixXd &mat, Eigen::VectorXd &s, Eigen::MatrixXd &t) {
+          *  Calculate eigenvalues and eigenstates given an arbitrary N * N real symmetric matrix, using MKL_LAPACK
+          *        A  ->  T^dagger * S * T
+          *  where T is rotation matrix, which is orthogonal;
+          *        S is diagonal matrix with eigenvalues being diagonal elements.
+          *
+          *  @param size -> number of rows/cols.
+          *  @param mat -> arbitrary `size` * `size` real symmetric matrix to be solved.
+          *  @param s -> diagonal eigen matrix.
+          *  @param t -> rotation matrix, columns being eigenstates.
+          */
+        static void mkl_lapack_dsyev(   const int &size, 
+                                        const Eigen::MatrixXd &mat, 
+                                        Eigen::VectorXd &s, 
+                                        Eigen::MatrixXd &t  ) 
+        {
             assert( mat.rows() == size );
             assert( mat.cols() == size );
             // make sure the input matrix is symmetric
