@@ -90,7 +90,7 @@ namespace Observable {
                 ptrScalarObs filling_number = std::make_shared<ScalarObs>();
                 filling_number->set_observable_name(obs_name);
                 filling_number->add_method(Measure::Methods::measure_filling_number);
-                this->m_eqtime_scalar_obs.push_back(filling_number);
+                this->m_eqtime_scalar_obs.emplace_back(filling_number);
 
                 // fill in the map
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(filling_number);
@@ -101,7 +101,7 @@ namespace Observable {
                 ptrScalarObs double_occupancy = std::make_shared<ScalarObs>();
                 double_occupancy->set_observable_name(obs_name);
                 double_occupancy->add_method(Measure::Methods::measure_double_occupancy);
-                this->m_eqtime_scalar_obs.push_back(double_occupancy);
+                this->m_eqtime_scalar_obs.emplace_back(double_occupancy);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(double_occupancy);
             }
 
@@ -110,7 +110,7 @@ namespace Observable {
                 ptrScalarObs kinetic_energy = std::make_shared<ScalarObs>();
                 kinetic_energy->set_observable_name(obs_name);
                 kinetic_energy->add_method(Measure::Methods::measure_kinetic_energy);
-                this->m_eqtime_scalar_obs.push_back(kinetic_energy);
+                this->m_eqtime_scalar_obs.emplace_back(kinetic_energy);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(kinetic_energy);
             }
 
@@ -119,7 +119,7 @@ namespace Observable {
                 ptrScalarObs momentum_distribution = std::make_shared<ScalarObs>();
                 momentum_distribution->set_observable_name(obs_name);
                 momentum_distribution->add_method(Measure::Methods::measure_momentum_distribution);
-                this->m_eqtime_scalar_obs.push_back(momentum_distribution);
+                this->m_eqtime_scalar_obs.emplace_back(momentum_distribution);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(momentum_distribution);
             }
 
@@ -128,7 +128,7 @@ namespace Observable {
                 ptrScalarObs local_spin_corr = std::make_shared<ScalarObs>();
                 local_spin_corr->set_observable_name(obs_name);
                 local_spin_corr->add_method(Measure::Methods::measure_local_spin_corr);
-                this->m_eqtime_scalar_obs.push_back(local_spin_corr);
+                this->m_eqtime_scalar_obs.emplace_back(local_spin_corr);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(local_spin_corr);
             }
 
@@ -137,7 +137,7 @@ namespace Observable {
                 ptrScalarObs sdw_factor = std::make_shared<ScalarObs>();
                 sdw_factor->set_observable_name(obs_name);
                 sdw_factor->add_method(Measure::Methods::measure_spin_density_structure_factor);
-                this->m_eqtime_scalar_obs.push_back(sdw_factor);
+                this->m_eqtime_scalar_obs.emplace_back(sdw_factor);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(sdw_factor);
             }
 
@@ -146,7 +146,7 @@ namespace Observable {
                 ptrScalarObs cdw_factor = std::make_shared<ScalarObs>();
                 cdw_factor->set_observable_name(obs_name);
                 cdw_factor->add_method(Measure::Methods::measure_charge_density_structure_factor);
-                this->m_eqtime_scalar_obs.push_back(cdw_factor);
+                this->m_eqtime_scalar_obs.emplace_back(cdw_factor);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(cdw_factor);
             }
 
@@ -155,7 +155,7 @@ namespace Observable {
                 ptrScalarObs s_wave_pairing_corr = std::make_shared<ScalarObs>();
                 s_wave_pairing_corr->set_observable_name(obs_name);
                 s_wave_pairing_corr->add_method(Measure::Methods::measure_s_wave_pairing_corr);
-                this->m_eqtime_scalar_obs.push_back(s_wave_pairing_corr);
+                this->m_eqtime_scalar_obs.emplace_back(s_wave_pairing_corr);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(s_wave_pairing_corr);
             }
 
@@ -169,7 +169,7 @@ namespace Observable {
                 ptrMatrixObs greens_functions = std::make_shared<MatrixObs>();
                 greens_functions->set_observable_name(obs_name);
                 greens_functions->add_method(Measure::Methods::measure_greens_functions);
-                this->m_dynamic_matrix_obs.push_back(greens_functions);
+                this->m_dynamic_matrix_obs.emplace_back(greens_functions);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(greens_functions);
             }
 
@@ -178,7 +178,7 @@ namespace Observable {
                 ptrVectorObs density_of_states = std::make_shared<VectorObs>();
                 density_of_states->set_observable_name(obs_name);
                 density_of_states->add_method(Measure::Methods::measure_density_of_states);
-                this->m_dynamic_vector_obs.push_back(density_of_states);
+                this->m_dynamic_vector_obs.emplace_back(density_of_states);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(density_of_states);
             }
 
@@ -188,7 +188,7 @@ namespace Observable {
                 ptrScalarObs superfluid_stiffness = std::make_shared<ScalarObs>();
                 superfluid_stiffness->set_observable_name(obs_name);
                 superfluid_stiffness->add_method(Measure::Methods::measure_superfluid_stiffness);
-                this->m_dynamic_scalar_obs.push_back(superfluid_stiffness);
+                this->m_dynamic_scalar_obs.emplace_back(superfluid_stiffness);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(superfluid_stiffness);
             }
 
@@ -203,7 +203,7 @@ namespace Observable {
             ptrScalarObs eqtime_sign = std::make_shared<ScalarObs>();
             eqtime_sign->set_observable_name("eqtime_sign");
             eqtime_sign->add_method(Measure::Methods::measure_eqtime_config_sign);
-            this->m_eqtime_scalar_obs.push_back(eqtime_sign);
+            this->m_eqtime_scalar_obs.emplace_back(eqtime_sign);
             this->m_obs_map["eqtime_sign"] = std::static_pointer_cast<ObservableBase>(eqtime_sign);
         }
 
@@ -213,7 +213,7 @@ namespace Observable {
             ptrScalarObs dynamic_sign = std::make_shared<ScalarObs>();
             dynamic_sign->set_observable_name("dynamic_sign");
             dynamic_sign->add_method(Measure::Methods::measure_dynamic_config_sign);
-            this->m_dynamic_scalar_obs.push_back(dynamic_sign);
+            this->m_dynamic_scalar_obs.emplace_back(dynamic_sign);
             this->m_obs_map["dynamic_sign"] = std::static_pointer_cast<ObservableBase>(dynamic_sign);
         }
     }

@@ -42,6 +42,11 @@ int main() {
         const auto obs = handler->find_scalar("filling_number");
         std::cout << obs.name() << std::endl;
     }
+    if ( handler->find("eqtime_sign") ) {
+        std::cout << "found!" << std::endl;
+        const auto obs = handler->find_scalar("eqtime_sign");
+        std::cout << obs.name() << std::endl;
+    }
     // std::cout << (handler->m_eqtime_scalar_obs[0])->name() << std::endl;
     
     // Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();

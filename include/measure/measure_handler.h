@@ -5,7 +5,7 @@
 
 namespace Measure {
 
-    // ------------------------------- Measure::MeasureHandler class -----------------------------
+    // -------------------------- Handler class Measure::MeasureHandler -----------------------------
     class MeasureHandler {
         public:
             MeasureHandler() = default;
