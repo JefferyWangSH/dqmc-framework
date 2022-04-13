@@ -17,20 +17,21 @@ namespace Observable {
 
     // --------------------- Handler class Observable::ObservableHandler ---------------------
     class ObservableHandler {
-        public:
+        private:
 
-            using ObsMap = std::map<std::string, std::unique_ptr<ObservableBase>>;
+            using ObsMap = std::map<std::string, std::shared_ptr<ObservableBase>>;
 
-            using ptrScalarObs = std::unique_ptr<ScalarObs>;
-            using ptrVectorObs = std::unique_ptr<VectorObs>;
-            using ptrMatrixObs = std::unique_ptr<MatrixObs>;
+            using ptrBaseObs = std::shared_ptr<ObservableBase>;
+            using ptrScalarObs = std::shared_ptr<ScalarObs>;
+            using ptrVectorObs = std::shared_ptr<VectorObs>;
+            using ptrMatrixObs = std::shared_ptr<MatrixObs>;
             
-            using EqtimeScalarObs = std::vector<std::unique_ptr<ScalarObs>>;
-            using EqtimeVectorObs = std::vector<std::unique_ptr<VectorObs>>;
-            using EqtimeMatrixObs = std::vector<std::unique_ptr<MatrixObs>>;
-            using DynamicScalarObs = std::vector<std::unique_ptr<ScalarObs>>;
-            using DynamicVectorObs = std::vector<std::unique_ptr<VectorObs>>;
-            using DynamicMatrixObs = std::vector<std::unique_ptr<MatrixObs>>;
+            using EqtimeScalarObs = std::vector<std::shared_ptr<ScalarObs>>;
+            using EqtimeVectorObs = std::vector<std::shared_ptr<VectorObs>>;
+            using EqtimeMatrixObs = std::vector<std::shared_ptr<MatrixObs>>;
+            using DynamicScalarObs = std::vector<std::shared_ptr<ScalarObs>>;
+            using DynamicVectorObs = std::vector<std::shared_ptr<VectorObs>>;
+            using DynamicMatrixObs = std::vector<std::shared_ptr<MatrixObs>>;
 
             using ObsName = std::string;
             using ObsNameList = std::vector<std::string>;
@@ -72,7 +73,7 @@ namespace Observable {
             ObservableHandler() = default;
 
             // check if certain observable exists
-            bool find(const ObsName& obs_name) ;
+            bool find(const ObsName& obs_name);
 
             // return certain type of the observable class
             const ScalarObs find_scalar(const ObsName& obs_name);
@@ -83,14 +84,13 @@ namespace Observable {
             void initial(const ObsNameList& obs_list);
 
         private:
-            // read list of observables which are to be measured
-            void read_obs_list(const ObsNameList& obs_list);
+            
+            // check if certain observable is of eqtime/dynamic type
+            bool is_eqtime(const ObsName& obs_name) const;
+            bool is_dynamic(const ObsName& obs_name) const;
 
-            // segment input observables into two classes, equal-time and time-displaced (dynamic)
-            void classify();
-
-            // allocate Observable class according to the input list
-            void allocate();
+            // check the validity of the input list of observables
+            bool check_validity(const ObsNameList& obs_list) const;
 
     };
 

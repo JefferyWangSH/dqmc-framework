@@ -7,6 +7,7 @@
 
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
+#include "measure/measure_handler.h"
 
 #include "dqmc_walker.h"
 
@@ -30,23 +31,48 @@
 int main() {
 
 
+    // test ObservableHandler 
+    Observable::ObservableHandler* handler = new Observable::ObservableHandler();
 
-    // test utils
+    std::vector<std::string> obs_list{ "filling_number", };
+    handler->initial(obs_list);
 
-    Utils::SvdStack* svd_stack = new Utils::SvdStack(4,10);
-    // Utils::FFTSolver::FFTSolver2d* solver = new Utils::FFTSolver::FFTSolver2d();
-
-    Eigen::MatrixXd mat = Eigen::MatrixXd::Random(4,4);
+    if ( handler->find("filling_number") ) {
+        std::cout << "found!" << std::endl;
+        const auto obs = handler->find_scalar("filling_number");
+        std::cout << obs.name() << std::endl;
+    }
+    // std::cout << (handler->m_eqtime_scalar_obs[0])->name() << std::endl;
     
-    svd_stack->push(mat);
-    svd_stack->push(mat);
+    // Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
+    // Model::ModelBase* model = new Model::ModelBase();
+    // Lattice::LatticeBase* lattice = new Lattice::Square2d();
 
-    const auto& u = svd_stack->MatrixU();
-    const auto& s = svd_stack->SingularValues().asDiagonal();
-    const auto& v = svd_stack->MatrixV();
-    std::cout << (u*s*v.transpose() - mat*mat).maxCoeff() << std::endl;
+    // (handler->m_eqtime_scalar_obs[0])->measure(*meas_handler, *model, *lattice);
 
-    Utils::Random::set_seed(1);
+
+
+
+
+
+
+
+    // // test utils
+
+    // Utils::SvdStack* svd_stack = new Utils::SvdStack(4,10);
+    // // Utils::FFTSolver::FFTSolver2d* solver = new Utils::FFTSolver::FFTSolver2d();
+
+    // Eigen::MatrixXd mat = Eigen::MatrixXd::Random(4,4);
+    
+    // svd_stack->push(mat);
+    // svd_stack->push(mat);
+
+    // const auto& u = svd_stack->MatrixU();
+    // const auto& s = svd_stack->SingularValues().asDiagonal();
+    // const auto& v = svd_stack->MatrixV();
+    // std::cout << (u*s*v.transpose() - mat*mat).maxCoeff() << std::endl;
+
+    // Utils::Random::set_seed(1);
 
 
 

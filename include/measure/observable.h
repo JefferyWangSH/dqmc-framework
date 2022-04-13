@@ -19,8 +19,10 @@
 
 
 // forward declaration
-namespace Model { class Hubbard; }
-namespace Measure { class Measure; }
+namespace Measure { class MeasureHandler; }
+namespace Model { class ModelBase; }
+namespace Lattice { class LatticeBase; }
+
 
 namespace Observable {
 
@@ -41,9 +43,15 @@ namespace Observable {
     };
 
     // -------------------  Derived template class Observable::Observable<ObsType> ---------------------
-    template<class ObsType> class Observable : public ObservableBase {
+    template<typename ObsType> class Observable : public ObservableBase {
         private:
-            using ObsMethod = void(Observable<ObsType>&, Measure::Measure&, const Model::Hubbard&);
+            using MeasureHandler = Measure::MeasureHandler;
+            using ModelBase = Model::ModelBase;
+            using LatticeBase = Lattice::LatticeBase;
+            using ObsMethod = void( Observable<ObsType>&, 
+                                    const MeasureHandler&, 
+                                    const ModelBase&,
+                                    const LatticeBase& );
 
             ObsType m_mean_value{};
             ObsType m_error_bar{};
@@ -82,13 +90,18 @@ namespace Observable {
             std::vector<ObsType>& bin_data() { return this->m_bin_data; }
 
             // set up parameters and methods
-            void set_size_of_bin(const int &size_of_bin) { this->m_size_of_bin = size_of_bin; }
-            void set_zero_element(const ObsType &zero_elem) { this->m_zero_elem = zero_elem; }
-            void set_observable_name(const std::string &name) { this->m_name = name; }
-            void add_method(const std::function<ObsMethod> &method) { this->m_method = method; }
+            void set_size_of_bin(const int& size_of_bin) { this->m_size_of_bin = size_of_bin; }
+            void set_zero_element(const ObsType& zero_elem) { this->m_zero_elem = zero_elem; }
+            void set_observable_name(const std::string& name) { this->m_name = name; }
+            void add_method(const std::function<ObsMethod>& method) { this->m_method = method; }
 
             // perform one step of measurment
-            void measure(Measure::Measure &measure, const Model::Hubbard &hubbard) { this->m_method(*this, measure, hubbard); }
+            void measure(   const MeasureHandler& meas_handler, 
+                            const ModelBase& model, 
+                            const LatticeBase& lattice  )
+            { 
+                this->m_method(*this, meas_handler, model, lattice); 
+            }
 
             // allocate memory
             void allocate() {

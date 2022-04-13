@@ -33,19 +33,22 @@ namespace Model {
             using Lattice = Lattice::LatticeBase;
             using GreensFunc = Eigen::MatrixXd;
 
+        public:
             ModelBase() = default;
+        
+        protected:
+        
+            virtual void initial(const Lattice& lattice) = 0;
 
-            virtual void initial(const Lattice& lattice);
+            virtual double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
 
-            virtual double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
+            virtual void local_update(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
 
-            virtual void local_update(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
-
-            virtual void mult_B_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
-            virtual void mult_B_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
-            virtual void mult_invB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
-            virtual void mult_invB_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
-            virtual void mult_transB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin);
+            virtual void mult_B_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin) = 0;
+            virtual void mult_B_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin) = 0;
+            virtual void mult_invB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin) = 0;
+            virtual void mult_invB_from_right(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin) = 0;
+            virtual void mult_transB_from_left(GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin) = 0;
     };
 }
 
