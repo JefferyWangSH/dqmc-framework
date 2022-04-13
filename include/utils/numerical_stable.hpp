@@ -30,7 +30,7 @@ namespace Utils {
          *  Input: umat, vmat
          *  Output: the maximum difference -> error
          */
-        static void matrix_compare_error(const Matrix &umat, const Matrix &vmat, double &error) {
+        static void matrix_compare_error(const Matrix& umat, const Matrix& vmat, double& error) {
             assert( umat.rows() == vmat.rows() );
             assert( umat.cols() == vmat.cols() );
             assert( umat.rows() == umat.cols() );
@@ -52,7 +52,7 @@ namespace Utils {
          *  Input: dvec
          *  Output: dmax, dmin
          */
-        static void div_dvec_max_min(const Vector &dvec, Vector &dmax, Vector &dmin) {
+        static void div_dvec_max_min(const Vector& dvec, Vector& dmax, Vector& dmin) {
             assert( dvec.size() == dmax.size() );
             assert( dvec.size() == dmin.size() );
 
@@ -73,7 +73,7 @@ namespace Utils {
          * Input: vmat, dvec, umat
          * Output: zmat
          */
-        static void mult_v_invd_u(const Matrix &vmat, const Vector &dvec, const Matrix &umat, Matrix &zmat) {
+        static void mult_v_invd_u(const Matrix& vmat, const Vector& dvec, const Matrix& umat, Matrix& zmat) {
             assert( vmat.cols() == umat.cols() );
             assert( vmat.cols() == zmat.cols() );
             assert( vmat.rows() == umat.rows() );
@@ -99,7 +99,7 @@ namespace Utils {
          * Input: vmat, dvec, umat
          * Output: zmat
          */
-        static void mult_v_d_u(const Matrix &vmat, const Vector &dvec, const Matrix &umat, Matrix &zmat) {
+        static void mult_v_d_u(const Matrix& vmat, const Vector& dvec, const Matrix& umat, Matrix& zmat) {
             assert( vmat.cols() == umat.cols() );
             assert( vmat.cols() == zmat.cols() );
             assert( vmat.rows() == umat.rows() );
@@ -124,7 +124,7 @@ namespace Utils {
          * return (1 + USV^T)^-1, with method of QR decomposition
          * if dynamical observables measured, return (1 + USV^T)^-1 * USV^T as well.
          */
-        static void compute_greens_00_bb(const Matrix &U, const Vector &S, const Matrix &V, Matrix &gtt) {
+        static void compute_greens_00_bb(const Matrix& U, const Vector& S, const Matrix& V, Matrix& gtt) {
             // split S = Sbi^-1 * Ss
             Vector Sbi(S.size());
             Vector Ss(S.size());
@@ -150,7 +150,7 @@ namespace Utils {
          * return (1 + USV^T)^-1 * USV^T, with method of QR decomposition
          * to obtain time-displaced Greens function G(\beta, 0)
          */
-        static void compute_greens_b0(const Matrix &U, const Vector &S, const Matrix &V, Matrix &gt0) {
+        static void compute_greens_b0(const Matrix& U, const Vector& S, const Matrix& V, Matrix& gt0) {
             // split S = Sbi^-1 * Ss
             Vector Sbi(S.size());
             Vector Ss(S.size());
@@ -176,18 +176,18 @@ namespace Utils {
          *  return (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
          *  note: (1 + left * right^T)^-1 = (1 + (USV^T)_left * (VSU^T)_right)^-1
          */
-        static void compute_greens_eqtime(SvdStack *left, SvdStack *right, Matrix &gtt) {
+        static void compute_greens_eqtime(SvdStack* left, SvdStack* right, Matrix &gtt) {
             assert(left->MatDim() == right->MatDim());
             const int ndim = left->MatDim();
 
             /* at l = 0 */
-            if (left->empty()) {
+            if ( left->empty() ) {
                 compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gtt);
                 return;
             }
 
             /* at l = lt */
-            if (right->empty()) {
+            if ( right->empty() ) {
                 compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), gtt);
                 return;
             }
@@ -235,12 +235,12 @@ namespace Utils {
          *  return time-displaced Greens function in a stable manner,
          *  with method of MGS factorization
          */
-        static void compute_greens_dynamic(SvdStack *left, SvdStack *right, Matrix &gt0, Matrix &g0t) {
+        static void compute_greens_dynamic(SvdStack* left, SvdStack* right, Matrix &gt0, Matrix &g0t) {
             assert( left->MatDim() == right->MatDim() );
             const int ndim = left->MatDim();
 
             /* at l = 0 */
-            if(left->empty()) {
+            if( left->empty() ) {
                 // gt0 = gtt at t = 0
                 compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gt0);
 
@@ -251,13 +251,13 @@ namespace Utils {
             }
 
             /* at l = lt */
-            if(right->empty()) {
+            if( right->empty() ) {
                 // gt0 = ( 1 + B(\beta, 0) )^-1 * B(\beta, 0)
                 compute_greens_b0(left->MatrixU(), left->SingularValues(), left->MatrixV(), gt0);
 
                 // g0t = -gtt at t = beta
                 compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), g0t);
-                g0t = -g0t;
+                g0t = - g0t;
                 return;
             }
 

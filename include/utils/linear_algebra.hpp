@@ -35,12 +35,12 @@ namespace Utils {
           *  @param s -> eigenvalues s in Eigen::Vector, descending sorted.
           *  @param v -> v matrix in Eigen::Matrix, `col` * `col`.
           */
-        static void mkl_lapack_dgesvd(  const int &row, 
-                                        const int &col, 
-                                        const Eigen::MatrixXd &mat, 
-                                        Eigen::MatrixXd &u, 
-                                        Eigen::VectorXd &s, 
-                                        Eigen::MatrixXd &v  ) 
+        static void mkl_lapack_dgesvd(  const int& row, 
+                                        const int& col, 
+                                        const Eigen::MatrixXd& mat, 
+                                        Eigen::MatrixXd& u, 
+                                        Eigen::VectorXd& s, 
+                                        Eigen::MatrixXd& v  ) 
         {
             assert( row == mat.rows() );
             assert( col == mat.cols() );
@@ -86,10 +86,10 @@ namespace Utils {
           *  @param s -> diagonal eigen matrix.
           *  @param t -> rotation matrix, columns being eigenstates.
           */
-        static void mkl_lapack_dsyev(   const int &size, 
-                                        const Eigen::MatrixXd &mat, 
-                                        Eigen::VectorXd &s, 
-                                        Eigen::MatrixXd &t  ) 
+        static void mkl_lapack_dsyev(   const int& size, 
+                                        const Eigen::MatrixXd& mat, 
+                                        Eigen::VectorXd& s, 
+                                        Eigen::MatrixXd& t  ) 
         {
             assert( mat.rows() == size );
             assert( mat.cols() == size );

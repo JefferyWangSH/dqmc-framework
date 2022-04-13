@@ -78,7 +78,7 @@ namespace Utils {
 
             // defined operations of the class: push and pop
             // adding a matrix to the stack from the left
-            void push(const Matrix &matrix);
+            void push(const Matrix& matrix);
 
             // pop the last matrix from the stack
             void pop();

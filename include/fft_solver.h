@@ -69,7 +69,7 @@ namespace Utils {
                 void initial();
 
                 // fft computation
-                void compute(const Matrix &in, Matrix &out);
+                void compute(const Matrix& in, Matrix& out);
 
                 // deallocate memory
                 void deallocate();

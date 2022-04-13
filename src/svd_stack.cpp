@@ -13,7 +13,9 @@ namespace Utils {
     using Vector = Eigen::VectorXd;
 
     SvdStack::SvdStack(int mat_dim, int stack_length) 
-        : m_mat_dim(mat_dim), m_tmp_matrix(mat_dim, mat_dim) {
+                : m_mat_dim(mat_dim), 
+                  m_tmp_matrix(mat_dim, mat_dim)
+    {
         this->m_stack.reserve(stack_length);
         for (int i = 0; i < stack_length; ++i) {
             this->m_stack.emplace_back(mat_dim);
@@ -29,7 +31,7 @@ namespace Utils {
     void SvdStack::clear() { this->m_stack_length = 0; }
 
 
-    void SvdStack::push(const Matrix &matrix) {
+    void SvdStack::push(const Matrix& matrix) {
         assert( matrix.rows() == this->m_mat_dim && matrix.cols() == this->m_mat_dim );
         assert( this->m_stack_length < (int)this->m_stack.size() );
 

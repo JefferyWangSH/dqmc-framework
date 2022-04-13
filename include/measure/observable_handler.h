@@ -21,16 +21,16 @@ namespace Observable {
 
             using ObsMap = std::map<std::string, std::unique_ptr<ObservableBase>>;
 
-            using ptrScalarObs = std::unique_ptr<Observable<ScalarType>>;
-            using ptrVectorObs = std::unique_ptr<Observable<VectorType>>;
-            using ptrMatrixObs = std::unique_ptr<Observable<MatrixType>>;
+            using ptrScalarObs = std::unique_ptr<ScalarObs>;
+            using ptrVectorObs = std::unique_ptr<VectorObs>;
+            using ptrMatrixObs = std::unique_ptr<MatrixObs>;
             
-            using EqtimeScalarObs = std::vector<std::unique_ptr<Observable<ScalarType>>>;
-            using EqtimeVectorObs = std::vector<std::unique_ptr<Observable<VectorType>>>;
-            using EqtimeMatrixObs = std::vector<std::unique_ptr<Observable<MatrixType>>>;
-            using DynamicScalarObs = std::vector<std::unique_ptr<Observable<ScalarType>>>;
-            using DynamicVectorObs = std::vector<std::unique_ptr<Observable<VectorType>>>;
-            using DynamicMatrixObs = std::vector<std::unique_ptr<Observable<MatrixType>>>;
+            using EqtimeScalarObs = std::vector<std::unique_ptr<ScalarObs>>;
+            using EqtimeVectorObs = std::vector<std::unique_ptr<VectorObs>>;
+            using EqtimeMatrixObs = std::vector<std::unique_ptr<MatrixObs>>;
+            using DynamicScalarObs = std::vector<std::unique_ptr<ScalarObs>>;
+            using DynamicVectorObs = std::vector<std::unique_ptr<VectorObs>>;
+            using DynamicMatrixObs = std::vector<std::unique_ptr<MatrixObs>>;
 
             using ObsName = std::string;
             using ObsNameList = std::vector<std::string>;
@@ -72,18 +72,22 @@ namespace Observable {
             ObservableHandler() = default;
 
             // check if certain observable exists
-            bool find(const ObsName &obs_name) ;
+            bool find(const ObsName& obs_name) ;
 
-            // return a pointer to the certain type of observable
-            const ptrScalarObs find_scalar(const ObsName &obs_name);
-            const ptrVectorObs find_vector(const ObsName &obs_name);
-            const ptrMatrixObs find_matrix(const ObsName &obs_name);
+            // return certain type of the observable class
+            const ScalarObs find_scalar(const ObsName& obs_name);
+            const VectorObs find_vector(const ObsName& obs_name);
+            const MatrixObs find_matrix(const ObsName& obs_name);
 
+            // initialize the handler
+            void initial(const ObsNameList& obs_list);
+
+        private:
             // read list of observables which are to be measured
-            void read_obs_list(const ObsNameList &obs_list);
+            void read_obs_list(const ObsNameList& obs_list);
 
             // segment input observables into two classes, equal-time and time-displaced (dynamic)
-            void classify_obs();
+            void classify();
 
             // allocate Observable class according to the input list
             void allocate();

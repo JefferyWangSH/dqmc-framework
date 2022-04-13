@@ -145,6 +145,12 @@ namespace Observable {
     template<> void Observable<MatrixType>::calculate_error_bar();
 
 
+    // some aliases
+    using ScalarObs = Observable<ScalarType>;
+    using VectorObs = Observable<VectorType>;
+    using MatrixObs = Observable<MatrixType>;
+
+
 } // namespace Observable
 
 #endif // OBSERVABLE_H

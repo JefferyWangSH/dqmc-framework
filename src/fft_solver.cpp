@@ -20,7 +20,7 @@ namespace Utils {
             DftiCommitDescriptor(this->m_desc_handle);
         }
 
-        void FFTSolver2d::compute(const Eigen::MatrixXd &in, Eigen::MatrixXd &out) {
+        void FFTSolver2d::compute(const Eigen::MatrixXd& in, Eigen::MatrixXd& out) {
             // TODO: accelerate by using r2c fft
             // the input matrix should be real
             assert( in.rows() == this->m_row );

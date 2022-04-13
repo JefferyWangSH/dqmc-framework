@@ -10,7 +10,7 @@ namespace Utils {
     class Random {
         public:
             static std::default_random_engine engine;
-            static void set_seed(const int &rank) {
+            static void set_seed(const int& rank) {
                 engine.seed( time(nullptr)+rank );
             }
     };
