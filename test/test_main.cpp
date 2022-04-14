@@ -4,12 +4,14 @@
 #include "lattice/square2d.h"
 
 #include "model/model_base.h"
+#include "model/repulsive_hubbard.h"
 
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
 #include "measure/measure_handler.h"
 
 #include "dqmc_walker.h"
+#include "dqmc.h"
 
 #include "svd_stack.h"
 #include "fft_solver.h"

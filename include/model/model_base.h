@@ -11,6 +11,7 @@
   *  after a real-valued Hubbard–Stratonovich transformation.
   */  
 
+#include <memory>
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
@@ -26,19 +27,27 @@ namespace Lattice {
 
 namespace Model {
 
+    // useful aliases
+    using SpaceIndex = int;
+    using TimeIndex = int;
+    using Spin = int;
+
+    using Walker = QuantumMonteCarlo::DqmcWalker;
+    using Lattice = Lattice::LatticeBase;
+    using Matrix = Eigen::MatrixXd;
+
+    using GreensFunc = Eigen::MatrixXd;
+    using GreensFuncVec = std::vector<Eigen::MatrixXd>;
+    using ptrGreensFunc = std::unique_ptr<Eigen::MatrixXd>;
+    using ptrGreensFuncVec = std::unique_ptr<std::vector<Eigen::MatrixXd>>;
+
+
     // -------------------------------- Abstract base class Model::ModelBase ------------------------------------
     class ModelBase {
         protected:
-            using SpaceIndex = int;
-            using TimeIndex = int;
-            using Spin = int;
-            using Walker = QuantumMonteCarlo::DqmcWalker;
-            using Lattice = Lattice::LatticeBase;
-            using GreensFunc = Eigen::MatrixXd;
-            using Matrix = Eigen::MatrixXd;
-            
-            // Exponential form of K matrix and V matrix
-            // K matrix, corresponding to the hopping matrix, depending only on the hopping constants t's and the geometry of the lattice
+
+            // K matrix, corresponding to the hopping matrix, 
+            // depends only on the hopping constants t's and the geometry of the lattice.
             // V matrix corresponds to the interaction matrix between fermions and the auxiliary bosonic fields,
             // which emerges during the process of Hubbard–Stratonovich transformation in DQMC.
             // In principle V matrix should be model-dependent.
@@ -56,26 +65,56 @@ namespace Model {
             Matrix m_trans_expK_mat{};
             Matrix m_trans_expV_mat{};
 
+            // Equal-time green's functions, which is the most crucial quantities during dqmc simulations
+            // for spin-1/2 systems, we label the spin index with up and down
+            ptrGreensFunc m_green_tt_up{}, m_green_tt_dn{};
+            ptrGreensFuncVec m_vec_green_tt_up{}, m_vec_green_tt_dn{};
+
+            // Time-displaced green's functions G(t,0) and G(0,t)
+            // important for time-displaced measurements of physical observables
+            ptrGreensFunc m_green_t0_up{}, m_green_t0_dn{};
+            ptrGreensFunc m_green_0t_up{}, m_green_0t_dn{};
+            ptrGreensFuncVec m_vec_green_t0_up{}, m_vec_green_t0_dn{};
+            ptrGreensFuncVec m_vec_green_0t_up{}, m_vec_green_0t_dn{};
+
             // other model parameters should be defined in the derived Model classes .
 
         public:
             ModelBase() = default;
+
+            // interface for protected members
+            GreensFunc& GreenttUp();
+            GreensFunc& GreenttDn();
+            GreensFunc& Greent0Up();
+            GreensFunc& Greent0Dn();
+            GreensFunc& Green0tUp();
+            GreensFunc& Green0tDn();
+
+            GreensFuncVec& vecGreenttUp();
+            GreensFuncVec& vecGreenttDn();
+            GreensFuncVec& vecGreent0Up();
+            GreensFuncVec& vecGreent0Dn();
+            GreensFuncVec& vecGreen0tUp();
+            GreensFuncVec& vecGreen0tDn();
         
         protected:
 
-            // initialize the model class for specific lattice
+            // initialize the model class for specific lattice and DqmcWalker
             virtual void initial(const Lattice& lattice, const Walker& walker) = 0;
+
+            // randomrize the bosonic fields, which is model-dependent
+            virtual void set_bosonic_fields_to_random() = 0;
 
             // return the updating radio of one step of the local dqmc update
             // which is model-dependent
             virtual double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
 
             // perform one local dqmc update
-            // it should be defined in this subroutine that 
-            // how the equal-time green's functions are transformed 
-            // given some specific updates of the bosonic fields
-            virtual void local_update(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
-
+            virtual void update_bosonic_field(SpaceIndex space_index, TimeIndex time_index) = 0;
+            
+            // transform the equal-time green's functions
+            // given a specific update of the bosonic fields
+            virtual void update_greens_function(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
 
             // B(t) matrix is defined as exp(- dt V_sigma(t) ) * exp( -dt K )
             // the following functions define the multiplications between green's functions and B matrices

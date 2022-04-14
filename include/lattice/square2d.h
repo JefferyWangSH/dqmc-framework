@@ -7,10 +7,6 @@
   *  inherited from the base class Lattice::LatticeBase.
   */
 
-
-#define EIGEN_USE_MKL_ALL
-#define EIGEN_VECTORIZE_SSE4_2
-#include <Eigen/Core>
 #include "lattice/lattice_base.h"
 
 namespace Lattice {

@@ -176,29 +176,29 @@ namespace Utils {
          *  return (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
          *  note: (1 + left * right^T)^-1 = (1 + (USV^T)_left * (VSU^T)_right)^-1
          */
-        static void compute_greens_eqtime(SvdStack* left, SvdStack* right, Matrix &gtt) {
-            assert(left->MatDim() == right->MatDim());
-            const int ndim = left->MatDim();
+        static void compute_greens_eqtime(SvdStack& left, SvdStack& right, Matrix &gtt) {
+            assert(left.MatDim() == right.MatDim());
+            const int ndim = left.MatDim();
 
             /* at l = 0 */
-            if ( left->empty() ) {
-                compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gtt);
+            if ( left.empty() ) {
+                compute_greens_00_bb(right.MatrixV(), right.SingularValues(), right.MatrixU(), gtt);
                 return;
             }
 
             /* at l = lt */
-            if ( right->empty() ) {
-                compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), gtt);
+            if ( right.empty() ) {
+                compute_greens_00_bb(left.MatrixU(), left.SingularValues(), left.MatrixV(), gtt);
                 return;
             }
 
             // local params
-            const Matrix ul = left->MatrixU();
-            const Vector dl = left->SingularValues();
-            const Matrix vl = left->MatrixV();
-            const Matrix ur = right->MatrixU();
-            const Vector dr = right->SingularValues();
-            const Matrix vr = right->MatrixV();
+            const Matrix ul = left.MatrixU();
+            const Vector dl = left.SingularValues();
+            const Matrix vl = left.MatrixV();
+            const Matrix ur = right.MatrixU();
+            const Vector dr = right.SingularValues();
+            const Matrix vr = right.MatrixV();
 
             Vector dlmax(dl.size()), dlmin(dl.size());
             Vector drmax(dr.size()), drmin(dr.size());
@@ -235,14 +235,14 @@ namespace Utils {
          *  return time-displaced Greens function in a stable manner,
          *  with method of MGS factorization
          */
-        static void compute_greens_dynamic(SvdStack* left, SvdStack* right, Matrix &gt0, Matrix &g0t) {
-            assert( left->MatDim() == right->MatDim() );
-            const int ndim = left->MatDim();
+        static void compute_greens_dynamic(SvdStack& left, SvdStack& right, Matrix &gt0, Matrix &g0t) {
+            assert( left.MatDim() == right.MatDim() );
+            const int ndim = left.MatDim();
 
             /* at l = 0 */
-            if( left->empty() ) {
+            if( left.empty() ) {
                 // gt0 = gtt at t = 0
-                compute_greens_00_bb(right->MatrixV(), right->SingularValues(), right->MatrixU(), gt0);
+                compute_greens_00_bb(right.MatrixV(), right.SingularValues(), right.MatrixU(), gt0);
 
                 // g0t = - ( 1 - gtt ）at t = 0
                 // for convenience: in fact no definition for g0t at t = 0.
@@ -251,23 +251,23 @@ namespace Utils {
             }
 
             /* at l = lt */
-            if( right->empty() ) {
+            if( right.empty() ) {
                 // gt0 = ( 1 + B(\beta, 0) )^-1 * B(\beta, 0)
-                compute_greens_b0(left->MatrixU(), left->SingularValues(), left->MatrixV(), gt0);
+                compute_greens_b0(left.MatrixU(), left.SingularValues(), left.MatrixV(), gt0);
 
                 // g0t = -gtt at t = beta
-                compute_greens_00_bb(left->MatrixU(), left->SingularValues(), left->MatrixV(), g0t);
+                compute_greens_00_bb(left.MatrixU(), left.SingularValues(), left.MatrixV(), g0t);
                 g0t = - g0t;
                 return;
             }
 
             // local params
-            const Matrix ul = left->MatrixU();
-            const Vector dl = left->SingularValues();
-            const Matrix vl = left->MatrixV();
-            const Matrix ur = right->MatrixU();
-            const Vector dr = right->SingularValues();
-            const Matrix vr = right->MatrixV();
+            const Matrix ul = left.MatrixU();
+            const Vector dl = left.SingularValues();
+            const Matrix vl = left.MatrixV();
+            const Matrix ur = right.MatrixU();
+            const Vector dr = right.SingularValues();
+            const Matrix vr = right.MatrixV();
 
             Vector dlmax(dl.size()), dlmin(dl.size());
             Vector drmax(dr.size()), drmin(dr.size());

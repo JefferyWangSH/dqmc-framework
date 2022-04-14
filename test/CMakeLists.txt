@@ -15,6 +15,7 @@ file(GLOB SOURCE_FILE
 # list(REMOVE_ITEM SOURCE_FILE ${PROJECT_SOURCE_DIR}/src/dqmc_main.cpp)
 add_executable(
     ${PROJECT_NAME}  ${SOURCE_FILE} 
+    ${PROJECT_SOURCE_DIR}/src/dqmc.cpp
     ${PROJECT_SOURCE_DIR}/src/dqmc_walker.cpp
     ${PROJECT_SOURCE_DIR}/src/svd_stack.cpp
     ${PROJECT_SOURCE_DIR}/src/fft_solver.cpp

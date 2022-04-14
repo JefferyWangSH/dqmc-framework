@@ -33,7 +33,7 @@ namespace Utils {
             DftiComputeForward(this->m_desc_handle, &this->m_dft_data[0]);
 
             // map transformed data to eigen matrix
-            // output only the eal part of the complex results 
+            // output only the real part of the complex results 
             out = Eigen::Map<Eigen::MatrixXcd>(&this->m_dft_data[0], this->m_row, this->m_col).real();
         }
 
