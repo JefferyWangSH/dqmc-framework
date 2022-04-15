@@ -61,6 +61,13 @@ namespace QuantumMonteCarlo {
 
             DqmcWalker() = default;
 
+            // -----------------------------    Interfaces -------------------------------------
+
+            const int TimeSliceNum() const;
+            const RealScalar Beta()  const;
+            const RealScalar TimeInterval() const;
+            
+
             // ------------------------------ Setup of parameters ------------------------------
 
             // set up the physical parameters

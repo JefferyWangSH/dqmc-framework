@@ -11,20 +11,20 @@ namespace Lattice {
         this->m_total_site_num = (int)std::pow(this->m_space_size, this->m_space_dim);
     }
     
-    int LatticeBase::SpaceDim() { return this->m_space_dim; }
+    const int LatticeBase::SpaceDim() const { return this->m_space_dim; }
 
-    int LatticeBase::SpaceSize() { return this->m_space_size; }
+    const int LatticeBase::SpaceSize() const { return this->m_space_size; }
 
-    int LatticeBase::TotalSiteNum() { return this->m_total_site_num; }
+    const int LatticeBase::TotalSiteNum() const { return this->m_total_site_num; }
     
-    const Eigen::MatrixXd& LatticeBase::HoppingMatrix() { return this->m_hopping_matrix; }
+    const Eigen::MatrixXd& LatticeBase::HoppingMatrix() const { return this->m_hopping_matrix; }
     
-    int LatticeBase::site2index(const std::array<int,2>& site) {
+    const int LatticeBase::site2index(const std::array<int,2>& site) const {
         const auto& [x, y] = site;
         return (x % this->m_space_size) + this->m_space_size * (y % this->m_space_size);
     }
 
-    const std::array<int,2> LatticeBase::index2site(int index) {
+    const std::array<int,2> LatticeBase::index2site(int index) const {
         assert( index >= 0 && index < this->m_total_site_num );
         const int x = index % this->m_space_size;
         const int y = index / this->m_space_size;

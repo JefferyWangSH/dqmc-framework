@@ -16,7 +16,7 @@ namespace Model {
 
 
     // --------------------------- Derived class Model::RepulsiveHubbard ----------------------------
-    class RepulsiveHubbard {
+    class RepulsiveHubbard : public ModelBase {
         private:
 
             using RealScalar = double;
@@ -40,28 +40,30 @@ namespace Model {
 
         public:
 
-            // set up model parameters
+            // --------------------------------- Set up model parameters --------------------------------------
+            
             void set_model_params(RealScalar hopping_t, RealScalar onsite_u, RealScalar chemical_potential);
             
-            void initial(const Lattice& lattice, const Walker& walker);
-            
-            double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
-            
-            void update_bosonic_field(SpaceIndex space_index, TimeIndex time_index);
-            
-            void update_greens_function(const Walker& walker, SpaceIndex space_index, TimeIndex time_index);
 
-            void mult_B_from_left       ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin );
-            void mult_B_from_right      ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin );
-            void mult_invB_from_left    ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin );
-            void mult_invB_from_right   ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin );
-            void mult_transB_from_left  ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin );
-        
+            // ------------------------------------ Initializations -------------------------------------------
 
-        private:
-
+            void initial_KV_matrices(const Lattice& lattice, const Walker& walker);
+            void initial(const Lattice& lattice, const Walker& walker, const MeasureHandler& meas_handler);
             void set_bosonic_fields_to_random();
-            
+
+
+            // ---------------------------------- Monte Carlo updates -----------------------------------------
+
+            const double get_update_radio(TimeIndex time_index, SpaceIndex space_index) const;
+            void update_bosonic_field(TimeIndex time_index, SpaceIndex space_index);
+            void update_greens_function(TimeIndex time_index, SpaceIndex space_index);
+
+            void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin );
+
     };
 
 } // namespace Model

@@ -1,4 +1,7 @@
 #include "model/model_base.h"
+#include "lattice/lattice_base.h"
+#include "measure/measure_handler.h"
+#include "dqmc_walker.h"
 
 
 namespace Model {
@@ -50,6 +53,39 @@ namespace Model {
 
     GreensFuncVec& ModelBase::vecGreen0tDn() {
         return *this->m_vec_green_0t_dn;
+    }
+
+
+    void ModelBase::initial_greens_function(    const Lattice& lattice, 
+                                                const Walker& walker, 
+                                                const MeasureHandler& meas_handler ) 
+    {
+        this->m_space_size = lattice.TotalSiteNum();
+        this->m_time_size  = walker.TimeSliceNum();
+        this->m_is_equaltime = meas_handler.isEqualTime();
+        this->m_is_dynamic = meas_handler.isDynamic();
+        
+        // allocate memory for greens functions
+        this->m_green_tt_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+        this->m_green_tt_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+        if ( this->m_is_equaltime || this->m_is_dynamic ) {
+            this->m_vec_green_tt_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_tt_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+
+        if ( this->m_is_dynamic ) {
+            this->m_green_t0_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_t0_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+            this->m_vec_green_t0_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_t0_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+
     }
 
 

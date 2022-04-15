@@ -18,7 +18,7 @@
 #include "utils/linear_algebra.hpp"
 #include "utils/numerical_stable.hpp"
 #include "utils/progress_bar.hpp"
-#include "utils/random.hpp"
+#include "random.h"
 
 
 
@@ -32,23 +32,61 @@
 
 int main() {
 
+    // test Repulsive Hubbard
 
-    // test ObservableHandler 
-    Observable::ObservableHandler* handler = new Observable::ObservableHandler();
+    // some params
+    int ll = 4;
+    int ls = ll * ll;
+    double beta = 4.0;
+    int lt = 80;
 
-    std::vector<std::string> obs_list{ "filling_number", };
-    handler->initial(obs_list);
+    double hopping_t = 1.0;
+    double onsite_u  = 4.0;
+    double chemical_potential = 0.0;
 
-    if ( handler->find("filling_number") ) {
-        std::cout << "found!" << std::endl;
-        const auto obs = handler->find_scalar("filling_number");
-        std::cout << obs.name() << std::endl;
-    }
-    if ( handler->find("eqtime_sign") ) {
-        std::cout << "found!" << std::endl;
-        const auto obs = handler->find_scalar("eqtime_sign");
-        std::cout << obs.name() << std::endl;
-    }
+    Model::RepulsiveHubbard* model = new Model::RepulsiveHubbard();
+    Lattice::Square2d* lattice = new Lattice::Square2d();
+    QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
+    Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
+
+    // initialize lattice
+    lattice->set_space_size(ls);
+    lattice->initial();
+
+    // initialize dqmcWalker
+    walker->set_physical_params(beta, lt);
+
+    // initialize model
+    model->set_model_params(hopping_t, onsite_u, chemical_potential);
+    model->initial(*lattice, *walker, *meas_handler);
+
+    model->set_bosonic_fields_to_random();
+
+
+
+
+
+
+
+
+
+
+    // // test ObservableHandler 
+    // Observable::ObservableHandler* handler = new Observable::ObservableHandler();
+
+    // std::vector<std::string> obs_list{ "filling_number", };
+    // handler->initial(obs_list);
+
+    // if ( handler->find("filling_number") ) {
+    //     std::cout << "found!" << std::endl;
+    //     const auto obs = handler->find_scalar("filling_number");
+    //     std::cout << obs.name() << std::endl;
+    // }
+    // if ( handler->find("eqtime_sign") ) {
+    //     std::cout << "found!" << std::endl;
+    //     const auto obs = handler->find_scalar("eqtime_sign");
+    //     std::cout << obs.name() << std::endl;
+    // }
     // std::cout << (handler->m_eqtime_scalar_obs[0])->name() << std::endl;
     
     // Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();

@@ -30,14 +30,14 @@ namespace Lattice {
 
             void set_space_size(int space_size);
 
-            int SpaceDim();
-            int SpaceSize();
-            int TotalSiteNum();
-            const Eigen::MatrixXd& HoppingMatrix();
+            const int SpaceDim()     const;
+            const int SpaceSize()    const;
+            const int TotalSiteNum() const;
+            const Eigen::MatrixXd& HoppingMatrix() const;
 
             // todo: maybe replace vector with x and y
-            int site2index(const std::array<int,2>& site);
-            const std::array<int,2> index2site(int index);
+            const int               site2index(const std::array<int,2>& site) const;
+            const std::array<int,2> index2site(int index) const;
 
             // initialize class, especially generating hopping matrix
             void initial();

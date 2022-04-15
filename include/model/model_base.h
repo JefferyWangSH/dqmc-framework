@@ -25,6 +25,10 @@ namespace Lattice {
     class LatticeBase;
 }
 
+namespace Measure {
+    class MeasureHandler;
+}
+
 namespace Model {
 
     // useful aliases
@@ -34,6 +38,7 @@ namespace Model {
 
     using Walker = QuantumMonteCarlo::DqmcWalker;
     using Lattice = Lattice::LatticeBase;
+    using MeasureHandler = Measure::MeasureHandler;
     using Matrix = Eigen::MatrixXd;
 
     using GreensFunc = Eigen::MatrixXd;
@@ -77,6 +82,13 @@ namespace Model {
             ptrGreensFuncVec m_vec_green_t0_up{}, m_vec_green_t0_dn{};
             ptrGreensFuncVec m_vec_green_0t_up{}, m_vec_green_0t_dn{};
 
+            // bool params to indicate whether the equal-time or dynamic measurements will be performed
+            bool m_is_equaltime{};
+            bool m_is_dynamic{};
+
+            int m_space_size{};
+            int m_time_size{};
+
             // other model parameters should be defined in the derived Model classes .
 
         public:
@@ -100,21 +112,23 @@ namespace Model {
         protected:
 
             // initialize the model class for specific lattice and DqmcWalker
-            virtual void initial(const Lattice& lattice, const Walker& walker) = 0;
+            virtual void initial_KV_matrices(const Lattice& lattice, const Walker& walker) = 0;
+            void initial_greens_function(const Lattice& lattice, const Walker& walker, const MeasureHandler& meas_handler);
+            virtual void initial(const Lattice& lattice, const Walker& walker, const MeasureHandler& meas_handler) = 0;
 
             // randomrize the bosonic fields, which is model-dependent
             virtual void set_bosonic_fields_to_random() = 0;
 
             // return the updating radio of one step of the local dqmc update
             // which is model-dependent
-            virtual double get_update_radio(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
+            virtual const double get_update_radio(TimeIndex time_index, SpaceIndex space_index) const = 0;
 
             // perform one local dqmc update
-            virtual void update_bosonic_field(SpaceIndex space_index, TimeIndex time_index) = 0;
+            virtual void update_bosonic_field(TimeIndex time_index, SpaceIndex space_index) = 0;
             
             // transform the equal-time green's functions
             // given a specific update of the bosonic fields
-            virtual void update_greens_function(const Walker& walker, SpaceIndex space_index, TimeIndex time_index) = 0;
+            virtual void update_greens_function(TimeIndex time_index, SpaceIndex space_index) = 0;
 
             // B(t) matrix is defined as exp(- dt V_sigma(t) ) * exp( -dt K )
             // the following functions define the multiplications between green's functions and B matrices
@@ -122,11 +136,11 @@ namespace Model {
             // from the perspective of effiency, we donot need to calculate expV explicitly,
             // because in many cases, depending on the specific model and HS transformation,
             // they are diagonalized and it is straightforward to directly define their muplication rules.
-            virtual void mult_B_from_left       ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_B_from_right      ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_invB_from_left    ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_invB_from_right   ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_transB_from_left  ( GreensFunc& green, const Walker& walker, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
     };
 
 }
