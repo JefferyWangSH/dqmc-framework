@@ -12,6 +12,10 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 
+
+// todo: rewrite LatticeBase and support 3d lattice.
+// move the construction of hopping matrix to derived class. 
+
 namespace Lattice {
 
         // -------------------------- Abstract base class Lattice::LatticeBase ----------------------------
