@@ -12,6 +12,7 @@
 
 #include "dqmc_walker.h"
 #include "dqmc.h"
+#include "dqmc_initializer.h"
 
 #include "svd_stack.h"
 #include "fft_solver.h"
@@ -35,32 +36,41 @@ int main() {
     // test Repulsive Hubbard
 
     // some params
-    int ll = 4;
-    int ls = ll * ll;
+    int ll = 2;
     double beta = 4.0;
     int lt = 80;
+
+    int nwrap = 10;
 
     double hopping_t = 1.0;
     double onsite_u  = 4.0;
     double chemical_potential = 0.0;
+
+    // fixed random seed for debug
+    Utils::Random::set_seed_fixed(12345);
 
     Model::RepulsiveHubbard* model = new Model::RepulsiveHubbard();
     Lattice::Square2d* lattice = new Lattice::Square2d();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
 
-    // initialize lattice
-    lattice->set_space_size(ls);
-    lattice->initial();
-
-    // initialize dqmcWalker
+    // set up params
+    lattice->set_space_size(ll);
     walker->set_physical_params(beta, lt);
-
-    // initialize model
+    walker->set_stabilization_pace(nwrap);
     model->set_model_params(hopping_t, onsite_u, chemical_potential);
-    model->initial(*lattice, *walker, *meas_handler);
+
+    // initialize modules
+    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
 
     model->set_bosonic_fields_to_random();
+
+    QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
+
+    std::cout << model->GreenttUp() << std::endl;
+    std::cout << lattice->HoppingMatrix() << std::endl;
+
+
 
 
 

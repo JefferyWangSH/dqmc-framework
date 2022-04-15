@@ -109,7 +109,7 @@ namespace Model {
             GreensFuncVec& vecGreen0tUp();
             GreensFuncVec& vecGreen0tDn();
         
-        protected:
+        public:
 
             // initialize the model class for specific lattice and DqmcWalker
             virtual void initial_KV_matrices(const Lattice& lattice, const Walker& walker) = 0;
@@ -140,7 +140,7 @@ namespace Model {
             virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
             virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
             virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
     };
 
 }

@@ -13,6 +13,8 @@ namespace Measure {
             const bool isEqualTime() const { return true; };
             const bool isDynamic() const { return true; };
             
+
+            void initial() {};
     };
 
 

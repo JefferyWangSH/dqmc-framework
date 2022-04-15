@@ -19,9 +19,13 @@ namespace Measure { class MeasureHandler; }
 
 namespace QuantumMonteCarlo {
 
+    // forward declaration
+    class DqmcInitializer;
+
     using LatticeBase = Lattice::LatticeBase;
     using ModelBase = Model::ModelBase;
     using MeasureHandler = Measure::MeasureHandler;
+
 
     // ------------------------ Crucial class QuantumMonteCarlo::DqmcWalker ----------------------------   
     class DqmcWalker {
@@ -33,7 +37,8 @@ namespace QuantumMonteCarlo {
             using SvdStack = Utils::SvdStack;
             using ptrSvdStack = std::unique_ptr<SvdStack>;
             
-            int m_time_slice_num{};              // number of time slices
+            int m_space_size{};                  // number of space sites
+            int m_time_size{};                   // number of time slices
             RealScalar m_beta{};                 // inverse temperature beta
             RealScalar m_time_interval{};        // interval of imaginary-time grids
             int m_current_time_slice{};          // helping params to record current time slice
@@ -56,36 +61,51 @@ namespace QuantumMonteCarlo {
             RealScalar m_config_sign{};
             ptrRealScalarVec m_vec_config_sign{};
 
+            bool m_is_equaltime{};
+            bool m_is_dynamic{};
 
         public:
 
             DqmcWalker() = default;
 
-            // -----------------------------    Interfaces -------------------------------------
+            // --------------------------- Interfaces and friend class -------------------------
 
             const int TimeSliceNum() const;
             const RealScalar Beta()  const;
             const RealScalar TimeInterval() const;
+            const RealScalar WrapError() const;
+            const int StabilizationPace() const;
+
+            friend class DqmcInitializer;
             
 
             // ------------------------------ Setup of parameters ------------------------------
 
             // set up the physical parameters
             // especially the inverse temperature and the number of time slices
-            void set_physical_params( RealScalar beta, int time_slice_num );
+            void set_physical_params( RealScalar beta, int time_size );
 
             // set up the pace of stabilizations
             void set_stabilization_pace( int stabilization_pace );
 
 
-            // -------------------------------- Initialization ---------------------------------
-            
+        private:
+        
+            // ------------------------------- Initialization ----------------------------------
+            // never explicitly call these functions to avoid unpredictable mistakes, and use DqmcInitializer instead 
+
             void initial( const LatticeBase& lattice, const MeasureHandler& meas_handler );
 
-            void initial_svd_stacks( const LatticeBase& lattice );
+            void initial_svd_stacks( const LatticeBase& lattice, const ModelBase& model );
 
+            // caution that this is a member function to initialize the model module
+            // svd stacks should be initialized in advance
+            void initial_greens_function( ModelBase& model );
 
-            // ------------------------------ Monte Carlo updates ------------------------------
+        
+        public:
+
+            // ----------------------------- Monte Carlo updates -------------------------------
             
             // sweep forwards from time slice 0 to beta
             void sweep_from_0_to_beta( ModelBase& model );

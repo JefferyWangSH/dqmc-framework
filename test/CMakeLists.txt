@@ -17,6 +17,7 @@ add_executable(
     ${PROJECT_NAME}  ${SOURCE_FILE} 
     ${PROJECT_SOURCE_DIR}/src/dqmc.cpp
     ${PROJECT_SOURCE_DIR}/src/dqmc_walker.cpp
+    ${PROJECT_SOURCE_DIR}/src/dqmc_initializer.cpp
     ${PROJECT_SOURCE_DIR}/src/svd_stack.cpp
     ${PROJECT_SOURCE_DIR}/src/fft_solver.cpp
     ${PROJECT_SOURCE_DIR}/src/random.cpp

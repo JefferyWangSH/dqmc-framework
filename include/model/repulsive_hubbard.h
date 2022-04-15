@@ -62,7 +62,7 @@ namespace Model {
             void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
             void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
             void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const;
 
     };
 

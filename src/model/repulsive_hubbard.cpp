@@ -20,6 +20,8 @@ namespace Model {
                                                 RealScalar onsite_u, 
                                                 RealScalar chemical_potential  ) 
     {
+        assert( hopping_t >= 0.0 );
+        assert( onsite_u >= 0.0 );
         assert( chemical_potential >= 0.0 );
         this->m_hopping_t = hopping_t;
         this->m_onsite_u = onsite_u;
@@ -31,16 +33,17 @@ namespace Model {
     {   
         const int space_size = lattice.TotalSiteNum();
         const RealScalar time_interval = walker.TimeInterval();
-        const SpaceSpaceMat chemical_potential_mat = -this->m_chemical_potential * SpaceSpaceMat::Identity(space_size,space_size);
-        const SpaceSpaceMat Kmat = lattice.HoppingMatrix() - chemical_potential_mat;
+        // todo: check the +/- sign of the chemical potential here
+        const SpaceSpaceMat chemical_potential_mat = this->m_chemical_potential * SpaceSpaceMat::Identity(space_size,space_size);
+        const SpaceSpaceMat Kmat = this->m_hopping_t * lattice.HoppingMatrix() + chemical_potential_mat;
         
-        this->m_expK_mat        = ( -time_interval * Kmat ).exp();
-        this->m_inv_expK_mat    = ( +time_interval * Kmat ).exp();
+        this->m_expK_mat       = ( -time_interval * Kmat ).exp();
+        this->m_inv_expK_mat   = ( +time_interval * Kmat ).exp();
         
         // in general K matrix is symmetrical
-        this->m_trans_expK_mat  = this->m_expK_mat.transpose();
+        this->m_trans_expK_mat = this->m_expK_mat.transpose();
 
-        // since V is diagonalized in Hubbaerd model
+        // since V is diagonalized in the Hubbard model
         // there is no need to explicitly compute expV
     }
 
@@ -202,7 +205,7 @@ namespace Model {
     }
 
     
-    void RepulsiveHubbard::mult_transB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbard::mult_transB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the left by B(t)^T
         //      G  ->  B(t)^T * G = exp( -dt K )^T * exp( -dt V_sigma(t) ) * G

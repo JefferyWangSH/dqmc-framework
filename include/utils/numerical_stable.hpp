@@ -11,6 +11,7 @@
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include <Eigen/QR>
 #include "svd_stack.h"
 
