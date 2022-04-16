@@ -17,7 +17,7 @@ namespace QuantumMonteCarlo {
         lattice.initial();
 
         // initialize model module
-        model.initial( lattice, walker, meas_handler );
+        model.initial( lattice, walker );
 
         // initialize dqmcWalker module
         walker.initial( lattice, meas_handler );
@@ -38,7 +38,7 @@ namespace QuantumMonteCarlo {
         // SvdStack class are initialized and the greens functions 
         // for the initial bosonic fields are computed in this function.
         walker.initial_svd_stacks( lattice, model );
-        walker.initial_greens_function( model );
+        walker.initial_greens_function();
     }
 
 

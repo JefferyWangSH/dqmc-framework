@@ -16,6 +16,8 @@ namespace QuantumMonteCarlo {
     using ptrSvdStack = std::unique_ptr<SvdStack>;
     using Matrix = Eigen::MatrixXd;
     using NumericalStable = Utils::NumericalStable;
+    using GreensFunc = Eigen::MatrixXd;
+    using GreensFuncVec = std::vector<Eigen::MatrixXd>;
 
 
     const int DqmcWalker::TimeSliceNum() const {
@@ -36,6 +38,55 @@ namespace QuantumMonteCarlo {
 
     const int DqmcWalker::StabilizationPace() const {
         return this->m_stabilization_pace;
+    }
+
+    GreensFunc& DqmcWalker::GreenttUp() {
+        // todo: this may cause problems if the pointer is nullptr
+        return *this->m_green_tt_up;
+    }
+
+    GreensFunc& DqmcWalker::GreenttDn() {
+        return *this->m_green_tt_dn;
+    }
+
+    GreensFunc& DqmcWalker::Greent0Up() {
+        return *this->m_green_t0_up;
+    }
+
+    GreensFunc& DqmcWalker::Greent0Dn() {
+        return *this->m_green_t0_dn;
+    }
+
+    GreensFunc& DqmcWalker::Green0tUp() {
+        return *this->m_green_0t_up;
+    }
+
+    GreensFunc& DqmcWalker::Green0tDn() {
+        return *this->m_green_0t_dn;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreenttUp() {
+        return *this->m_vec_green_tt_up;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreenttDn() {
+        return *this->m_vec_green_tt_dn;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreent0Up() {
+        return *this->m_vec_green_t0_up;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreent0Dn() {
+        return *this->m_vec_green_t0_dn;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreen0tUp() {
+        return *this->m_vec_green_0t_up;
+    }
+
+    GreensFuncVec& DqmcWalker::vecGreen0tDn() {
+        return *this->m_vec_green_0t_dn;
     }
 
 
@@ -93,11 +144,32 @@ namespace QuantumMonteCarlo {
     }
 
 
-    void DqmcWalker::initial_greens_function( ModelBase& model ) {
-        // initialize greens function at time slice t = 0
+    void DqmcWalker::initial_greens_function() {
+        // first allocate memory for greens functions
+        this->m_green_tt_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+        this->m_green_tt_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+        if ( this->m_is_equaltime || this->m_is_dynamic ) {
+            this->m_vec_green_tt_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_tt_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+
+        if ( this->m_is_dynamic ) {
+            this->m_green_t0_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_t0_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+            this->m_vec_green_t0_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_t0_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+
+        // compute greens function at time slice t = 0
         // which corresponds to imaginary-time tau = beta
-        NumericalStable::compute_greens_eqtime( *this->m_svd_stack_left_up, *this->m_svd_stack_right_up, model.GreenttUp() );
-        NumericalStable::compute_greens_eqtime( *this->m_svd_stack_left_dn, *this->m_svd_stack_right_dn, model.GreenttDn() );
+        NumericalStable::compute_greens_eqtime( *this->m_svd_stack_left_up, *this->m_svd_stack_right_up, *this->m_green_tt_up );
+        NumericalStable::compute_greens_eqtime( *this->m_svd_stack_left_dn, *this->m_svd_stack_right_dn, *this->m_green_tt_dn );
     }
 
 

@@ -39,7 +39,6 @@ namespace Lattice {
                 const int index_xplus1 = this->site2index({x+1, y});
                 const int index_yplus1 = this->site2index({x, y+1});
                 
-                // double counting
                 this->m_hopping_matrix(index, index_xplus1) -= 1.0;
                 this->m_hopping_matrix(index_xplus1, index) -= 1.0;
                 this->m_hopping_matrix(index, index_yplus1) -= 1.0;

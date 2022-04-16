@@ -15,7 +15,7 @@
 namespace Model {
 
 
-    // --------------------------- Derived class Model::RepulsiveHubbard ----------------------------
+    // --------------------------------- Derived class Model::RepulsiveHubbard -------------------------------------
     class RepulsiveHubbard : public ModelBase {
         private:
 
@@ -40,29 +40,32 @@ namespace Model {
 
         public:
 
-            // --------------------------------- Set up model parameters --------------------------------------
+            // ----------------------------------- Set up model parameters ----------------------------------------
             
             void set_model_params(RealScalar hopping_t, RealScalar onsite_u, RealScalar chemical_potential);
             
 
-            // ------------------------------------ Initializations -------------------------------------------
+            // ------------------------------------- Initializations ----------------------------------------------
 
-            void initial_KV_matrices(const Lattice& lattice, const Walker& walker);
-            void initial(const Lattice& lattice, const Walker& walker, const MeasureHandler& meas_handler);
+            void initial               ( const Lattice& lattice, const Walker& walker );
+            void initial_KV_matrices   ( const Lattice& lattice, const Walker& walker );
             void set_bosonic_fields_to_random();
 
 
-            // ---------------------------------- Monte Carlo updates -----------------------------------------
+            // ------------------------------------- Monte Carlo updates ------------------------------------------
 
-            const double get_update_radio(TimeIndex time_index, SpaceIndex space_index) const;
-            void update_bosonic_field(TimeIndex time_index, SpaceIndex space_index);
-            void update_greens_function(TimeIndex time_index, SpaceIndex space_index);
+            void update_bosonic_field      ( TimeIndex time_index, SpaceIndex space_index );
+            void update_greens_function    ( Walker& walker, TimeIndex time_index, SpaceIndex space_index );
+            const double get_update_radio  ( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const ;
 
+            
+            // -------------------------------------- Warpping methods --------------------------------------------
+            
             void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin );
             void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
             void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
             void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const;
+            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
 
     };
 

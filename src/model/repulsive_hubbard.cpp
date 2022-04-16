@@ -48,23 +48,20 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::initial( const Lattice& lattice, const Walker& walker, const MeasureHandler& meas_handler ) 
+    void RepulsiveHubbard::initial( const Lattice& lattice, const Walker& walker ) 
     {
-        const int space_size = lattice.TotalSiteNum();
-        const int time_size  = walker.TimeSliceNum();
+        this->m_space_size = lattice.TotalSiteNum();
+        this->m_time_size  = walker.TimeSliceNum();
         const RealScalar time_interval = walker.TimeInterval();
 
         this->m_alpha = acosh( exp(0.5 * time_interval * this->m_onsite_u) );
 
         // allocate memory for bosonic fields
-        this->m_bosonic_field.resize(time_size, space_size);
+        this->m_bosonic_field.resize(this->m_time_size, this->m_space_size);
 
         // initialize K matrices
         // no need to initialize V matrices because in our model V is diagonalized.
         this->initial_KV_matrices(lattice, walker);
-
-        // initialize greens functions by calling member function of base class
-        ModelBase::initial_greens_function(lattice, walker, meas_handler);
     }
     
     
@@ -84,18 +81,6 @@ namespace Model {
     }
 
 
-    const double RepulsiveHubbard::get_update_radio( TimeIndex time_index, SpaceIndex space_index ) const
-    {
-        assert( time_index >= 0 && time_index < this->m_time_size );
-        assert( space_index >= 0 && space_index < this->m_space_size );
-
-        return  ( 1 + (1 - (*this->m_green_tt_up)(space_index, space_index))
-                         * ( exp( -2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) )
-              * ( 1 + (1 - (*this->m_green_tt_dn)(space_index, space_index)) 
-                         * ( exp( +2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) );
-    }
-
-
     void RepulsiveHubbard::update_bosonic_field( TimeIndex time_index, SpaceIndex space_index )
     {
         assert( time_index >= 0 && time_index < this->m_time_size );
@@ -106,31 +91,49 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::update_greens_function( TimeIndex time_index, SpaceIndex space_index )
+    const double RepulsiveHubbard::get_update_radio( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const
+    {
+        assert( time_index >= 0 && time_index < this->m_time_size );
+        assert( space_index >= 0 && space_index < this->m_space_size );
+
+        const Eigen::MatrixXd& green_tt_up = walker.GreenttUp();
+        const Eigen::MatrixXd& green_tt_dn = walker.GreenttDn();
+
+        return  ( 1 + (1 - green_tt_up(space_index, space_index))
+                         * ( exp( -2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) )
+              * ( 1 + (1 - green_tt_dn(space_index, space_index)) 
+                         * ( exp( +2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) );
+    }
+
+
+    void RepulsiveHubbard::update_greens_function( Walker& walker, TimeIndex time_index, SpaceIndex space_index )
     {
         // update the equal-time greens functions 
         // as a consequence of a local Z2 flip of the bosonic fields at (time_index, space_index)
         assert( time_index >= 0 && time_index < this->m_time_size );
         assert( space_index >= 0 && space_index < this->m_space_size );
 
+        Eigen::MatrixXd& green_tt_up = walker.GreenttUp();
+        Eigen::MatrixXd& green_tt_dn = walker.GreenttDn();
+
         // reference:
         //   Quantum Monte Carlo Methods (Algorithms for Lattice Models) Determinant method
         // here we use the sparseness of the matrix \delta
         const double factor_up 
             = ( exp( -2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 )
-            / ( 1 + ( 1 - (*this->m_green_tt_up)(space_index, space_index) ) 
+            / ( 1 + ( 1 - green_tt_up(space_index, space_index) ) 
             * ( exp( -2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) );
         const double factor_dn 
             = ( exp( +2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) 
-            / ( 1 + ( 1 - (*this->m_green_tt_dn)(space_index, space_index) )
+            / ( 1 + ( 1 - green_tt_dn(space_index, space_index) )
             * ( exp( +2 * this->m_alpha * this->m_bosonic_field(time_index, space_index) ) - 1 ) );
         
-        (*this->m_green_tt_up) 
-            -= factor_up * this->m_green_tt_up->col(space_index) 
-            * ( Eigen::VectorXd::Unit(this->m_space_size, space_index).transpose() - this->m_green_tt_up->row(space_index) );
-        (*this->m_green_tt_dn) 
-            -= factor_dn * this->m_green_tt_dn->col(space_index)
-            * ( Eigen::VectorXd::Unit(this->m_space_size, space_index).transpose() - this->m_green_tt_dn->row(space_index) );
+        green_tt_up
+            -= factor_up * green_tt_up.col(space_index) 
+            * ( Eigen::VectorXd::Unit(this->m_space_size, space_index).transpose() - green_tt_up.row(space_index) );
+        green_tt_dn
+            -= factor_dn * green_tt_dn.col(space_index)
+            * ( Eigen::VectorXd::Unit(this->m_space_size, space_index).transpose() - green_tt_dn.row(space_index) );
     }
 
 

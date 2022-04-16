@@ -49,8 +49,8 @@ int main() {
     // fixed random seed for debug
     Utils::Random::set_seed_fixed(12345);
 
-    Model::RepulsiveHubbard* model = new Model::RepulsiveHubbard();
-    Lattice::Square2d* lattice = new Lattice::Square2d();
+    Model::ModelBase* model = new Model::RepulsiveHubbard();
+    Lattice::LatticeBase* lattice = new Lattice::Square2d();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
 
@@ -67,7 +67,7 @@ int main() {
 
     QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
 
-    std::cout << model->GreenttUp() << std::endl;
+    std::cout << walker->GreenttUp() << std::endl;
     std::cout << lattice->HoppingMatrix() << std::endl;
 
 

@@ -16,6 +16,9 @@
 // todo: rewrite LatticeBase and support 3d lattice.
 // move the construction of hopping matrix to derived class. 
 
+// todo: construct neighbour table and index2site table once for all, in form of Eigen::MatrixXd
+// todo: generate momentum grids in 2d
+
 namespace Lattice {
 
         // -------------------------- Abstract base class Lattice::LatticeBase ----------------------------
