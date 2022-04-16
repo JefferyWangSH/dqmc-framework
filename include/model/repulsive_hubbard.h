@@ -40,6 +40,13 @@ namespace Model {
 
         public:
 
+            // ------------------------------------------ Interfaces ----------------------------------------------
+
+            const RealScalar HoppingT() const; 
+            const RealScalar ChemicalPotential() const;
+            const RealScalar OnSiteU()  const;
+
+
             // ----------------------------------- Set up model parameters ----------------------------------------
             
             void set_model_params(RealScalar hopping_t, RealScalar onsite_u, RealScalar chemical_potential);

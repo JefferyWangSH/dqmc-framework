@@ -12,18 +12,20 @@ namespace QuantumMonteCarlo {
                                             DqmcWalker& walker,
                                             MeasureHandler& meas_handler )
     {
-        // make sure that the params are setup correctly in advance
+        // make sure that the params are setup correctly in advance,
+        // and the orders of initializations below are important.
+
         // initialize lattice module
         lattice.initial();
+
+        // initialize MeasureHandler module
+        meas_handler.initial();
 
         // initialize model module
         model.initial( lattice, walker );
 
         // initialize dqmcWalker module
         walker.initial( lattice, meas_handler );
-
-        // initialize MeasureHandler module
-        meas_handler.initial();
     }
 
 

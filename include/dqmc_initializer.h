@@ -3,6 +3,12 @@
 #pragma once
 
 
+/**
+  *  This header file defines the dqmc initializer class QuantumMonteCarlo::DqmcInitializer,
+  *  which contains static member functions to initialize the dqmc modules altogether. 
+  */
+
+
 namespace Lattice { class LatticeBase; }
 namespace Model { class ModelBase; }
 namespace Measure { class MeasureHandler; }

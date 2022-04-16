@@ -21,6 +21,9 @@
 #include "utils/progress_bar.hpp"
 #include "random.h"
 
+#include "checkerboard/checkerboard_base.h"
+#include "checkerboard/square2d.h"
+
 
 
 // #include "random.h"
@@ -67,8 +70,15 @@ int main() {
 
     QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
 
-    std::cout << walker->GreenttUp() << std::endl;
-    std::cout << lattice->HoppingMatrix() << std::endl;
+    // std::cout << walker->GreenttUp() << std::endl;
+    // std::cout << lattice->HoppingMatrix() << std::endl;
+
+
+    // test checker board
+    // even lattice size and efficiency ?
+    CheckerBoard::Square2d* cb = new CheckerBoard::Square2d();
+    cb->set_params(ll, ll*ll, walker->TimeInterval(), hopping_t, chemical_potential);
+    cb->initial();
 
 
 

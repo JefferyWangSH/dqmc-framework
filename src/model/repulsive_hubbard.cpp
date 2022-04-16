@@ -16,6 +16,19 @@ namespace Model {
     using SpaceSpaceMat = Eigen::MatrixXd;
 
 
+    const RealScalar RepulsiveHubbard::HoppingT() const {
+        return this->m_hopping_t;
+    }
+    
+    const RealScalar RepulsiveHubbard::ChemicalPotential() const {
+        return this->m_chemical_potential;
+    }
+
+    const RealScalar RepulsiveHubbard::OnSiteU()  const {
+        return this->m_onsite_u;
+    }
+
+
     void RepulsiveHubbard::set_model_params (   RealScalar hopping_t, 
                                                 RealScalar onsite_u, 
                                                 RealScalar chemical_potential  ) 
