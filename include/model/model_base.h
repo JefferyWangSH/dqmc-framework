@@ -33,7 +33,7 @@ namespace Model {
     using Spin = int;
 
     using Walker = QuantumMonteCarlo::DqmcWalker;
-    using Lattice = Lattice::LatticeBase;
+    using LatticeBase = Lattice::LatticeBase;
     using Matrix = Eigen::MatrixXd;
 
     using GreensFunc = Eigen::MatrixXd;
@@ -97,8 +97,9 @@ namespace Model {
             // ----------------------------------------- Initializations -------------------------------------------------
 
             // initialize the model class for specific lattice and DqmcWalker
-            virtual void initial_KV_matrices(const Lattice& lattice, const Walker& walker) {};
-            virtual void initial(const Lattice& lattice, const Walker& walker) = 0;
+            virtual void initial             (const LatticeBase& lattice, const Walker& walker) = 0;
+            virtual void initial_params      (const LatticeBase& lattice, const Walker& walker) = 0;
+            virtual void initial_KV_matrices (const LatticeBase& lattice, const Walker& walker) = 0;
 
             // randomrize the bosonic fields, which is model-dependent
             virtual void set_bosonic_fields_to_random() = 0;

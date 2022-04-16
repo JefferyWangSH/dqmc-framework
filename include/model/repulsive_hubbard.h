@@ -17,7 +17,7 @@ namespace Model {
 
     // --------------------------------- Derived class Model::RepulsiveHubbard -------------------------------------
     class RepulsiveHubbard : public ModelBase {
-        private:
+        protected:
 
             using RealScalar = double;
             using SpaceTimeMat = Eigen::MatrixXd;
@@ -43,20 +43,21 @@ namespace Model {
             // ------------------------------------------ Interfaces ----------------------------------------------
 
             const RealScalar HoppingT() const; 
-            const RealScalar ChemicalPotential() const;
             const RealScalar OnSiteU()  const;
+            const RealScalar ChemicalPotential() const;
 
 
             // ----------------------------------- Set up model parameters ----------------------------------------
             
-            void set_model_params(RealScalar hopping_t, RealScalar onsite_u, RealScalar chemical_potential);
+            void set_model_params( RealScalar hopping_t, RealScalar onsite_u, RealScalar chemical_potential );
             
 
             // ------------------------------------- Initializations ----------------------------------------------
 
-            void initial               ( const Lattice& lattice, const Walker& walker );
-            void initial_KV_matrices   ( const Lattice& lattice, const Walker& walker );
-            void set_bosonic_fields_to_random();
+            virtual void initial              ( const LatticeBase& lattice, const Walker& walker );
+            virtual void initial_params       ( const LatticeBase& lattice, const Walker& walker );
+            virtual void initial_KV_matrices  ( const LatticeBase& lattice, const Walker& walker );
+            void set_bosonic_fields_to_random ( );
 
 
             // ------------------------------------- Monte Carlo updates ------------------------------------------
@@ -68,11 +69,11 @@ namespace Model {
             
             // -------------------------------------- Warpping methods --------------------------------------------
             
-            void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
+            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
 
     };
 

@@ -21,11 +21,11 @@ namespace QuantumMonteCarlo {
         // initialize MeasureHandler module
         meas_handler.initial();
 
-        // initialize model module
-        model.initial( lattice, walker );
-
         // initialize dqmcWalker module
         walker.initial( lattice, meas_handler );
+
+        // initialize model module
+        model.initial( lattice, walker );
     }
 
 

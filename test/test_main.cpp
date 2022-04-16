@@ -5,6 +5,7 @@
 
 #include "model/model_base.h"
 #include "model/repulsive_hubbard.h"
+#include "model/repulsive_hubbard_cbsquare2d.h"
 
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
@@ -24,7 +25,7 @@
 #include "checkerboard/checkerboard_base.h"
 #include "checkerboard/square2d.h"
 
-
+#include <chrono>
 
 // #include "random.h"
 // #include "hubbard.h"
@@ -52,7 +53,7 @@ int main() {
     // fixed random seed for debug
     Utils::Random::set_seed_fixed(12345);
 
-    Model::ModelBase* model = new Model::RepulsiveHubbard();
+    Model::ModelBase* model = new Model::RepulsiveHubbardCbSquare2d();
     Lattice::LatticeBase* lattice = new Lattice::Square2d();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
@@ -70,18 +71,61 @@ int main() {
 
     QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
 
-    // std::cout << walker->GreenttUp() << std::endl;
-    // std::cout << lattice->HoppingMatrix() << std::endl;
+    std::cout << walker->GreenttUp() << std::endl;
+    std::cout << lattice->HoppingMatrix() << std::endl;
 
 
-    // test checker board
-    // even lattice size and efficiency ?
-    CheckerBoard::Square2d* cb = new CheckerBoard::Square2d();
-    cb->set_params(ll, ll*ll, walker->TimeInterval(), hopping_t, chemical_potential);
-    cb->initial();
+    // todo: test checkerboard
+    // even lattice size (ok) and efficiency (ok)
+    
+    // todo: trans mult
+    // todo: Vmat mult benchmark
+    // !!!
 
 
 
+    // Model::ModelBase* model_cb = new Model::RepulsiveHubbardCbSquare2d();
+    // Model::ModelBase* model_direct = new Model::RepulsiveHubbard();
+    // model_cb->set_model_params(hopping_t, onsite_u, chemical_potential);
+    // model_direct->set_model_params(hopping_t, onsite_u, chemical_potential);
+
+    // Lattice::LatticeBase* lattice = new Lattice::Square2d();
+    // QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
+    // Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
+    // lattice->set_space_size(ll);
+    // walker->set_physical_params(beta, lt);
+    // walker->set_stabilization_pace(nwrap);
+    
+    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model_cb, *walker, *meas_handler);
+    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model_direct, *walker, *meas_handler);
+
+    // Utils::Random::set_seed_fixed(12345);
+    // model_cb->set_bosonic_fields_to_random();
+    // Utils::Random::set_seed_fixed(12345);
+    // model_direct->set_bosonic_fields_to_random();
+
+    // Eigen::MatrixXd mat_cb = Eigen::MatrixXd::Identity(ll*ll, ll*ll);
+    // Eigen::MatrixXd mat_direct = mat_cb;
+
+    // const int num_mult = 5000;
+
+    // std::chrono::steady_clock::time_point begin_t{}, end_t{};
+
+    // begin_t = std::chrono::steady_clock::now();
+    // for (auto i = 0; i < num_mult; ++i) {
+    //     model_direct->mult_B_from_left(mat_direct, 0, 1);
+    // }
+    // end_t = std::chrono::steady_clock::now();
+    // std::cout << "direct : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
+    
+    // begin_t = std::chrono::steady_clock::now();
+    // for (auto i = 0; i < num_mult; ++i) {
+    //     model_cb->mult_B_from_left(mat_cb, 0, 1);
+    // }
+    // end_t = std::chrono::steady_clock::now();
+    // std::cout << "cb : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
+
+    // // std::cout << (mat_direct - mat_cb).maxCoeff() << std::endl;
 
 
 

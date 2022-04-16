@@ -42,7 +42,20 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::initial_KV_matrices( const Lattice& lattice, const Walker& walker ) 
+    void RepulsiveHubbard::initial_params( const LatticeBase& lattice, const Walker& walker )
+    {
+        this->m_space_size = lattice.TotalSiteNum();
+        this->m_time_size  = walker.TimeSliceNum();
+        const RealScalar time_interval = walker.TimeInterval();
+
+        this->m_alpha = acosh( exp(0.5 * time_interval * this->m_onsite_u) );
+
+        // allocate memory for bosonic fields
+        this->m_bosonic_field.resize(this->m_time_size, this->m_space_size);
+    }
+
+
+    void RepulsiveHubbard::initial_KV_matrices( const LatticeBase& lattice, const Walker& walker ) 
     {   
         const int space_size = lattice.TotalSiteNum();
         const RealScalar time_interval = walker.TimeInterval();
@@ -61,16 +74,10 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::initial( const Lattice& lattice, const Walker& walker ) 
-    {
-        this->m_space_size = lattice.TotalSiteNum();
-        this->m_time_size  = walker.TimeSliceNum();
-        const RealScalar time_interval = walker.TimeInterval();
-
-        this->m_alpha = acosh( exp(0.5 * time_interval * this->m_onsite_u) );
-
-        // allocate memory for bosonic fields
-        this->m_bosonic_field.resize(this->m_time_size, this->m_space_size);
+    void RepulsiveHubbard::initial( const LatticeBase& lattice, const Walker& walker ) 
+    {   
+        // initialize model params and allocate memory for bosonic fields
+        this->initial_params(lattice, walker);
 
         // initialize K matrices
         // no need to initialize V matrices because in our model V is diagonalized.

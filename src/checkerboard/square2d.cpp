@@ -4,7 +4,6 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <unsupported/Eigen/MatrixFunctions>
 
-
 namespace CheckerBoard {
 
     void Square2d::set_params(  int side_length,
