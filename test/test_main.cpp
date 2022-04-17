@@ -89,6 +89,12 @@ int main() {
     // !!!
 
 
+    // todo: static CheckerBoard class
+    // todo: functional ptr to mult_expK in Model 
+    // ( combine std::function with std::bind to wrap the memember function )
+    // !!
+
+
 
     // Model::ModelBase* model_cb = new Model::RepulsiveHubbardCbSquare2d();
     // Model::ModelBase* model_direct = new Model::RepulsiveHubbard();
