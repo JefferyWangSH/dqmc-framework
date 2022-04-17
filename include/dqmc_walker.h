@@ -103,26 +103,27 @@ namespace QuantumMonteCarlo {
 
             // -------------------------------- Interfaces and friend class --------------------------------
 
-            const int TimeSliceNum() const;
-            const RealScalar Beta()  const;
-            const RealScalar TimeInterval() const;
-            const RealScalar WrapError() const;
-            const int StabilizationPace() const;
+            const int TimeSliceNum() const          { return this->m_time_size; }
+            const RealScalar Beta()  const          { return this->m_beta; }
+            const RealScalar TimeInterval() const   { return this->m_time_interval; }
+            const RealScalar WrapError() const      { return this->m_wrap_error; }
+            const int StabilizationPace() const     { return this->m_stabilization_pace; }
 
             // interface for greens functions
-            GreensFunc& GreenttUp();
-            GreensFunc& GreenttDn();
-            GreensFunc& Greent0Up();
-            GreensFunc& Greent0Dn();
-            GreensFunc& Green0tUp();
-            GreensFunc& Green0tDn();
+            // todo: this may cause problems if the pointer is nullptr
+            GreensFunc& GreenttUp() { return *this->m_green_tt_up; }
+            GreensFunc& GreenttDn() { return *this->m_green_tt_dn; }
+            GreensFunc& Greent0Up() { return *this->m_green_t0_up; }
+            GreensFunc& Greent0Dn() { return *this->m_green_t0_dn; }
+            GreensFunc& Green0tUp() { return *this->m_green_0t_up; }
+            GreensFunc& Green0tDn() { return *this->m_green_0t_dn; }
 
-            GreensFuncVec& vecGreenttUp();
-            GreensFuncVec& vecGreenttDn();
-            GreensFuncVec& vecGreent0Up();
-            GreensFuncVec& vecGreent0Dn();
-            GreensFuncVec& vecGreen0tUp();
-            GreensFuncVec& vecGreen0tDn();
+            GreensFuncVec& vecGreenttUp() { return *this->m_vec_green_tt_up; }
+            GreensFuncVec& vecGreenttDn() { return *this->m_vec_green_tt_dn; }
+            GreensFuncVec& vecGreent0Up() { return *this->m_vec_green_t0_up; }
+            GreensFuncVec& vecGreent0Dn() { return *this->m_vec_green_t0_dn; }
+            GreensFuncVec& vecGreen0tUp() { return *this->m_vec_green_0t_up; }
+            GreensFuncVec& vecGreen0tDn() { return *this->m_vec_green_0t_dn; }
 
             friend class DqmcInitializer;
             
@@ -151,6 +152,9 @@ namespace QuantumMonteCarlo {
             // svd stacks should be initialized in advance
             void initial_greens_function();
 
+            // compute the sign of the initial bosonic configurations
+            void initial_config_sign();
+
         
         public:
 
@@ -166,11 +170,17 @@ namespace QuantumMonteCarlo {
             // without the updates of bosonic fields
             void sweep_for_dynamic_greens( ModelBase& model );
 
+            
+        private:
+
+            // update the bosonic fields at time slice t using Metropolis algorithm
+            void metropolis_update( ModelBase& model, TimeIndex t );
+            
             // wrap the equal-time greens functions from time slice t to t+1
-            void wrap_from_0_to_beta( ModelBase& model, TimeIndex t );
+            void wrap_from_0_to_beta( const ModelBase& model, TimeIndex t );
 
             // wrap the equal-time greens functions from time slice t to t-1
-            void wrap_from_beta_to_0( ModelBase& model, TimeIndex t );
+            void wrap_from_beta_to_0( const ModelBase& model, TimeIndex t );
 
     };
 

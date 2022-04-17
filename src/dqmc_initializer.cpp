@@ -41,6 +41,7 @@ namespace QuantumMonteCarlo {
         // for the initial bosonic fields are computed in this function.
         walker.initial_svd_stacks( lattice, model );
         walker.initial_greens_function();
+        walker.initial_config_sign();
     }
 
 

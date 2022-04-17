@@ -71,8 +71,14 @@ int main() {
 
     QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
 
+    walker->sweep_from_0_to_beta(*model);
+    walker->sweep_from_beta_to_0(*model);
+    walker->sweep_for_dynamic_greens(*model);
+    walker->sweep_from_beta_to_0(*model);
+
     std::cout << walker->GreenttUp() << std::endl;
-    std::cout << lattice->HoppingMatrix() << std::endl;
+    std::cout << std::endl;
+    std::cout << walker->Greent0Up() << std::endl;
 
 
     // todo: test checkerboard
