@@ -29,7 +29,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbardCbSquare2d::mult_B_from_left( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbardCbSquare2d::mult_B_from_left( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the left by B(t)
         //      G  ->  B(t) * G = exp( -dt V_sigma(t) ) * exp( -dt K ) * G
@@ -49,7 +49,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbardCbSquare2d::mult_B_from_right( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbardCbSquare2d::mult_B_from_right( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the right by B(t)
         //      G  ->  G * B(t) = G * exp( -dt V_sigma(t) ) * exp( -dt K )
@@ -60,13 +60,13 @@ namespace Model {
 
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
         for (auto i = 0; i < this->m_space_size; ++i) {
-            green.row(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
+            green.col(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
         this->m_checkerboard.mult_expK_from_right(green);
     }
 
 
-    void RepulsiveHubbardCbSquare2d::mult_invB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbardCbSquare2d::mult_invB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the left by B(t)^-1
         //      G  ->  B(t)^-1 * G = exp( +dt K ) * exp( +dt V_sigma(t) ) * G
@@ -83,7 +83,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbardCbSquare2d::mult_invB_from_right( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbardCbSquare2d::mult_invB_from_right( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the right by B(t)^-1
         //      G  ->  G * B(t)^-1 = G * exp( +dt K ) * exp( +dt V_sigma(t) )
@@ -95,7 +95,7 @@ namespace Model {
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
         this->m_checkerboard.mult_inv_expK_from_right(green);
         for (auto i = 0; i < this->m_space_size; ++i) {
-            green.row(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
+            green.col(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
     }
 

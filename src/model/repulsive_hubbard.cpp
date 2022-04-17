@@ -111,7 +111,7 @@ namespace Model {
     }
 
 
-    const double RepulsiveHubbard::get_update_radio( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const
+    const double RepulsiveHubbard::get_update_ratio( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const
     {
         assert( time_index >= 0 && time_index < this->m_time_size );
         assert( space_index >= 0 && space_index < this->m_space_size );
@@ -157,7 +157,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::mult_B_from_left( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbard::mult_B_from_left( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the left by B(t)
         //      G  ->  B(t) * G = exp( -dt V_sigma(t) ) * exp( -dt K ) * G
@@ -177,7 +177,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::mult_B_from_right( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbard::mult_B_from_right( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the right by B(t)
         //      G  ->  G * B(t) = G * exp( -dt V_sigma(t) ) * exp( -dt K )
@@ -188,13 +188,13 @@ namespace Model {
 
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
         for (auto i = 0; i < this->m_space_size; ++i) {
-            green.row(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
+            green.col(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
         green = green * this->m_expK_mat;
     }
 
 
-    void RepulsiveHubbard::mult_invB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbard::mult_invB_from_left( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the left by B(t)^-1
         //      G  ->  B(t)^-1 * G = exp( +dt K ) * exp( +dt V_sigma(t) ) * G
@@ -211,7 +211,7 @@ namespace Model {
     }
 
 
-    void RepulsiveHubbard::mult_invB_from_right( GreensFunc& green, TimeIndex time_index, Spin spin )
+    void RepulsiveHubbard::mult_invB_from_right( GreensFunc& green, TimeIndex time_index, Spin spin ) const
     {
         // Multiply a dense matrix, specifically a greens function, from the right by B(t)^-1
         //      G  ->  G * B(t)^-1 = G * exp( +dt K ) * exp( +dt V_sigma(t) )
@@ -223,7 +223,7 @@ namespace Model {
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
         green = green * this->m_inv_expK_mat;
         for (auto i = 0; i < this->m_space_size; ++i) {
-            green.row(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
+            green.col(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
     }
 

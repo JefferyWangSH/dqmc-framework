@@ -64,15 +64,15 @@ namespace Model {
 
             void update_bosonic_field      ( TimeIndex time_index, SpaceIndex space_index );
             void update_greens_function    ( Walker& walker, TimeIndex time_index, SpaceIndex space_index );
-            const double get_update_radio  ( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const ;
+            const double get_update_ratio  ( Walker& walker, TimeIndex time_index, SpaceIndex space_index ) const ;
 
             
             // -------------------------------------- Warpping methods --------------------------------------------
             
-            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin );
-            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin );
+            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
+            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
+            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
+            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
             virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const ;
 
     };

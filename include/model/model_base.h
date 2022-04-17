@@ -110,9 +110,9 @@ namespace Model {
             // perform one local dqmc update
             virtual void update_bosonic_field(TimeIndex time_index, SpaceIndex space_index) = 0;
 
-            // return the updating radio of one step of the local dqmc update
+            // return the updating ratio of one step of the local dqmc update
             // which is model-dependent
-            virtual const double get_update_radio(Walker& walker, TimeIndex time_index, SpaceIndex space_index) const = 0;
+            virtual const double get_update_ratio(Walker& walker, TimeIndex time_index, SpaceIndex space_index) const = 0;
             
             // transform the equal-time green's functions
             // given a specific update of the bosonic fields
@@ -125,10 +125,10 @@ namespace Model {
             // the following functions define the multiplications between green's functions and B matrices
             // which are frequently called when we wrap the green's functions to differnet imaginary-time slices.
             // Caution: these are perfermance-important steps.
-            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
-            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) = 0;
+            virtual void mult_B_from_left       ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
+            virtual void mult_B_from_right      ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
+            virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
+            virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
             virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
     };
 
