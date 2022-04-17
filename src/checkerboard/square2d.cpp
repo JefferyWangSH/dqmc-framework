@@ -204,10 +204,21 @@ namespace CheckerBoard {
 
     void Square2d::mult_trans_expK_from_left( Matrix &matrix ) const
     {   
-        // todo: rewrite in a direct way
-        matrix.transposeInPlace();
-        this->mult_expK_from_right( matrix );
-        matrix.transposeInPlace();
+        // checkerboard breakups are only supported for lattices with even side length
+        assert( this->m_side_length % 2 == 0 );
+
+        // sublattice A
+        for (int x = 0; x < this->m_side_length; x+=2) {
+            for (int y = 0; y < this->m_side_length; y+=2) {
+                this->mult_expK_plaquette_from_left( matrix, {x,y} );
+            }
+        }
+        // sublattice B
+        for (auto x = 1; x < this->m_side_length; x+=2) {
+            for (auto y = 1; y < this->m_side_length; y+=2) {
+                this->mult_expK_plaquette_from_left( matrix, {x,y} );
+            }
+        }
     }
 
 

@@ -78,8 +78,8 @@ int main() {
     // todo: test checkerboard
     // even lattice size (ok) and efficiency (ok)
     
-    // todo: trans mult
-    // todo: Vmat mult benchmark
+    // todo: trans mult ( finished, trans is actually unnecessary, just use expK )
+    // todo: Vmat mult benchmark ( two-times faster! )
     // !!!
 
 
