@@ -3,14 +3,40 @@
 #include "lattice/lattice_base.h"
 #include "model/model_base.h"
 #include "measure/measure_handler.h"
+#include "checkerboard/checkerboard_base.h"
 
 
 namespace QuantumMonteCarlo {
 
-    void DqmcInitializer::initial_modules(  LatticeBase& lattice, 
-                                            ModelBase& model, 
-                                            DqmcWalker& walker,
-                                            MeasureHandler& meas_handler )
+    void DqmcInitializer::initial_modules( LatticeBase& lattice, 
+                                           ModelBase& model, 
+                                           DqmcWalker& walker,
+                                           MeasureHandler& meas_handler )
+    {
+        // make sure that the params are setup correctly in advance,
+        // and the orders of initializations below are important.
+
+        // initialize lattice module
+        lattice.initial();
+
+        // initialize MeasureHandler module
+        meas_handler.initial();
+
+        // initialize dqmcWalker module
+        walker.initial( lattice, meas_handler );
+
+        // initialize model module
+        // naively link
+        model.initial( lattice, walker );
+        model.link();
+    }
+
+
+    void DqmcInitializer::initial_modules( LatticeBase& lattice, 
+                                           ModelBase& model, 
+                                           DqmcWalker& walker,
+                                           MeasureHandler& meas_handler,
+                                           CheckerBoard::Base& checkerboard )
     {
         // make sure that the params are setup correctly in advance,
         // and the orders of initializations below are important.
@@ -26,6 +52,11 @@ namespace QuantumMonteCarlo {
 
         // initialize model module
         model.initial( lattice, walker );
+
+        // initialize checkerboard module and link to model class
+        checkerboard.set_params( lattice, model, walker );
+        checkerboard.initial();
+        model.link(checkerboard);
     }
 
 

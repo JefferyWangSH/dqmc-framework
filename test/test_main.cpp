@@ -5,7 +5,6 @@
 
 #include "model/model_base.h"
 #include "model/repulsive_hubbard.h"
-#include "model/repulsive_hubbard_cbsquare2d.h"
 
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
@@ -53,10 +52,11 @@ int main() {
     // fixed random seed for debug
     Utils::Random::set_seed_fixed(12345);
 
-    Model::ModelBase* model = new Model::RepulsiveHubbardCbSquare2d();
+    Model::ModelBase* model = new Model::RepulsiveHubbard();
     Lattice::LatticeBase* lattice = new Lattice::Square2d();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
+    CheckerBoard::Base* checkerboard = new CheckerBoard::Square2d();
 
     // set up params
     lattice->set_space_size(ll);
@@ -65,7 +65,10 @@ int main() {
     model->set_model_params(hopping_t, onsite_u, chemical_potential);
 
     // initialize modules
-    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
+    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
+
+    // using checkerboard break-up
+    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
 
     model->set_bosonic_fields_to_random();
 
@@ -89,9 +92,8 @@ int main() {
     // !!!
 
 
-    // todo: static CheckerBoard class
-    // todo: functional ptr to mult_expK in Model 
-    // ( combine std::function with std::bind to wrap the memember function )
+    // todo: functional ptr to mult_expK in Model (ok!)
+    // ( combine std::function with std::bind to wrap the member function )
     // !!
 
 

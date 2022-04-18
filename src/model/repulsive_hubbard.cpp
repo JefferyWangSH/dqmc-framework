@@ -170,7 +170,7 @@ namespace Model {
         // due to the periodical boundary condition (PBC)
         // the time slice labeled by 0 actually corresponds to slice tau = beta
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
-        green = this->m_expK_mat * green;
+        this->m_mult_expK_from_left( green );
         for (auto i = 0; i < this->m_space_size; ++i) {
             green.row(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
@@ -190,7 +190,7 @@ namespace Model {
         for (auto i = 0; i < this->m_space_size; ++i) {
             green.col(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
-        green = green * this->m_expK_mat;
+        this->m_mult_expK_from_right( green );
     }
 
 
@@ -207,7 +207,7 @@ namespace Model {
         for (auto i = 0; i < this->m_space_size; ++i) {
             green.row(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
-        green = this->m_inv_expK_mat * green;
+        this->m_mult_inv_expK_from_left( green );
     }
 
 
@@ -221,7 +221,7 @@ namespace Model {
         assert( abs(spin) == 1.0 );
 
         const int eff_time_index = ( time_index == 0 )? this->m_time_size-1 : time_index-1;
-        green = green * this->m_inv_expK_mat;
+        this->m_mult_inv_expK_from_right( green );
         for (auto i = 0; i < this->m_space_size; ++i) {
             green.col(i) *= exp( -spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
@@ -241,7 +241,7 @@ namespace Model {
         for (auto i = 0; i < this->m_space_size; ++i) {
             green.row(i) *= exp( +spin * this->m_alpha * this->m_bosonic_field(eff_time_index, i) );
         }
-        green = this->m_trans_expK_mat * green;
+        this->m_mult_trans_expK_from_left( green );
     }
 
 

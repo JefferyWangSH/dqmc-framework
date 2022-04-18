@@ -1,23 +1,25 @@
 #include "checkerboard/square2d.h"
+#include "lattice/lattice_base.h"
+#include "model/model_base.h"
+#include "dqmc_walker.h"
 
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <unsupported/Eigen/MatrixFunctions>
 
+
 namespace CheckerBoard {
 
-    void Square2d::set_params(  int side_length,
-                                int space_size, 
-                                RealScalar time_interval, 
-                                RealScalar hopping_t, 
-                                RealScalar chemical_potential ) 
+    void Square2d::set_params( const LatticeBase& lattice, 
+                               const ModelBase& model, 
+                               const DqmcWalker& walker ) 
     {   
-        assert( side_length >= 2 );
-        this->m_side_length = side_length;
-        this->m_space_size = space_size;
-        this->m_time_interval = time_interval;
-        this->m_hopping_t = hopping_t;
-        this->m_chemical_potential = chemical_potential;
+        assert( lattice.SpaceSize() >= 2 );
+        this->m_side_length = lattice.SpaceSize();
+        this->m_space_size = lattice.TotalSiteNum();
+        this->m_time_interval = walker.TimeInterval();
+        this->m_hopping_t = model.HoppingT();
+        this->m_chemical_potential = model.ChemicalPotential();
     }
 
 

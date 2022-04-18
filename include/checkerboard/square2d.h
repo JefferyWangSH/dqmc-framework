@@ -30,11 +30,9 @@ namespace CheckerBoard {
 
         public:
             // set up parameters
-            void set_params(  int side_length, 
-                              int space_size, 
-                              RealScalar time_interval, 
-                              RealScalar hopping_t, 
-                              RealScalar chemical_potential );
+            void set_params( const LatticeBase& lattice, 
+                             const ModelBase& model, 
+                             const DqmcWalker& walker );
 
             // initialization
             void initial();

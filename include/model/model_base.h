@@ -12,6 +12,7 @@
   */  
 
 #include <memory>
+#include <functional>
 #define EIGEN_USE_MKL_ALL
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
@@ -25,12 +26,17 @@ namespace Lattice {
     class LatticeBase;
 }
 
+namespace CheckerBoard {
+    class Base;
+}
+
 namespace Model {
 
     // useful aliases
     using SpaceIndex = int;
     using TimeIndex = int;
     using Spin = int;
+    using RealScalar = double;
 
     using Walker = QuantumMonteCarlo::DqmcWalker;
     using LatticeBase = Lattice::LatticeBase;
@@ -40,6 +46,10 @@ namespace Model {
     using GreensFuncVec = std::vector<Eigen::MatrixXd>;
     using ptrGreensFunc = std::unique_ptr<Eigen::MatrixXd>;
     using ptrGreensFuncVec = std::unique_ptr<std::vector<Eigen::MatrixXd>>;
+
+    using MultExpKMethod = void( GreensFunc& );
+    using MultInvExpKMethod = void( GreensFunc& );
+    using MultTransExpKMethod = void( GreensFunc& );
 
 
     // ------------------------------------- Abstract base class Model::ModelBase ------------------------------------------
@@ -72,14 +82,22 @@ namespace Model {
             
             // In conclusion, directly computing the expK or expV are not a necessity
             // For better performance, depending on specific lattice and model, 
-            // prefer using Model class with checkerboard support.
-            // e.g. Model::RepulsiveHubbardSquare2dCb
+            // it's recommended to link the Model class to a specific checkerboard class.
             Matrix m_expK_mat{};
             Matrix m_expV_mat{};
             Matrix m_inv_expK_mat{};
             Matrix m_inv_expV_mat{};
             Matrix m_trans_expK_mat{};
             Matrix m_trans_expV_mat{};
+
+            // function pointers for multiplying exponent of K matrix to a dense matrix
+            // these cound be redirected to any checkerboard methods 
+            // to get accelerated by checkerboard breakups
+            std::function<MultExpKMethod>       m_mult_expK_from_left{};
+            std::function<MultExpKMethod>       m_mult_expK_from_right{};
+            std::function<MultInvExpKMethod>    m_mult_inv_expK_from_left{};
+            std::function<MultInvExpKMethod>    m_mult_inv_expK_from_right{};
+            std::function<MultTransExpKMethod>  m_mult_trans_expK_from_left{};
 
             // other model parameters should be defined in the derived Model classes .
 
@@ -91,7 +109,10 @@ namespace Model {
             // ------------------------------------------ Setup interfaces -----------------------------------------------
 
             // setup model params ( interface for derived classed )
-            virtual void set_model_params(double, double, double) {};
+            virtual void set_model_params(RealScalar, RealScalar, RealScalar) = 0;
+
+            virtual const RealScalar HoppingT() const = 0; 
+            virtual const RealScalar ChemicalPotential() const = 0;
 
 
             // ----------------------------------------- Initializations -------------------------------------------------
@@ -103,6 +124,17 @@ namespace Model {
 
             // randomrize the bosonic fields, which is model-dependent
             virtual void set_bosonic_fields_to_random() = 0;
+
+            
+            // ------------------------------------------ Linking methods ------------------------------------------------
+
+            // naively link member functions mult_expK's to m_mult_expK methods
+            // this will multply the exponent of K directly to a dense matrix
+            void link();
+
+            // link checkerboard member functions to m_mult_expK methods
+            // this will achieve higher performance by using checkerboard breakups on a specific lattice
+            void link( const CheckerBoard::Base& checkerboard );
 
 
             // ---------------------------------------- Monte Carlo updates ----------------------------------------------
@@ -130,6 +162,18 @@ namespace Model {
             virtual void mult_invB_from_left    ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
             virtual void mult_invB_from_right   ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
             virtual void mult_transB_from_left  ( GreensFunc& green, TimeIndex time_index, Spin spin ) const = 0;
+
+        
+        private:
+
+            // naive implementation of multplying exponent of K matrices to the greens function
+            // note that these member function should not be explicitly called
+            // using std::function member instead.
+            void mult_expK_from_left        ( GreensFunc& green ) const ;
+            void mult_expK_from_right       ( GreensFunc& green ) const ;
+            void mult_inv_expK_from_left    ( GreensFunc& green ) const ;
+            void mult_inv_expK_from_right   ( GreensFunc& green ) const ;
+            void mult_trans_expK_from_left  ( GreensFunc& green ) const ;
     };
 
 }

@@ -14,16 +14,30 @@
 #include <Eigen/Core>
 
 
+namespace Model { class ModelBase; }
+namespace Lattice { class LatticeBase; }
+namespace QuantumMonteCarlo { class DqmcWalker; }
+
 namespace CheckerBoard {
 
     using Site = std::vector<int>;
     using Matrix = Eigen::MatrixXd;
     using RealScalar = double;
 
+    using ModelBase = Model::ModelBase;
+    using LatticeBase = Lattice::LatticeBase;
+    using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
+
 
     // ------------------------------ Pure virtual base class CheckerBoard::Base --------------------------------
     class Base {
-        protected:
+        public:
+            
+            // initialize from lattice, model and dqmcWalker
+            virtual void set_params( const LatticeBase& lattice, 
+                                     const ModelBase& model, 
+                                     const DqmcWalker& walker ) = 0;
+            virtual void initial() = 0;
 
             // multiply the exponent of hopping matrix K using checkerboard breakups
             virtual void mult_expK_from_left        ( Matrix &matrix ) const = 0;
@@ -31,6 +45,8 @@ namespace CheckerBoard {
             virtual void mult_inv_expK_from_left    ( Matrix &matrix ) const = 0;
             virtual void mult_inv_expK_from_right   ( Matrix &matrix ) const = 0;
             virtual void mult_trans_expK_from_left  ( Matrix &matrix ) const = 0;
+
+        protected:
 
             // multiply hopping matrix K within single plaquette, labeled by site vector
             virtual void mult_expK_plaquette_from_left       ( Matrix &matrix, const Site& site ) const = 0;
