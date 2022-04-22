@@ -40,7 +40,7 @@ namespace QuantumMonteCarlo {
 
     void DqmcWalker::initial( const LatticeBase& lattice, const MeasureHandler& meas_handler ) 
     {
-        this->m_space_size = lattice.TotalSiteNum();
+        this->m_space_size = lattice.SpaceSize();
         this->m_current_time_slice = 0;
         this->m_wrap_error = 0.0;
         

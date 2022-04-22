@@ -10,13 +10,13 @@
 
 namespace CheckerBoard {
 
-    void Square::set_params( const LatticeBase& lattice, 
-                               const ModelBase& model, 
-                               const DqmcWalker& walker ) 
+    void Square::set_checkerboard_params( const LatticeBase& lattice, 
+                                          const ModelBase& model, 
+                                          const DqmcWalker& walker ) 
     {   
         assert( lattice.SpaceSize() >= 2 );
-        this->m_side_length = lattice.SpaceSize();
-        this->m_space_size = lattice.TotalSiteNum();
+        this->m_side_length = lattice.SideLength();
+        this->m_space_size = lattice.SpaceSize();
         this->m_time_interval = walker.TimeInterval();
         this->m_hopping_t = model.HoppingT();
         this->m_chemical_potential = model.ChemicalPotential();

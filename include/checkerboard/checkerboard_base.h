@@ -34,9 +34,9 @@ namespace CheckerBoard {
         public:
             
             // initialize from lattice, model and dqmcWalker
-            virtual void set_params( const LatticeBase& lattice, 
-                                     const ModelBase& model, 
-                                     const DqmcWalker& walker ) = 0;
+            virtual void set_checkerboard_params( const LatticeBase& lattice, 
+                                                  const ModelBase& model, 
+                                                  const DqmcWalker& walker ) = 0;
             virtual void initial() = 0;
 
             // multiply the exponent of hopping matrix K using checkerboard breakups

@@ -44,7 +44,7 @@ namespace Model {
 
     void RepulsiveHubbard::initial_params( const LatticeBase& lattice, const Walker& walker )
     {
-        this->m_space_size = lattice.TotalSiteNum();
+        this->m_space_size = lattice.SpaceSize();
         this->m_time_size  = walker.TimeSliceNum();
         const RealScalar time_interval = walker.TimeInterval();
 
@@ -57,11 +57,11 @@ namespace Model {
 
     void RepulsiveHubbard::initial_KV_matrices( const LatticeBase& lattice, const Walker& walker ) 
     {   
-        const int space_size = lattice.TotalSiteNum();
+        const int space_size = lattice.SpaceSize();
         const RealScalar time_interval = walker.TimeInterval();
         // todo: check the +/- sign of the chemical potential here
         const SpaceSpaceMat chemical_potential_mat = this->m_chemical_potential * SpaceSpaceMat::Identity(space_size,space_size);
-        const SpaceSpaceMat Kmat = this->m_hopping_t * lattice.HoppingMatrix() + chemical_potential_mat;
+        const SpaceSpaceMat Kmat = -this->m_hopping_t * lattice.HoppingMatrix() + chemical_potential_mat;
         
         this->m_expK_mat       = ( -time_interval * Kmat ).exp();
         this->m_inv_expK_mat   = ( +time_interval * Kmat ).exp();

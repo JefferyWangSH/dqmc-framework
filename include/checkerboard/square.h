@@ -32,9 +32,9 @@ namespace CheckerBoard {
 
         public:
             // set up parameters
-            void set_params( const LatticeBase& lattice, 
-                             const ModelBase& model, 
-                             const DqmcWalker& walker );
+            void set_checkerboard_params( const LatticeBase& lattice, 
+                                          const ModelBase& model, 
+                                          const DqmcWalker& walker );
 
             // initialization
             void initial();

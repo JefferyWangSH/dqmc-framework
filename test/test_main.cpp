@@ -59,7 +59,7 @@ int main() {
     CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
 
     // set up params
-    lattice->set_space_size(ll);
+    lattice->set_lattice_params({ll,ll});
     walker->set_physical_params(beta, lt);
     walker->set_stabilization_pace(nwrap);
     model->set_model_params(hopping_t, onsite_u, chemical_potential);
@@ -67,7 +67,7 @@ int main() {
     // initialize modules
     // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
 
-    // using checkerboard break-up
+    // // using checkerboard break-up
     QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
 
     model->set_bosonic_fields_to_random();
@@ -82,6 +82,41 @@ int main() {
     std::cout << walker->GreenttUp() << std::endl;
     std::cout << std::endl;
     std::cout << walker->Greent0Up() << std::endl;
+    std::cout << std::endl;
+    std::cout << lattice->HoppingMatrix() << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // test lattice
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // todo: test checkerboard

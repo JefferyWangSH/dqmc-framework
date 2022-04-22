@@ -3,7 +3,7 @@
 #pragma once
 
 /**
-  *  This header file defines the abstract base class Lattice::LatticeBase 
+  *  This header file defines the pure virtual abstract class Lattice::LatticeBase 
   *  for describing the space-discreted lattice where the quantum systems live.
   */
 
@@ -13,44 +13,75 @@
 #include <Eigen/Core>
 
 
-// todo: rewrite LatticeBase and support 3d lattice.
-// move the construction of hopping matrix to derived class. 
-
-// todo: construct neighbour table and index2site table once for all, in form of Eigen::MatrixXd
-// todo: generate momentum grids in 2d
-
 namespace Lattice {
 
-        // -------------------------- Abstract base class Lattice::LatticeBase ----------------------------
-        class LatticeBase {
+    using LatticeInt = int;
+    using MatrixDouble = Eigen::MatrixXd;
+    using MatrixInt = Eigen::MatrixXi;
+    using VectorInt = Eigen::VectorXi;
+    using SideLengthVec = std::vector<int>;
+
+
+    // -------------------------- Pure virtual base class Lattice::LatticeBase ----------------------------
+    class LatticeBase {
         protected:
-            int m_space_dim{2};
-            int m_space_size{};
-            int m_total_site_num{};
+            LatticeInt m_space_dim{};          // dimension of the space
+            LatticeInt m_side_length{};        // side length of the lattice
+            LatticeInt m_space_size{};         // total number of lattice sites
 
             // hopping matrix, depending only on the topology of lattice
-            Eigen::MatrixXd m_hopping_matrix{};
+            // hopping constants are normalized to 1.0 .
+            MatrixDouble m_hopping_matrix{};
+
+            // Matrix structure for storing the nearest neighbours of each lattice site
+            // the matrix shape is SpaceSize * Coordination number
+            MatrixInt m_nearest_neighbour_table{};
+            // todo: next nearest neighbours
+            // MatrixInt m_next_nearest_neighbour_table{};
             
+            // Matrix structure for storing the map from site index to the site vector
+            // with the shape of SpaceSize * SpaceDim
+            MatrixInt m_index2site_table{};
+            
+            // // todo:
+            // // momentum in the reciprocal lattice
+            // MatrixInt m_index2momentum_table{};
+
+
         public:
             LatticeBase() = default;
-            LatticeBase(int space_size);
 
-            void set_space_size(int space_size);
+            // ---------------------------- Set up lattice parameters ------------------------------
+            // read lattice params from a vector of side lengths
+            virtual void set_lattice_params(const SideLengthVec& side_length_vec) = 0;
 
-            const int SpaceDim()     const;
-            const int SpaceSize()    const;
-            const int TotalSiteNum() const;
-            const Eigen::MatrixXd& HoppingMatrix() const;
+            
+            // --------------------------------- Interfaces ----------------------------------------
+            
+            const LatticeInt SpaceDim()   const ;
+            const LatticeInt SpaceSize()  const ;
+            const LatticeInt SideLength() const ;
 
-            // todo: maybe replace vector with x and y
-            const int               site2index(const std::array<int,2>& site) const;
-            const std::array<int,2> index2site(int index) const;
+            const MatrixDouble& HoppingMatrix() const ;
+            const LatticeInt NearestNeighbour(const LatticeInt site_index, const LatticeInt direction) const ;
+            const VectorInt NearestNeighbour(const LatticeInt site_index) const ;
+            const VectorInt index2site(const LatticeInt site_index) const ;
 
-            // initialize class, especially generating hopping matrix
-            void initial();
 
-            // vector product of space vector r and moemntum p, depending on the geometry of lattice
-            virtual double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp) = 0;
+            // -------------------------------- Initializations ------------------------------------
+            
+            virtual void initial() = 0;
+            virtual void initial_hopping_matrix()          = 0;
+            virtual void initial_index2site_table()        = 0;
+            virtual void initial_nearest_neighbour_table() = 0;
+            
+            // todo
+            // virtual void initial_lattice_momentum_table()  = 0;
+
+
+            // -------------------------- Definition of vector products ----------------------------
+            // // vector product of space vector r and moemntum p, depending on the geometry of lattice
+            // virtual const double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp) = 0;
 
     };
 

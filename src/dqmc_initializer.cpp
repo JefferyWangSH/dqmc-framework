@@ -54,7 +54,7 @@ namespace QuantumMonteCarlo {
         model.initial( lattice, walker );
 
         // initialize checkerboard module and link to model class
-        checkerboard.set_params( lattice, model, walker );
+        checkerboard.set_checkerboard_params( lattice, model, walker );
         checkerboard.initial();
         model.link(checkerboard);
     }

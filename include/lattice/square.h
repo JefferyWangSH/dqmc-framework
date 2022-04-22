@@ -10,15 +10,31 @@
 #include "lattice/lattice_base.h"
 
 namespace Lattice {
+
     
-    // --------------------Derived class Lattice::Square for 2d square lattice ----------------------------
+    // ------------------------ Derived class Lattice::Square for 2d square lattice ----------------------------
     class Square : public LatticeBase {
         public:
+        
             Square() = default;
 
-            Square(int space_size) : LatticeBase(space_size){};
+            // set up lattice parameters
+            void set_lattice_params(const SideLengthVec& side_length_vec);            
 
-            double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp);
+            // initializations
+            void initial();
+
+            // definition of vector products 
+            // const double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp);
+        
+
+        private:
+
+            // private initialization functions
+            void initial_hopping_matrix();
+            void initial_index2site_table();
+            void initial_nearest_neighbour_table();
+
     };
     
 } // namespace Lattice
