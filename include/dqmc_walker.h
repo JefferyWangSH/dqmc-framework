@@ -140,7 +140,7 @@ namespace QuantumMonteCarlo {
 
         private:
 
-            // --------------------------------- Initializations -------------------------------------------
+            // ---------------------------------- Initializations ------------------------------------------
             // never explicitly call these functions to avoid unpredictable mistakes,
             // and use DqmcInitializer instead 
 
@@ -150,10 +150,14 @@ namespace QuantumMonteCarlo {
 
             // caution that this is a member function to initialize the model module
             // svd stacks should be initialized in advance
-            void initial_greens_function();
+            void initial_greens_functions();
 
             // compute the sign of the initial bosonic configurations
             void initial_config_sign();
+
+            // allocate memory
+            void allocate_svd_stacks();
+            void allocate_greens_functions();
 
         
         public:

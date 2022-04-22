@@ -1,5 +1,5 @@
 #include "checkerboard/square.h"
-#include "lattice/lattice_base.h"
+#include "lattice/square.h"
 #include "model/model_base.h"
 #include "dqmc_walker.h"
 
@@ -14,6 +14,8 @@ namespace CheckerBoard {
                                           const ModelBase& model, 
                                           const DqmcWalker& walker ) 
     {   
+        // make sure that the lattice class is of type Lattice::Square
+        assert( dynamic_cast<const Lattice::Square*>(&lattice) != nullptr );
         assert( lattice.SpaceSize() >= 2 );
         this->m_side_length = lattice.SideLength();
         this->m_space_size = lattice.SpaceSize();

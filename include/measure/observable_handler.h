@@ -15,7 +15,7 @@
 
 namespace Observable {
 
-    // --------------------- Handler class Observable::ObservableHandler ---------------------
+    // ----------------------------- Handler class Observable::ObservableHandler -----------------------------
     class ObservableHandler {
         private:
 
@@ -51,21 +51,21 @@ namespace Observable {
             DynamicMatrixObs m_dynamic_matrix_obs{};
 
             // list of supported physical observables
-            EqtimeObsNameList m_eqtime_obs_name = {
-                                                    "filling_number", 
-                                                    "double_occupancy", 
-                                                    "kinetic_energy", 
-                                                    "momentum_distribution", 
-                                                    "local_spin_corr", 
-                                                    "spin_density_structure_factor", 
-                                                    "charge_density_structure_factor", 
-                                                    "s_wave_pairing_corr",
+            EqtimeObsNameList m_eqtime_obs_name =   {
+                                                        "filling_number", 
+                                                        "double_occupancy", 
+                                                        "kinetic_energy", 
+                                                        "momentum_distribution", 
+                                                        "local_spin_corr", 
+                                                        "spin_density_structure_factor", 
+                                                        "charge_density_structure_factor", 
+                                                        "s_wave_pairing_corr",
                                                     };
 
             DynamicObsNameList m_dynamic_obs_name = {
-                                                    "greens_functions", 
-                                                    "density_of_states", 
-                                                    "superfluid_stiffness", 
+                                                        "greens_functions", 
+                                                        "density_of_states", 
+                                                        "superfluid_stiffness", 
                                                     };
 
         public:
@@ -91,6 +91,9 @@ namespace Observable {
 
             // check the validity of the input list of observables
             bool check_validity(const ObsNameList& obs_list) const;
+
+            // deallocate memory
+            void deallocate();
 
     };
 

@@ -49,17 +49,71 @@ namespace QuantumMonteCarlo {
     }
 
 
+    void DqmcWalker::allocate_svd_stacks() 
+    {
+        // release the pointers if initialized before
+        if ( this->m_svd_stack_left_up ) { this->m_svd_stack_left_up.reset(); }
+        if ( this->m_svd_stack_left_dn ) { this->m_svd_stack_left_dn.reset(); }
+        if ( this->m_svd_stack_right_up ) { this->m_svd_stack_right_up.reset(); }
+        if ( this->m_svd_stack_right_dn ) { this->m_svd_stack_right_dn.reset(); }
+        
+        // allocate memory for SvdStack classes
+        this->m_svd_stack_left_up = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
+        this->m_svd_stack_left_dn = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
+        this->m_svd_stack_right_up = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
+        this->m_svd_stack_right_dn = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
+    }
+
+
+    void DqmcWalker::allocate_greens_functions()
+    {
+        // release the memory if initialized before
+        if ( this->m_green_tt_up ) { this->m_green_tt_up.reset(); }
+        if ( this->m_green_tt_dn ) { this->m_green_tt_dn.reset(); }
+        if ( this->m_green_t0_up ) { this->m_green_t0_up.reset(); }
+        if ( this->m_green_t0_dn ) { this->m_green_t0_dn.reset(); }
+        if ( this->m_green_0t_up ) { this->m_green_0t_up.reset(); }
+        if ( this->m_green_0t_dn ) { this->m_green_0t_dn.reset(); }
+        
+        if ( this->m_vec_green_tt_up ) { this->m_vec_green_tt_up.reset(); }
+        if ( this->m_vec_green_tt_dn ) { this->m_vec_green_tt_dn.reset(); }
+        if ( this->m_vec_green_t0_up ) { this->m_vec_green_t0_up.reset(); }
+        if ( this->m_vec_green_t0_dn ) { this->m_vec_green_t0_dn.reset(); }
+        if ( this->m_vec_green_0t_up ) { this->m_vec_green_0t_up.reset(); }
+        if ( this->m_vec_green_0t_dn ) { this->m_vec_green_0t_dn.reset(); }
+        
+        
+        // allocate memory for greens functions
+        this->m_green_tt_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+        this->m_green_tt_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+        if ( this->m_is_equaltime || this->m_is_dynamic ) {
+            this->m_vec_green_tt_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_tt_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+
+        if ( this->m_is_dynamic ) {
+            this->m_green_t0_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_t0_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+            this->m_green_0t_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
+
+            this->m_vec_green_t0_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_t0_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+            this->m_vec_green_0t_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
+        }
+    }
+
+
     void DqmcWalker::initial_svd_stacks( const LatticeBase& lattice, const ModelBase& model ) 
     {
         // initialize udv stacks for sweep use
         // sweep process will start from 0 to beta, so we initialize svd_stack_right here.
         // stabilize the process every stabilization_pace steps
 
-        // allocate memory for SvdStack class
-        this->m_svd_stack_left_up = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
-        this->m_svd_stack_left_dn = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
-        this->m_svd_stack_right_up = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
-        this->m_svd_stack_right_dn = std::make_unique<SvdStack>(this->m_space_size, this->m_time_size);
+        // allocate memory
+        this->allocate_svd_stacks();
 
         Matrix tmp_stack_up = Matrix::Identity(this->m_space_size, this->m_space_size);
         Matrix tmp_stack_dn = Matrix::Identity(this->m_space_size, this->m_space_size);
@@ -80,31 +134,14 @@ namespace QuantumMonteCarlo {
     }
 
 
-    void DqmcWalker::initial_greens_function() 
+    void DqmcWalker::initial_greens_functions() 
     {
-        // first allocate memory for greens functions
-        this->m_green_tt_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-        this->m_green_tt_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-
-        if ( this->m_is_equaltime || this->m_is_dynamic ) {
-            this->m_vec_green_tt_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-            this->m_vec_green_tt_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-        }
-
-        if ( this->m_is_dynamic ) {
-            this->m_green_t0_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-            this->m_green_t0_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-            this->m_green_0t_up = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-            this->m_green_0t_dn = std::make_unique<GreensFunc>(this->m_space_size, this->m_space_size);
-
-            this->m_vec_green_t0_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-            this->m_vec_green_t0_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-            this->m_vec_green_0t_up = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-            this->m_vec_green_0t_dn = std::make_unique<GreensFuncVec>(this->m_time_size, GreensFunc(this->m_space_size, this->m_space_size));
-        }
+        // allocate memory
+        this->allocate_greens_functions();
 
         // compute greens function at time slice t = 0
         // which corresponds to imaginary-time tau = beta
+        // the svd stacks should be initialized correctly ahead of time
         NumericalStable::compute_equaltime_greens( *this->m_svd_stack_left_up, *this->m_svd_stack_right_up, *this->m_green_tt_up );
         NumericalStable::compute_equaltime_greens( *this->m_svd_stack_left_dn, *this->m_svd_stack_right_dn, *this->m_green_tt_dn );
     }
@@ -112,6 +149,9 @@ namespace QuantumMonteCarlo {
 
     void DqmcWalker::initial_config_sign() 
     {   
+        // realease memory if previously initialized
+        if ( this->m_vec_config_sign ) { this->m_vec_config_sign.reset(); }
+
         // allocate memory for config sign vector
         // if equal-time measurements are to be performed
         if ( this->m_is_equaltime ) {
