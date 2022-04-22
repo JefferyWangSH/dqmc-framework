@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "lattice/lattice_base.h"
-#include "lattice/square2d.h"
+#include "lattice/square.h"
 
 #include "model/model_base.h"
 #include "model/repulsive_hubbard.h"
@@ -22,7 +22,7 @@
 #include "random.h"
 
 #include "checkerboard/checkerboard_base.h"
-#include "checkerboard/square2d.h"
+#include "checkerboard/square.h"
 
 #include <chrono>
 
@@ -53,10 +53,10 @@ int main() {
     Utils::Random::set_seed_fixed(12345);
 
     Model::ModelBase* model = new Model::RepulsiveHubbard();
-    Lattice::LatticeBase* lattice = new Lattice::Square2d();
+    Lattice::LatticeBase* lattice = new Lattice::Square();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
-    CheckerBoard::Base* checkerboard = new CheckerBoard::Square2d();
+    CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
 
     // set up params
     lattice->set_space_size(ll);

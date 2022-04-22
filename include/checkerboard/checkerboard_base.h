@@ -29,8 +29,8 @@ namespace CheckerBoard {
     using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
 
 
-    // ------------------------------ Pure virtual base class CheckerBoard::Base --------------------------------
-    class Base {
+    // ------------------------- Pure virtual base class CheckerBoard::CheckerBoardBase -----------------------------
+    class CheckerBoardBase {
         public:
             
             // initialize from lattice, model and dqmcWalker
@@ -45,14 +45,6 @@ namespace CheckerBoard {
             virtual void mult_inv_expK_from_left    ( Matrix &matrix ) const = 0;
             virtual void mult_inv_expK_from_right   ( Matrix &matrix ) const = 0;
             virtual void mult_trans_expK_from_left  ( Matrix &matrix ) const = 0;
-
-        protected:
-
-            // multiply hopping matrix K within single plaquette, labeled by site vector
-            virtual void mult_expK_plaquette_from_left       ( Matrix &matrix, const Site& site ) const = 0;
-            virtual void mult_expK_plaquette_from_right      ( Matrix &matrix, const Site& site ) const = 0;
-            virtual void mult_inv_expK_plaquette_from_left   ( Matrix &matrix, const Site& site ) const = 0;
-            virtual void mult_inv_expK_plaquette_from_right  ( Matrix &matrix, const Site& site ) const = 0;
 
     };
 

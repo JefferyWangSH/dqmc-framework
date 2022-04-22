@@ -36,7 +36,7 @@ namespace QuantumMonteCarlo {
                                            ModelBase& model, 
                                            DqmcWalker& walker,
                                            MeasureHandler& meas_handler,
-                                           CheckerBoard::Base& checkerboard )
+                                           CheckerBoardBase& checkerboard )
     {
         // make sure that the params are setup correctly in advance,
         // and the orders of initializations below are important.

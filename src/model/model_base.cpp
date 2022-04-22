@@ -45,13 +45,13 @@ namespace Model {
     }
 
 
-    void ModelBase::link( const CheckerBoard::Base& checkerboard )
+    void ModelBase::link( const CheckerBoardBase& checkerboard )
     {
-        this->m_mult_expK_from_left       = std::bind(&CheckerBoard::Base::mult_expK_from_left, &checkerboard, std::placeholders::_1);
-        this->m_mult_expK_from_right      = std::bind(&CheckerBoard::Base::mult_expK_from_right, &checkerboard, std::placeholders::_1);
-        this->m_mult_inv_expK_from_left   = std::bind(&CheckerBoard::Base::mult_inv_expK_from_left, &checkerboard, std::placeholders::_1);
-        this->m_mult_inv_expK_from_right  = std::bind(&CheckerBoard::Base::mult_inv_expK_from_right, &checkerboard, std::placeholders::_1);
-        this->m_mult_trans_expK_from_left = std::bind(&CheckerBoard::Base::mult_trans_expK_from_left, &checkerboard, std::placeholders::_1);
+        this->m_mult_expK_from_left       = std::bind(&CheckerBoardBase::mult_expK_from_left, &checkerboard, std::placeholders::_1);
+        this->m_mult_expK_from_right      = std::bind(&CheckerBoardBase::mult_expK_from_right, &checkerboard, std::placeholders::_1);
+        this->m_mult_inv_expK_from_left   = std::bind(&CheckerBoardBase::mult_inv_expK_from_left, &checkerboard, std::placeholders::_1);
+        this->m_mult_inv_expK_from_right  = std::bind(&CheckerBoardBase::mult_inv_expK_from_right, &checkerboard, std::placeholders::_1);
+        this->m_mult_trans_expK_from_left = std::bind(&CheckerBoardBase::mult_trans_expK_from_left, &checkerboard, std::placeholders::_1);
     }
 
 

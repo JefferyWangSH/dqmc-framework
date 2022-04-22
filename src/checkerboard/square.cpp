@@ -1,4 +1,4 @@
-#include "checkerboard/square2d.h"
+#include "checkerboard/square.h"
 #include "lattice/lattice_base.h"
 #include "model/model_base.h"
 #include "dqmc_walker.h"
@@ -10,7 +10,7 @@
 
 namespace CheckerBoard {
 
-    void Square2d::set_params( const LatticeBase& lattice, 
+    void Square::set_params( const LatticeBase& lattice, 
                                const ModelBase& model, 
                                const DqmcWalker& walker ) 
     {   
@@ -23,7 +23,7 @@ namespace CheckerBoard {
     }
 
 
-    void Square2d::initial() 
+    void Square::initial() 
     {
         // construct the exponent of hopping matrix in a reduced 4*4 Hilbert-space
         Eigen::Matrix4d reduced_hopping_mat;
@@ -61,7 +61,7 @@ namespace CheckerBoard {
     //   1.0, 0.0, 0.0, 1.0,
     //   0.0, 1.0, 1.0, 0.0.
 
-    void Square2d::mult_expK_plaquette_from_left( Matrix &matrix, const Site& site ) const
+    void Square::mult_expK_plaquette_from_left( Matrix &matrix, const Site& site ) const
     {
         assert( matrix.rows() == this->m_space_size && matrix.cols() == this->m_space_size );
         assert( site.size() == 2 );
@@ -77,7 +77,7 @@ namespace CheckerBoard {
     }
 
 
-    void Square2d::mult_inv_expK_plaquette_from_left( Matrix &matrix, const Site& site ) const
+    void Square::mult_inv_expK_plaquette_from_left( Matrix &matrix, const Site& site ) const
     {
         assert( matrix.rows() == this->m_space_size && matrix.cols() == this->m_space_size );
         assert( site.size() == 2 );
@@ -93,7 +93,7 @@ namespace CheckerBoard {
     }
 
 
-    void Square2d::mult_expK_plaquette_from_right( Matrix &matrix, const Site& site ) const
+    void Square::mult_expK_plaquette_from_right( Matrix &matrix, const Site& site ) const
     {
         assert( matrix.rows() == this->m_space_size && matrix.cols() == this->m_space_size );
         assert( site.size() == 2 );
@@ -109,7 +109,7 @@ namespace CheckerBoard {
     }
 
     
-    void Square2d::mult_inv_expK_plaquette_from_right( Matrix &matrix, const Site& site ) const
+    void Square::mult_inv_expK_plaquette_from_right( Matrix &matrix, const Site& site ) const
     {
         assert( matrix.rows() == this->m_space_size && matrix.cols() == this->m_space_size );
         assert( site.size() == 2 );
@@ -125,7 +125,7 @@ namespace CheckerBoard {
     }
 
 
-    void Square2d::mult_expK_from_left( Matrix &matrix ) const
+    void Square::mult_expK_from_left( Matrix &matrix ) const
     {
         // checkerboard breakups are only supported for lattices with even side length
         assert( this->m_side_length % 2 == 0 );
@@ -145,7 +145,7 @@ namespace CheckerBoard {
     }
 
     
-    void Square2d::mult_inv_expK_from_left( Matrix &matrix ) const
+    void Square::mult_inv_expK_from_left( Matrix &matrix ) const
     {
         // checkerboard breakups are only supported for lattices with even side length
         assert( this->m_side_length % 2 == 0 );
@@ -165,7 +165,7 @@ namespace CheckerBoard {
     }
 
     
-    void Square2d::mult_expK_from_right( Matrix &matrix ) const
+    void Square::mult_expK_from_right( Matrix &matrix ) const
     {
         // checkerboard breakups are only supported for lattices with even side length
         assert( this->m_side_length % 2 == 0 );
@@ -185,7 +185,7 @@ namespace CheckerBoard {
     }
 
     
-    void Square2d::mult_inv_expK_from_right( Matrix &matrix ) const
+    void Square::mult_inv_expK_from_right( Matrix &matrix ) const
     {
         // checkerboard breakups are only supported for lattices with even side length
         assert( this->m_side_length % 2 == 0 );
@@ -204,7 +204,7 @@ namespace CheckerBoard {
         }
     }
 
-    void Square2d::mult_trans_expK_from_left( Matrix &matrix ) const
+    void Square::mult_trans_expK_from_left( Matrix &matrix ) const
     {   
         // checkerboard breakups are only supported for lattices with even side length
         assert( this->m_side_length % 2 == 0 );

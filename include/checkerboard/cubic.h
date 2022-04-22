@@ -1,0 +1,8 @@
+#ifndef CHECKERBOARD_CUBIC_H
+#define CHECKERBOARD_CUBIC_H
+#pragma once
+
+
+
+
+#endif // CHECKERBOARD_CUBIC_H

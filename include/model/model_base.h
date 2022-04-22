@@ -27,7 +27,7 @@ namespace Lattice {
 }
 
 namespace CheckerBoard {
-    class Base;
+    class CheckerBoardBase;
 }
 
 namespace Model {
@@ -40,6 +40,7 @@ namespace Model {
 
     using Walker = QuantumMonteCarlo::DqmcWalker;
     using LatticeBase = Lattice::LatticeBase;
+    using CheckerBoardBase = CheckerBoard::CheckerBoardBase;
     using Matrix = Eigen::MatrixXd;
 
     using GreensFunc = Eigen::MatrixXd;
@@ -134,7 +135,7 @@ namespace Model {
 
             // link checkerboard member functions to m_mult_expK methods
             // this will achieve higher performance by using checkerboard breakups on a specific lattice
-            void link( const CheckerBoard::Base& checkerboard );
+            void link( const CheckerBoardBase& checkerboard );
 
 
             // ---------------------------------------- Monte Carlo updates ----------------------------------------------

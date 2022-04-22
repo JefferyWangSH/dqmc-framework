@@ -12,7 +12,7 @@
 namespace Lattice { class LatticeBase; }
 namespace Model { class ModelBase; }
 namespace Measure { class MeasureHandler; }
-namespace CheckerBoard { class Base; }
+namespace CheckerBoard { class CheckerBoardBase; }
 
 
 namespace QuantumMonteCarlo {
@@ -22,6 +22,7 @@ namespace QuantumMonteCarlo {
 
     using LatticeBase = Lattice::LatticeBase;
     using ModelBase = Model::ModelBase;
+    using CheckerBoardBase = CheckerBoard::CheckerBoardBase;
     using MeasureHandler = Measure::MeasureHandler;
 
 
@@ -38,7 +39,7 @@ namespace QuantumMonteCarlo {
                                            ModelBase& model, 
                                            DqmcWalker& walker,
                                            MeasureHandler& meas_handler,
-                                           CheckerBoard::Base& checkerboard );
+                                           CheckerBoardBase& checkerboard );
 
             static void initial_dqmc     ( LatticeBase& lattice, 
                                            ModelBase& model,

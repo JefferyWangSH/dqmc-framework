@@ -1,10 +1,10 @@
-#ifndef CHECKERBOARD_SQUARE_2D_H
-#define CHECKERBOARD_SQUARE_2D_H
+#ifndef CHECKERBOARD_SQUARE_H
+#define CHECKERBOARD_SQUARE_H
 #pragma once
 
 
 /**
-  *  This header file defines the CheckerBoard::Square2d class for the checkerboard breakups
+  *  This header file defines the CheckerBoard::Square class for the checkerboard breakups
   *  of 2d square lattice, which is derived from the base class CheckerBoard::Base .
   *  Notice that the break-ups can only be applied to the square lattice with even side length.
   */
@@ -13,8 +13,10 @@
 
 
 namespace CheckerBoard {
+    
 
-    class Square2d : public Base {
+    // ---------------------------- Derived Checkerboard class CheckerBoard::Square ----------------------------
+    class Square : public CheckerBoardBase {
         private:
 
             int m_side_length{};                // side length of the lattice
@@ -57,4 +59,4 @@ namespace CheckerBoard {
 } // namespace CheckerBoard
 
 
-#endif // CHECKERBOARD_SQUARE_2D_H
+#endif // CHECKERBOARD_SQUARE_H
