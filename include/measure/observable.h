@@ -31,7 +31,8 @@ namespace Observable {
     using VectorType = Eigen::VectorXd;
     using MatrixType = Eigen::MatrixXd;
 
-    // ------------------------- Abstract base class Observable::ObservableBase ------------------------
+    
+    // --------------------------- Abstract base class Observable::ObservableBase ----------------------------
     // this class should not be instantiated in any case 
     // it only serves as a pointer to its derived class
     class ObservableBase {
@@ -42,9 +43,11 @@ namespace Observable {
             virtual ~ObservableBase(){};
     };
 
-    // -------------------  Derived template class Observable::Observable<ObsType> ---------------------
+    
+    // -----------------------  Derived template class Observable::Observable<ObsType> -----------------------
     template<typename ObsType> class Observable : public ObservableBase {
         private:
+            
             using MeasureHandler = Measure::MeasureHandler;
             using ModelBase = Model::ModelBase;
             using LatticeBase = Lattice::LatticeBase;
@@ -66,7 +69,9 @@ namespace Observable {
             // user-defined method of measurements
             std::function<ObsMethod> m_method{};
 
+        
         public:
+           
             Observable() = default;
             
             explicit Observable(int size_of_bin) { this->set_size_of_bin(size_of_bin); }
@@ -74,7 +79,9 @@ namespace Observable {
             // overload operator ++
             int operator++() { return ++this->m_count; }
 
-            // interface functions
+
+            // --------------------------------- Interface functions -----------------------------------
+            
             int counts() const { return this->m_count; }
             int size_of_bin() const { return this->m_size_of_bin; }
             std::string name() const { return this->m_name; }
@@ -89,12 +96,17 @@ namespace Observable {
             const std::vector<ObsType>& bin_data() const { return this->m_bin_data; }
             std::vector<ObsType>& bin_data() { return this->m_bin_data; }
 
-            // set up parameters and methods
+
+            // ----------------------------- Set up parameters and methods -----------------------------
+            
             void set_size_of_bin(const int& size_of_bin) { this->m_size_of_bin = size_of_bin; }
             void set_zero_element(const ObsType& zero_elem) { this->m_zero_elem = zero_elem; }
             void set_observable_name(const std::string& name) { this->m_name = name; }
             void add_method(const std::function<ObsMethod>& method) { this->m_method = method; }
 
+
+            // ------------------------------- Other member functions ----------------------------------
+            
             // perform one step of measurment
             void measure(   const MeasureHandler& meas_handler, 
                             const ModelBase& model, 
@@ -141,6 +153,7 @@ namespace Observable {
 
 
         private:
+
             // calculating mean value of measurements
             void calculate_mean_value() {
                 this->m_mean_value = std::accumulate(this->m_bin_data.begin(), this->m_bin_data.end(), this->m_zero_elem);
@@ -151,6 +164,7 @@ namespace Observable {
             // which are defined in cpp file as specialized template member functions.
             void calculate_error_bar();
     };
+
 
     // declaration of specialized template member functions
     template<> void Observable<ScalarType>::calculate_error_bar();

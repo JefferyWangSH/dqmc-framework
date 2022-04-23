@@ -250,4 +250,17 @@ namespace Observable {
     }
 
 
+    void ObservableHandler::clear_temporary()
+    {   
+        // clear the temporary data for all the observables
+        for (auto& scalar_obs : this->m_eqtime_scalar_obs) { scalar_obs->clear_temporary(); }
+        for (auto& vector_obs : this->m_eqtime_vector_obs) { vector_obs->clear_temporary(); }
+        for (auto& matrix_obs : this->m_eqtime_matrix_obs) { matrix_obs->clear_temporary(); }
+
+        for (auto& scalar_obs : this->m_dynamic_scalar_obs) { scalar_obs->clear_temporary(); }
+        for (auto& vector_obs : this->m_dynamic_vector_obs) { vector_obs->clear_temporary(); }
+        for (auto& matrix_obs : this->m_dynamic_matrix_obs) { matrix_obs->clear_temporary(); }
+    }
+
+
 } // namespace Observable

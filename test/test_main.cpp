@@ -49,6 +49,16 @@ int main() {
     double onsite_u  = 4.0;
     double chemical_potential = 0.0;
 
+    int sweeps_warmup = 1000;
+    int bin_num = 20;
+    int bin_size = 50;
+    int sweeps_between_bins = 10;
+
+    std::vector<std::string> obs_list = { 
+                                          "filling_number", 
+                                          "greens_functions", 
+                                          };
+
     // fixed random seed for debug
     Utils::Random::set_seed_fixed(12345);
 
@@ -63,6 +73,8 @@ int main() {
     walker->set_physical_params(beta, lt);
     walker->set_stabilization_pace(nwrap);
     model->set_model_params(hopping_t, onsite_u, chemical_potential);
+    meas_handler->set_measure_params(sweeps_warmup, bin_num, bin_size, sweeps_between_bins);
+    meas_handler->set_observables(obs_list);
 
     // initialize modules
     // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
@@ -85,6 +97,12 @@ int main() {
     std::cout << std::endl;
     std::cout << lattice->HoppingMatrix() << std::endl;
 
+    std::cout << std::endl;
+    std::cout << meas_handler->isWarmUp() << std::endl;
+    std::cout << meas_handler->isEqualTime() << std::endl;
+    std::cout << meas_handler->isDynamic() << std::endl;
+    std::cout << meas_handler->find_scalar("filling_number").name() << std::endl;
+    std::cout << meas_handler->find_matrix("greens_functions").name() << std::endl;
 
 
 

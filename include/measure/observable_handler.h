@@ -15,9 +15,9 @@
 
 namespace Observable {
 
-    // ----------------------------- Handler class Observable::ObservableHandler -----------------------------
+    // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
     class ObservableHandler {
-        private:
+        protected:
 
             using ObsMap = std::map<std::string, std::shared_ptr<ObservableBase>>;
 
@@ -82,6 +82,10 @@ namespace Observable {
 
             // initialize the handler
             void initial(const ObsNameList& obs_list);
+
+            // clear the temporary data
+            void clear_temporary();
+
 
         private:
             
