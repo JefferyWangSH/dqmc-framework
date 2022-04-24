@@ -92,6 +92,9 @@ namespace Observable {
         this->m_dynamic_scalar_obs.shrink_to_fit();
         this->m_dynamic_vector_obs.shrink_to_fit();
         this->m_dynamic_matrix_obs.shrink_to_fit();
+
+        if ( this->m_equaltime_sign ) { this->m_equaltime_sign.reset(); }
+        if ( this->m_dynamic_sign ) { this->m_dynamic_sign.reset(); }
     }
 
 
@@ -231,11 +234,11 @@ namespace Observable {
         if (    !this->m_eqtime_scalar_obs.empty() 
              || !this->m_eqtime_vector_obs.empty() 
              || !this->m_eqtime_matrix_obs.empty() ) {
-            ptrScalarObs eqtime_sign = std::make_shared<ScalarObs>();
-            eqtime_sign->set_observable_name("eqtime_sign");
-            eqtime_sign->add_method(Measure::Methods::measure_eqtime_config_sign);
-            this->m_eqtime_scalar_obs.emplace_back(eqtime_sign);
-            this->m_obs_map["eqtime_sign"] = std::static_pointer_cast<ObservableBase>(eqtime_sign);
+            ptrScalarObs equaltime_sign = std::make_shared<ScalarObs>();
+            equaltime_sign->set_observable_name("equaltime_sign");
+            equaltime_sign->add_method(Measure::Methods::measure_equaltime_config_sign);
+            this->m_equaltime_sign = equaltime_sign;
+            this->m_obs_map["equaltime_sign"] = std::static_pointer_cast<ObservableBase>(equaltime_sign);
         }
 
         if (    !this->m_dynamic_scalar_obs.empty() 
@@ -244,22 +247,9 @@ namespace Observable {
             ptrScalarObs dynamic_sign = std::make_shared<ScalarObs>();
             dynamic_sign->set_observable_name("dynamic_sign");
             dynamic_sign->add_method(Measure::Methods::measure_dynamic_config_sign);
-            this->m_dynamic_scalar_obs.emplace_back(dynamic_sign);
+            this->m_dynamic_sign = dynamic_sign;
             this->m_obs_map["dynamic_sign"] = std::static_pointer_cast<ObservableBase>(dynamic_sign);
         }
-    }
-
-
-    void ObservableHandler::clear_temporary()
-    {   
-        // clear the temporary data for all the observables
-        for (auto& scalar_obs : this->m_eqtime_scalar_obs) { scalar_obs->clear_temporary(); }
-        for (auto& vector_obs : this->m_eqtime_vector_obs) { vector_obs->clear_temporary(); }
-        for (auto& matrix_obs : this->m_eqtime_matrix_obs) { matrix_obs->clear_temporary(); }
-
-        for (auto& scalar_obs : this->m_dynamic_scalar_obs) { scalar_obs->clear_temporary(); }
-        for (auto& vector_obs : this->m_dynamic_vector_obs) { vector_obs->clear_temporary(); }
-        for (auto& matrix_obs : this->m_dynamic_matrix_obs) { matrix_obs->clear_temporary(); }
     }
 
 

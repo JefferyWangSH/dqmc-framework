@@ -103,7 +103,7 @@ namespace QuantumMonteCarlo {
 
             // -------------------------------- Interfaces and friend class --------------------------------
 
-            const int TimeSliceNum() const          { return this->m_time_size; }
+            const int TimeSize() const              { return this->m_time_size; }
             const RealScalar Beta()  const          { return this->m_beta; }
             const RealScalar TimeInterval() const   { return this->m_time_interval; }
             const RealScalar WrapError() const      { return this->m_wrap_error; }

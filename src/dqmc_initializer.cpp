@@ -20,7 +20,7 @@ namespace QuantumMonteCarlo {
         lattice.initial();
 
         // initialize MeasureHandler module
-        meas_handler.initial();
+        meas_handler.initial( lattice, walker );
 
         // initialize dqmcWalker module
         walker.initial( lattice, meas_handler );
@@ -45,7 +45,7 @@ namespace QuantumMonteCarlo {
         lattice.initial();
 
         // initialize MeasureHandler module
-        meas_handler.initial();
+        meas_handler.initial( lattice, walker );
 
         // initialize dqmcWalker module
         walker.initial( lattice, meas_handler );

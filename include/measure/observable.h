@@ -58,7 +58,7 @@ namespace Observable {
 
             ObsType m_mean_value{};
             ObsType m_error_bar{};
-            ObsType m_tmp_data{};
+            ObsType m_tmp_value{};
             ObsType m_zero_elem{};
 
             std::string m_name{};
@@ -90,11 +90,18 @@ namespace Observable {
             const ObsType& mean_value() const { return this->m_mean_value; }
             const ObsType& error_bar() const { return this->m_error_bar; }
             
-            const ObsType& tmp_value() const { return this->tmp_value; }
-            ObsType& tmp_value() { return this->tmp_value; }
+            const ObsType& tmp_value() const { return this->m_tmp_value; }
+            ObsType& tmp_value() { return this->m_tmp_value; }
 
-            const std::vector<ObsType>& bin_data() const { return this->m_bin_data; }
-            std::vector<ObsType>& bin_data() { return this->m_bin_data; }
+            const ObsType& bin_data(int bin) const {
+                assert( bin >= 0 && bin < this->m_size_of_bin );
+                return this->m_bin_data[bin];
+            }
+
+            ObsType& bin_data(int bin) {
+                assert( bin >= 0 && bin < this->m_size_of_bin );
+                return this->m_bin_data[bin];
+            }
 
 
             // ----------------------------- Set up parameters and methods -----------------------------
@@ -119,7 +126,7 @@ namespace Observable {
             void allocate() {
                 this->m_mean_value = this->m_zero_elem;
                 this->m_error_bar = this->m_zero_elem;
-                this->m_tmp_data = this->m_zero_elem;
+                this->m_tmp_value = this->m_zero_elem;
 
                 std::vector<ObsType>().swap(this->m_bin_data);
                 this->m_bin_data.reserve(this->m_size_of_bin);
@@ -134,7 +141,7 @@ namespace Observable {
             }
 
             void clear_temporary() {
-                this->m_tmp_data = this->m_zero_elem;
+                this->m_tmp_value = this->m_zero_elem;
                 this->m_count = 0;
             }
 

@@ -50,6 +50,9 @@ namespace Observable {
             DynamicVectorObs m_dynamic_vector_obs{};
             DynamicMatrixObs m_dynamic_matrix_obs{};
 
+            ptrScalarObs m_equaltime_sign{};
+            ptrScalarObs m_dynamic_sign{};
+
             // list of supported physical observables
             EqtimeObsNameList m_eqtime_obs_name =   {
                                                         "filling_number", 
@@ -82,9 +85,6 @@ namespace Observable {
 
             // initialize the handler
             void initial(const ObsNameList& obs_list);
-
-            // clear the temporary data
-            void clear_temporary();
 
 
         private:

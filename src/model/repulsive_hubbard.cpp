@@ -45,7 +45,7 @@ namespace Model {
     void RepulsiveHubbard::initial_params( const LatticeBase& lattice, const Walker& walker )
     {
         this->m_space_size = lattice.SpaceSize();
-        this->m_time_size  = walker.TimeSliceNum();
+        this->m_time_size  = walker.TimeSize();
         const RealScalar time_interval = walker.TimeInterval();
 
         this->m_alpha = acosh( exp(0.5 * time_interval * this->m_onsite_u) );

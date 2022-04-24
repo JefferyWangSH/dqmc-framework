@@ -45,7 +45,7 @@ namespace Measure {
             //    7. Charge density structure factor (CDW)
             //    8. S wave Cooper pairing correlation function
 
-            static void measure_eqtime_config_sign              (  ScalarObs& eqtime_sign, 
+            static void measure_equaltime_config_sign           (  ScalarObs& eqtime_sign, 
                                                                    const MeasureHandler& meas_handler, 
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};

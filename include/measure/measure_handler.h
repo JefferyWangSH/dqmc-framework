@@ -14,6 +14,7 @@
 
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
+namespace QuantumMonteCarlo { class DqmcWalker; }
 
 
 namespace Measure {
@@ -21,6 +22,9 @@ namespace Measure {
     using ObsList = std::vector<std::string>;
     using ModelBase = Model::ModelBase;
     using LatticeBase = Lattice::LatticeBase;
+    using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
+    using Matrix = Eigen::MatrixXd;
+    using Vector = Eigen::VectorXd;
 
 
     // ------------------------------------- Handler class Measure::MeasureHandler ---------------------------------
@@ -52,7 +56,7 @@ namespace Measure {
 
             // ------------------------------------- Initializations ----------------------------------------------
             
-            void initial();
+            void initial( const LatticeBase& lattice, const DqmcWalker& walker );
             
             
             // --------------------------------------- Interfaces -------------------------------------------------
@@ -80,11 +84,11 @@ namespace Measure {
             void equaltime_measure ( const ModelBase& model, const LatticeBase& lattice );
             void dynamic_measure   ( const ModelBase& model, const LatticeBase& lattice );
 
-            // bin collections of the observable samples
-            void write_stats_to_bins( int bin );
-
             // normalize the observable samples
             void normalize_stats();
+            
+            // bin collections of the observable samples
+            void write_stats_to_bins( int bin );
 
             // analyse the statistics by calculating means and errors
             void analyse_stats();
