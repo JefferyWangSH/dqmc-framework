@@ -10,6 +10,11 @@ namespace Measure {
     const bool MeasureHandler::isEqualTime() const { return this->m_is_equaltime; }
     const bool MeasureHandler::isDynamic() const { return this->m_is_dynamic; }
 
+    const int MeasureHandler::WarmUpSweeps() const { return this->m_sweeps_warmup; }
+    const int MeasureHandler::SweepsBetweenBins() const { return this->m_sweeps_between_bins; }
+    const int MeasureHandler::BinsNum() const { return this->m_bin_num; }
+    const int MeasureHandler::BinsSize() const { return this->m_bin_size; }
+
 
     void MeasureHandler::set_measure_params( int sweeps_warmup, int bin_num, int bin_size, int sweeps_between_bins )
     {

@@ -64,6 +64,11 @@ namespace Measure {
             const bool isWarmUp() const;
             const bool isEqualTime() const ;
             const bool isDynamic() const ;
+
+            const int WarmUpSweeps() const ;
+            const int SweepsBetweenBins() const;
+            const int BinsNum() const;
+            const int BinsSize() const;
             
             // the following interfaces have been implemented 
             // in the base class Observable::ObservableHandler.
