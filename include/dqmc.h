@@ -14,7 +14,6 @@
 
 #include <chrono>
 
-
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
 namespace Measure { class MeasureHandler; }
@@ -39,6 +38,9 @@ namespace QuantumMonteCarlo {
             
             // set up whether to show the process bar or not
             static void show_progress_bar( bool show_progress_bar );
+
+            // set up the format of the progress bar
+            static void progress_bar_format( unsigned int width, char complete, char incomplete );
             
             // return the duration time of the dqmc process, e.g thermalization or measurements
             static const double timer();
@@ -67,6 +69,8 @@ namespace QuantumMonteCarlo {
             // ------------------------------------ Private subroutines -------------------------------------
             // declarations of static members
             static bool m_show_progress_bar;
+            static unsigned int m_progress_bar_width;
+            static char m_progress_bar_complete_char, m_progress_bar_incomplete_char;
             static std::chrono::steady_clock::time_point m_begin_time, m_end_time;
 
             // start the timer

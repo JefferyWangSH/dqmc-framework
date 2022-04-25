@@ -18,13 +18,15 @@
 #include "fft_solver.h"
 #include "utils/linear_algebra.hpp"
 #include "utils/numerical_stable.hpp"
-#include "utils/progress_bar.hpp"
 #include "random.h"
 
 #include "checkerboard/checkerboard_base.h"
 #include "checkerboard/square.h"
 
 #include <chrono>
+
+#include <unistd.h>
+#include "utils/progressbar.hpp"
 
 // #include "random.h"
 // #include "hubbard.h"
@@ -39,7 +41,7 @@ int main() {
     // test Repulsive Hubbard
 
     // some params
-    int ll = 20;
+    int ll = 8;
     double beta = 4.0;
     int lt = 80;
 
@@ -49,7 +51,7 @@ int main() {
     double onsite_u  = 4.0;
     double chemical_potential = 0.0;
 
-    int sweeps_warmup = 2;
+    int sweeps_warmup = 100;
     int bin_num = 20;
     int bin_size = 100;
     int sweeps_between_bins = 10;
@@ -66,7 +68,6 @@ int main() {
     Lattice::LatticeBase* lattice = new Lattice::Square();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
-    CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
 
     // set up params
     lattice->set_lattice_params({ll,ll});
@@ -77,10 +78,11 @@ int main() {
     meas_handler->set_observables(obs_list);
 
     // initialize modules
-    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
+    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
 
     // using checkerboard break-up
-    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
+    // CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
+    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
 
     model->set_bosonic_fields_to_random();
 
@@ -96,9 +98,13 @@ int main() {
     // std::chrono::steady_clock::time_point begin_t{}, end_t{};
     // begin_t = std::chrono::steady_clock::now();
 
+
+    QuantumMonteCarlo::Dqmc::show_progress_bar( true );
+    QuantumMonteCarlo::Dqmc::progress_bar_format( 70, '=', ' ' );
+
     QuantumMonteCarlo::Dqmc::thermalize(*walker, *model, *lattice, *meas_handler);
 
-    std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
+    // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
 
     // int loop = 1e3;
     // for (int i = 0; i < loop; ++i) {
@@ -132,7 +138,38 @@ int main() {
 
 
 
+    // // test progress bar
+    // const int total = 10000;
 
+    // /*
+    //  * Define a progress bar that has a total of 10000,
+    //  * a width of 70, shows `#` to indicate completion
+    //  * and a dash '-' for incomplete
+    //  */
+    // progresscpp::ProgressBar progressBar(total, 70, '#', '-');
+
+    // for (int i = 0; i < total; i++) {
+        
+
+    //     usleep(200); // simulate work
+
+    //     ++progressBar; // record the tick
+
+    //     // display the bar only at certain steps
+    //     // if (i % 10 == 0)
+        
+    //     std::cout << "hello "; progressBar.display();
+    // }
+
+    // // tell the bar to finish
+    // std::cout << "hello "; progressBar.done();
+
+    // std::cout << "Done!" << std::endl;
+
+
+
+
+    
 
 
 
