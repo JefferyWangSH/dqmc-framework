@@ -93,11 +93,12 @@ int main() {
 
     // QuantumMonteCarlo::Dqmc::sweep_forth_and_back(*walker, *model, *lattice, *meas_handler);
 
-    std::chrono::steady_clock::time_point begin_t{}, end_t{};
-
-    begin_t = std::chrono::steady_clock::now();
+    // std::chrono::steady_clock::time_point begin_t{}, end_t{};
+    // begin_t = std::chrono::steady_clock::now();
 
     QuantumMonteCarlo::Dqmc::thermalize(*walker, *model, *lattice, *meas_handler);
+
+    std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
 
     // int loop = 1e3;
     // for (int i = 0; i < loop; ++i) {
@@ -106,8 +107,8 @@ int main() {
     // }
 
 
-    end_t = std::chrono::steady_clock::now();
-    std::cout << "warm-up : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
+    // end_t = std::chrono::steady_clock::now();
+    // std::cout << "warm-up : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
 
 
     QuantumMonteCarlo::Dqmc::measure(*walker, *model, *lattice, *meas_handler);

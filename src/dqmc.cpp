@@ -7,6 +7,24 @@
 
 namespace QuantumMonteCarlo {
 
+    // definitions of the static members
+    bool Dqmc::m_show_progress_bar{};
+    std::chrono::steady_clock::time_point Dqmc::m_begin_time{}, Dqmc::m_end_time{};
+
+    // set up whether to show the process bar or not
+    void Dqmc::show_progress_bar( bool show_progress_bar ) { Dqmc::m_show_progress_bar = show_progress_bar; }
+    
+    // timer functions
+    void Dqmc::timer_begin() { Dqmc::m_begin_time = std::chrono::steady_clock::now(); }
+    void Dqmc::timer_end()   { Dqmc::m_end_time = std::chrono::steady_clock::now(); }
+    const double Dqmc::timer() { 
+        return std::chrono::duration_cast<std::chrono::milliseconds>(Dqmc::m_end_time - Dqmc::m_begin_time).count(); 
+    }
+
+    
+    // -----------------------------------  Crucial static member functions  --------------------------------------
+    // ----------------------------------  For organizing the dqmc simulations  ----------------------------------- 
+
     void Dqmc::sweep_forth_and_back( DqmcWalker& walker, 
                                      ModelBase& model, 
                                      LatticeBase& lattice, 
@@ -38,11 +56,18 @@ namespace QuantumMonteCarlo {
                            MeasureHandler& meas_handler ) 
     {
         if ( meas_handler.isWarmUp() ) {
+            
+            // timer begin
+            Dqmc::timer_begin();
+
             for ( auto sweep = 1; sweep <= meas_handler.WarmUpSweeps()/2; sweep++ ) {
                 // sweep forth and back without measuring
                 walker.sweep_from_0_to_beta(model);
                 walker.sweep_from_beta_to_0(model);
             }
+
+            // timer finish
+            Dqmc::timer_end();
         }
     }
 
@@ -53,10 +78,14 @@ namespace QuantumMonteCarlo {
                         MeasureHandler& meas_handler ) 
     {   
         if ( meas_handler.isEqualTime() || meas_handler.isDynamic() ) {
+
+            // timer begin
+            Dqmc::timer_begin();
+
             for ( auto bin = 0; bin < meas_handler.BinsNum(); ++bin ) {
                 for ( auto sweep = 1; sweep <= meas_handler.BinsSize()/2; ++sweep ) {
                     // update and measure
-                    sweep_forth_and_back(walker, model, lattice, meas_handler);
+                    Dqmc::sweep_forth_and_back(walker, model, lattice, meas_handler);
                 }
 
                 // store the collected data in the MeasureHandler
@@ -70,6 +99,9 @@ namespace QuantumMonteCarlo {
                     walker.sweep_from_beta_to_0(model);
                 }
             }
+            
+            // timer finish
+            Dqmc::timer_end();
         }
     }
 
