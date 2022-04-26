@@ -86,8 +86,8 @@ namespace Measure {
             // ---------------------------- Subroutines for measuring observables ---------------------------------
 
             // perform one step of sampling for the measurements
-            void equaltime_measure ( const ModelBase& model, const LatticeBase& lattice );
-            void dynamic_measure   ( const ModelBase& model, const LatticeBase& lattice );
+            void equaltime_measure( const DqmcWalker& walker, const ModelBase& model, const LatticeBase& lattice );
+            void dynamic_measure  ( const DqmcWalker& walker, const ModelBase& model, const LatticeBase& lattice );
 
             // normalize the observable samples
             void normalize_stats();

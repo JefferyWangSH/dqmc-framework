@@ -37,7 +37,8 @@ namespace QuantumMonteCarlo {
 
             using TimeIndex = int;
             using RealScalar = double;
-            using ptrRealScalarVec = std::unique_ptr<std::vector<double>>;
+            using RealScalarVec = Eigen::VectorXd;
+            using ptrRealScalarVec = std::unique_ptr<Eigen::VectorXd>;
             using SvdStack = Utils::SvdStack;
             using ptrSvdStack = std::unique_ptr<SvdStack>;
 
@@ -113,17 +114,25 @@ namespace QuantumMonteCarlo {
             // todo: this may cause problems if the pointer is nullptr
             GreensFunc& GreenttUp() { return *this->m_green_tt_up; }
             GreensFunc& GreenttDn() { return *this->m_green_tt_dn; }
-            GreensFunc& Greent0Up() { return *this->m_green_t0_up; }
-            GreensFunc& Greent0Dn() { return *this->m_green_t0_dn; }
-            GreensFunc& Green0tUp() { return *this->m_green_0t_up; }
-            GreensFunc& Green0tDn() { return *this->m_green_0t_dn; }
 
-            GreensFuncVec& vecGreenttUp() { return *this->m_vec_green_tt_up; }
-            GreensFuncVec& vecGreenttDn() { return *this->m_vec_green_tt_dn; }
-            GreensFuncVec& vecGreent0Up() { return *this->m_vec_green_t0_up; }
-            GreensFuncVec& vecGreent0Dn() { return *this->m_vec_green_t0_dn; }
-            GreensFuncVec& vecGreen0tUp() { return *this->m_vec_green_0t_up; }
-            GreensFuncVec& vecGreen0tDn() { return *this->m_vec_green_0t_dn; }
+            const GreensFunc& GreenttUp( int t ) const { return (*this->m_vec_green_tt_up)[t]; }
+            const GreensFunc& GreenttDn( int t ) const { return (*this->m_vec_green_tt_dn)[t]; }
+            const GreensFunc& Greent0Up( int t ) const { return (*this->m_vec_green_t0_up)[t]; }
+            const GreensFunc& Greent0Dn( int t ) const { return (*this->m_vec_green_t0_dn)[t]; }
+            const GreensFunc& Green0tUp( int t ) const { return (*this->m_vec_green_0t_up)[t]; }
+            const GreensFunc& Green0tDn( int t ) const { return (*this->m_vec_green_0t_dn)[t]; }
+
+            const GreensFuncVec& vecGreenttUp() const { return *this->m_vec_green_tt_up; }
+            const GreensFuncVec& vecGreenttDn() const { return *this->m_vec_green_tt_dn; }
+            const GreensFuncVec& vecGreent0Up() const { return *this->m_vec_green_t0_up; }
+            const GreensFuncVec& vecGreent0Dn() const { return *this->m_vec_green_t0_dn; }
+            const GreensFuncVec& vecGreen0tUp() const { return *this->m_vec_green_0t_up; }
+            const GreensFuncVec& vecGreen0tDn() const { return *this->m_vec_green_0t_dn; }
+
+            // interfaces for configuration signs
+            const RealScalar& ConfigSign() const { return this->m_config_sign; }
+            const RealScalar& ConfigSign( int t ) const { return (*this->m_vec_config_sign)[t]; }
+            const RealScalarVec& vecConfigSign() const { return *this->m_vec_config_sign; }
 
             friend class DqmcInitializer;
             

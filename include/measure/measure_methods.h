@@ -13,13 +13,13 @@
 // forward declaration
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
+namespace QuantumMonteCarlo { class DqmcWalker; }
 
 namespace Measure {
 
-    class MeasureHandler;
-
     using ModelBase = Model::ModelBase;
     using LatticeBase = Lattice::LatticeBase;
+    using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
     using ScalarObs = Observable::ScalarObs;
     using VectorObs = Observable::VectorObs;
     using MatrixObs = Observable::MatrixObs;
@@ -45,48 +45,48 @@ namespace Measure {
             //    7. Charge density structure factor (CDW)
             //    8. S wave Cooper pairing correlation function
 
-            static void measure_equaltime_config_sign           (  ScalarObs& eqtime_sign, 
-                                                                   const MeasureHandler& meas_handler, 
+            static void measure_equaltime_config_sign           (  ScalarObs& equaltime_sign, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_filling_number                  (  ScalarObs& filling_number, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_double_occupancy                (  ScalarObs& double_occupancy, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model, 
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
                                                                   
             static void measure_kinetic_energy                  (  ScalarObs& kinetic_energy, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_local_spin_corr                 (  ScalarObs& local_spin_corr, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_momentum_distribution           (  ScalarObs& momentum_dist, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_spin_density_structure_factor   (  ScalarObs& sdw_factor, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_charge_density_structure_factor (  ScalarObs& cdw_factor, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_s_wave_pairing_corr             (  ScalarObs& s_wave_pairing,
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
@@ -97,22 +97,22 @@ namespace Measure {
             //    3. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
             
             static void measure_dynamic_config_sign             (  ScalarObs& dynamic_sign, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_greens_functions                (  MatrixObs& greens_functions, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_density_of_states               (  VectorObs& density_of_states, 
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
 
             static void measure_superfluid_stiffness            (  ScalarObs& density_of_states,
-                                                                   const MeasureHandler& meas_handler, 
+                                                                   const DqmcWalker& walker,
                                                                    const ModelBase& model,
                                                                    const LatticeBase& lattice ) {};
     

@@ -41,9 +41,9 @@ int main() {
     // test Repulsive Hubbard
 
     // some params
-    int ll = 8;
-    double beta = 4.0;
-    int lt = 80;
+    int ll = 4;
+    double beta = 8.0;
+    int lt = 160;
 
     int nwrap = 10;
 
@@ -51,13 +51,14 @@ int main() {
     double onsite_u  = 4.0;
     double chemical_potential = 0.0;
 
-    int sweeps_warmup = 100;
+    int sweeps_warmup = 512;
     int bin_num = 20;
     int bin_size = 100;
-    int sweeps_between_bins = 10;
+    int sweeps_between_bins = 20;
 
     std::vector<std::string> obs_list = { 
-                                        //   "filling_number", 
+                                          "filling_number", 
+                                          "double_occupancy",
                                         //   "greens_functions", 
                                           };
 
@@ -103,7 +104,6 @@ int main() {
     QuantumMonteCarlo::Dqmc::progress_bar_format( 70, '=', ' ' );
 
     QuantumMonteCarlo::Dqmc::thermalize(*walker, *model, *lattice, *meas_handler);
-
     // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
 
     // int loop = 1e3;
@@ -118,7 +118,31 @@ int main() {
 
 
     QuantumMonteCarlo::Dqmc::measure(*walker, *model, *lattice, *meas_handler);
+    // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
     QuantumMonteCarlo::Dqmc::analyse(*meas_handler);
+
+    // if (meas_handler->find("filling_number")) {
+    //     auto obs = meas_handler->find_scalar("filling_number");
+    //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    // }
+
+    // std::cout << meas_handler->BinsNum() << std::endl;
+    // std::cout << meas_handler->BinsSize() << std::endl;
+
+    if (meas_handler->find("equaltime_sign")) {
+        auto obs = meas_handler->find_scalar("equaltime_sign");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+      
+    if (meas_handler->find("filling_number")) {
+        auto obs = meas_handler->find_scalar("filling_number");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("double_occupancy")) {
+        auto obs = meas_handler->find_scalar("double_occupancy");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
 
     // std::cout << walker->GreenttUp() << std::endl;
     // std::cout << std::endl;

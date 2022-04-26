@@ -46,19 +46,19 @@ namespace QuantumMonteCarlo {
         // sweep forth from 0 to beta
         if ( meas_handler.isDynamic() ) {
             walker.sweep_for_dynamic_greens(model);
-            meas_handler.dynamic_measure(model, lattice);
+            meas_handler.dynamic_measure(walker, model, lattice);
         }
         else {
             walker.sweep_from_0_to_beta(model);
             if ( meas_handler.isEqualTime() ) {
-                meas_handler.equaltime_measure(model, lattice);
+                meas_handler.equaltime_measure(walker, model, lattice);
             }
         }
 
         // sweep back from beta to 0
         walker.sweep_from_beta_to_0(model);
         if ( meas_handler.isEqualTime() ) {
-            meas_handler.equaltime_measure(model, lattice);
+            meas_handler.equaltime_measure(walker, model, lattice);
         }
     }
 

@@ -1,47 +1,87 @@
 #include "measure/measure_methods.h"
-#include "measure/measure_handler.h"
 #include "model/model_base.h"
 #include "lattice/lattice_base.h"
+#include "dqmc_walker.h"
 
 
-// #include "measure/measure_methods.h"
-// #include "hubbard.h"
-// #include "measure.h"
+namespace Measure {
 
-// namespace Measure {
+    // some aliases
+    using RealScalar = double; 
+    using GreensFunc = Eigen::MatrixXd;
 
-//     /** Equal-time Measurements */
 
-//     void Methods::measure_config_sign_eqtime(Observable<double> &sign_eqtime, Measure &measure, const Model::Hubbard &hubbard) {
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             sign_eqtime.tmp_value() += (*hubbard.vec_config_sign)[t];
-//             ++sign_eqtime;
-//         }
-//     }
+    // -----------------------------  Method routines for equal-time measurements  -------------------------------
 
-//     void Methods::measure_filling_number(Observable<double> &filling_number, Measure &measure, const Model::Hubbard &hubbard) {
-//         // loop for equivalent time slices
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-//             filling_number.tmp_value() += (*hubbard.vec_config_sign)[t] * (2 - (gu.trace()+gd.trace())/hubbard.ls);
-//             ++filling_number;
-//         }
-//     }
+    void Methods::measure_equaltime_config_sign( ScalarObs& equaltime_sign, 
+                                                 const DqmcWalker& walker,
+                                                 const ModelBase& model,
+                                                 const LatticeBase& lattice )
+    {
+        equaltime_sign.tmp_value() += walker.vecConfigSign().sum();
+        equaltime_sign.counts() += walker.TimeSize();
+    }
 
-//     void Methods::measure_double_occupancy(Observable<double> &double_occupancy, Measure &measure, const Model::Hubbard &hubbard) {
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
 
-//             double tmp_double_occu = 0.0;
-//             for (int i = 0; i < hubbard.ls; ++i) {
-//                 tmp_double_occu += (*hubbard.vec_config_sign)[t] * (1 - gu(i, i)) * (1 - gd(i, i));
-//             }
-//             double_occupancy.tmp_value() += tmp_double_occu / hubbard.ls;
-//             ++double_occupancy;
-//         }
-//     }
+    void Methods::measure_filling_number( ScalarObs& filling_number, 
+                                          const DqmcWalker& walker,
+                                          const ModelBase& model,
+                                          const LatticeBase& lattice )
+    {
+        // loop over equivalent time slices
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            filling_number.tmp_value() += walker.ConfigSign(t) * 
+                ( 2 - (walker.GreenttUp(t).trace()+walker.GreenttDn(t).trace())/lattice.SpaceSize() );
+            ++filling_number;
+        }
+    }
+
+
+    void Methods::measure_double_occupancy( ScalarObs& double_occupancy,
+                                            const DqmcWalker& walker,
+                                            const ModelBase& model,
+                                            const LatticeBase& lattice )
+    {
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+
+            RealScalar tmp_double_occu = 0.0;
+            for (int i = 0; i < lattice.SpaceSize(); ++i) {
+                tmp_double_occu += walker.ConfigSign(t) * (1 - gu(i, i)) * (1 - gd(i, i));
+            }
+            double_occupancy.tmp_value() += tmp_double_occu/lattice.SpaceSize();
+            ++double_occupancy;
+        }
+    }
+
+
+    void Methods::measure_kinetic_energy( ScalarObs& kinetic_energy, 
+                                 const DqmcWalker& walker,
+                                 const ModelBase& model,
+                                 const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+
+
+    // ------------------------------  Method routines for dynamic measurements  ---------------------------------
+    
+    void Methods::measure_dynamic_config_sign( ScalarObs& dynamic_sign, 
+                                               const DqmcWalker& walker,
+                                               const ModelBase& model,
+                                               const LatticeBase& lattice )
+    {
+        dynamic_sign.tmp_value() += walker.ConfigSign();
+        ++dynamic_sign;
+    }
+
+} // namespace Measure
+
+
+
 
 //     void Methods::measure_kinetic_energy(Observable<double> &kinetic_energy, Measure &measure, const Model::Hubbard &hubbard) {
 //         const int ll = hubbard.ll;
@@ -213,10 +253,6 @@
 
 //     /** Time-displaced ( Dynamical ) Measurements */
 
-//     void Methods::measure_config_sign_dynamic(Observable<double> &sign_dynamic, Measure &measure, const Model::Hubbard &hubbard) {
-//         sign_dynamic.tmp_value() += hubbard.config_sign;
-//         ++sign_dynamic;
-//     }
 
 //     void Methods::measure_greens_functions(Observable<Eigen::MatrixXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard) {
 //         for (int t = 0; t < hubbard.lt; ++t) {

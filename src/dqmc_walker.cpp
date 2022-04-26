@@ -12,8 +12,8 @@ namespace QuantumMonteCarlo {
     // alias conventions
     using TimeIndex = int;
     using RealScalar = double;
-    using RealScalarVec = std::vector<double>;
-    using ptrRealScalarVec = std::unique_ptr<std::vector<double>>;
+    using RealScalarVec = Eigen::VectorXd;
+    using ptrRealScalarVec = std::unique_ptr<Eigen::VectorXd>;
     using SvdStack = Utils::SvdStack;
     using ptrSvdStack = std::unique_ptr<SvdStack>;
     using Matrix = Eigen::MatrixXd;
@@ -155,7 +155,7 @@ namespace QuantumMonteCarlo {
         // allocate memory for config sign vector
         // if equal-time measurements are to be performed
         if ( this->m_is_equaltime ) {
-            this->m_vec_config_sign = std::make_unique<RealScalarVec>(this->m_time_size, 0.0);
+            this->m_vec_config_sign = std::make_unique<RealScalarVec>(this->m_time_size);
         }
 
         // initialize the sign of the initial bosonic configurations

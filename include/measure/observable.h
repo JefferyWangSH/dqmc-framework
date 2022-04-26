@@ -19,7 +19,7 @@
 
 
 // forward declaration
-namespace Measure { class MeasureHandler; }
+namespace QuantumMonteCarlo { class DqmcWalker; }
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
 
@@ -48,11 +48,11 @@ namespace Observable {
     template<typename ObsType> class Observable : public ObservableBase {
         private:
             
-            using MeasureHandler = Measure::MeasureHandler;
+            using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
             using ModelBase = Model::ModelBase;
             using LatticeBase = Lattice::LatticeBase;
             using ObsMethod = void( Observable<ObsType>&, 
-                                    const MeasureHandler&, 
+                                    const DqmcWalker&, 
                                     const ModelBase&,
                                     const LatticeBase& );
 
@@ -63,7 +63,7 @@ namespace Observable {
 
             std::string m_name{};
             int m_count{0};
-            int m_size_of_bin{0};
+            int m_bin_num{0};
             std::vector<ObsType> m_bin_data{};
 
             // user-defined method of measurements
@@ -74,7 +74,7 @@ namespace Observable {
            
             Observable() = default;
             
-            explicit Observable(int size_of_bin) { this->set_size_of_bin(size_of_bin); }
+            explicit Observable(int bin_num) { this->set_number_of_bins(bin_num); }
 
             // overload operator ++
             int operator++() { return ++this->m_count; }
@@ -82,8 +82,9 @@ namespace Observable {
 
             // --------------------------------- Interface functions -----------------------------------
             
-            int counts() const { return this->m_count; }
-            int size_of_bin() const { return this->m_size_of_bin; }
+            int& counts() { return this->m_count; }
+            int  counts() const { return this->m_count; }
+            int  bin_num() const { return this->m_bin_num; }
             std::string name() const { return this->m_name; }
             
             const ObsType& zero_element() const { return this->m_zero_elem; } 
@@ -94,19 +95,19 @@ namespace Observable {
             ObsType& tmp_value() { return this->m_tmp_value; }
 
             const ObsType& bin_data(int bin) const {
-                assert( bin >= 0 && bin < this->m_size_of_bin );
+                assert( bin >= 0 && bin < this->m_bin_num );
                 return this->m_bin_data[bin];
             }
 
             ObsType& bin_data(int bin) {
-                assert( bin >= 0 && bin < this->m_size_of_bin );
+                assert( bin >= 0 && bin < this->m_bin_num );
                 return this->m_bin_data[bin];
             }
 
 
             // ----------------------------- Set up parameters and methods -----------------------------
             
-            void set_size_of_bin(const int& size_of_bin) { this->m_size_of_bin = size_of_bin; }
+            void set_number_of_bins(const int& bin_num) { this->m_bin_num = bin_num; }
             void set_zero_element(const ObsType& zero_elem) { this->m_zero_elem = zero_elem; }
             void set_observable_name(const std::string& name) { this->m_name = name; }
             void add_method(const std::function<ObsMethod>& method) { this->m_method = method; }
@@ -115,11 +116,11 @@ namespace Observable {
             // ------------------------------- Other member functions ----------------------------------
             
             // perform one step of measurment
-            void measure(   const MeasureHandler& meas_handler, 
+            void measure(   const DqmcWalker& walker, 
                             const ModelBase& model, 
                             const LatticeBase& lattice  )
             { 
-                this->m_method(*this, meas_handler, model, lattice); 
+                this->m_method(*this, walker, model, lattice); 
             }
 
             // allocate memory
@@ -129,8 +130,8 @@ namespace Observable {
                 this->m_tmp_value = this->m_zero_elem;
 
                 std::vector<ObsType>().swap(this->m_bin_data);
-                this->m_bin_data.reserve(this->m_size_of_bin);
-                for (int i = 0; i < this->m_size_of_bin; ++i) {
+                this->m_bin_data.reserve(this->m_bin_num);
+                for (int i = 0; i < this->m_bin_num; ++i) {
                     this->m_bin_data.emplace_back(this->m_zero_elem);
                 }
             }
@@ -164,7 +165,7 @@ namespace Observable {
             // calculating mean value of measurements
             void calculate_mean_value() {
                 this->m_mean_value = std::accumulate(this->m_bin_data.begin(), this->m_bin_data.end(), this->m_zero_elem);
-                this->m_mean_value /= this->size_of_bin();
+                this->m_mean_value /= this->bin_num();
             }
             
             // the error bar is calculated according to the specific data type of observables,

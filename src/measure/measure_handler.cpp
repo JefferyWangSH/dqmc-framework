@@ -53,24 +53,24 @@ namespace Measure {
         if ( this->m_is_equaltime ) {
             // allocate for equal-time sign measurements
             this->m_equaltime_sign->set_zero_element(0.0);
-            this->m_equaltime_sign->set_size_of_bin(this->m_bin_size);
+            this->m_equaltime_sign->set_number_of_bins(this->m_bin_num);
             this->m_equaltime_sign->allocate();
 
             for (auto& scalar_obs : this->m_eqtime_scalar_obs) {
                 scalar_obs->set_zero_element(0.0);
-                scalar_obs->set_size_of_bin(this->m_bin_size);
+                scalar_obs->set_number_of_bins(this->m_bin_num);
                 scalar_obs->allocate();
             }
             for (auto& vector_obs : this->m_eqtime_vector_obs) {
                 vector_obs->set_zero_element(Vector::Zero(walker.TimeSize()));
-                vector_obs->set_size_of_bin(this->m_bin_size);
+                vector_obs->set_number_of_bins(this->m_bin_num);
                 vector_obs->allocate();
             }
             for (auto& matrix_obs : this->m_eqtime_matrix_obs) {
                 // the dimensions of the observable can be adjusted or specialized
                 // todo
                 matrix_obs->set_zero_element(Matrix::Zero(lattice.SpaceSize(), lattice.SpaceSize()));
-                matrix_obs->set_size_of_bin(this->m_bin_size);
+                matrix_obs->set_number_of_bins(this->m_bin_num);
                 matrix_obs->allocate();
             }
         }
@@ -79,57 +79,61 @@ namespace Measure {
         if ( this->m_is_dynamic ) {
             // allocate for dynamic sign measurements
             this->m_dynamic_sign->set_zero_element(0.0);
-            this->m_dynamic_sign->set_size_of_bin(this->m_bin_size);
+            this->m_dynamic_sign->set_number_of_bins(this->m_bin_num);
             this->m_dynamic_sign->allocate();
 
             for (auto& scalar_obs : this->m_dynamic_scalar_obs) {
                 scalar_obs->set_zero_element(0.0);
-                scalar_obs->set_size_of_bin(this->m_bin_size);
+                scalar_obs->set_number_of_bins(this->m_bin_num);
                 scalar_obs->allocate();
             }
             for (auto& vector_obs : this->m_dynamic_vector_obs) {
                 vector_obs->set_zero_element(Vector::Zero(walker.TimeSize()));
-                vector_obs->set_size_of_bin(this->m_bin_size);
+                vector_obs->set_number_of_bins(this->m_bin_num);
                 vector_obs->allocate();
             }
             for (auto& matrix_obs : this->m_dynamic_matrix_obs) {
                 // the dimensions of the observable can be adjusted or specialized
                 // todo
                 matrix_obs->set_zero_element(Matrix::Zero(lattice.SpaceSize(), lattice.SpaceSize()));
-                matrix_obs->set_size_of_bin(this->m_bin_size);
+                matrix_obs->set_number_of_bins(this->m_bin_num);
                 matrix_obs->allocate();
             }
         }
     }
 
 
-    void MeasureHandler::equaltime_measure( const ModelBase& model, const LatticeBase& lattice )
+    void MeasureHandler::equaltime_measure( const DqmcWalker& walker, 
+                                            const ModelBase& model, 
+                                            const LatticeBase& lattice )
     {
         for (auto& scalar_obs : this->m_eqtime_scalar_obs) {
-            scalar_obs->measure(*this, model, lattice);
+            scalar_obs->measure(walker, model, lattice);
         }
         for (auto& vector_obs : this->m_eqtime_vector_obs) {
-            vector_obs->measure(*this, model, lattice);
+            vector_obs->measure(walker, model, lattice);
         }
         for (auto& matrix_obs : this->m_eqtime_matrix_obs) {
-            matrix_obs->measure(*this, model, lattice);
+            matrix_obs->measure(walker, model, lattice);
         }
-        this->m_equaltime_sign->measure(*this, model, lattice);
+        this->m_equaltime_sign->measure(walker, model, lattice);
     }
 
     
-    void MeasureHandler::dynamic_measure( const ModelBase& model, const LatticeBase& lattice )
+    void MeasureHandler::dynamic_measure( const DqmcWalker& walker, 
+                                          const ModelBase& model, 
+                                          const LatticeBase& lattice )
     {
         for (auto& scalar_obs : this->m_dynamic_scalar_obs) {
-            scalar_obs->measure(*this, model, lattice);
+            scalar_obs->measure(walker, model, lattice);
         }
         for (auto& vector_obs : this->m_dynamic_vector_obs) {
-            vector_obs->measure(*this, model, lattice);
+            vector_obs->measure(walker, model, lattice);
         }
         for (auto& matrix_obs : this->m_dynamic_matrix_obs) {
-            matrix_obs->measure(*this, model, lattice);
+            matrix_obs->measure(walker, model, lattice);
         }
-        this->m_dynamic_sign->measure(*this, model, lattice);
+        this->m_dynamic_sign->measure(walker, model, lattice);
     }
 
 
