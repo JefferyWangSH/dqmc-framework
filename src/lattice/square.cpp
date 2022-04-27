@@ -12,6 +12,7 @@ namespace Lattice {
         assert( side_length_vec[0] >= 2 );
 
         this->m_space_dim = 2;
+        this->m_coordination_number = 4;
         this->m_side_length = side_length_vec[0];
         this->m_space_size = side_length_vec[0] * side_length_vec[1];
     }
@@ -34,7 +35,7 @@ namespace Lattice {
         // correspondense between the table index and the direction of displacement :
         // 0: (x+1, y)    1: (x, y+1)
         // 2: (x-1, y)    3: (x, y-1)
-        this->m_nearest_neighbour_table.resize(this->m_space_size, 4);
+        this->m_nearest_neighbour_table.resize(this->m_space_size, this->m_coordination_number);
         for (int index = 0; index < this->m_space_size; ++index) {
             const auto x = index % this->m_side_length;
             const auto y = index / this->m_side_length;

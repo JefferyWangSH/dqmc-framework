@@ -25,9 +25,10 @@ namespace Lattice {
     // -------------------------- Pure virtual base class Lattice::LatticeBase ----------------------------
     class LatticeBase {
         protected:
-            LatticeInt m_space_dim{};          // dimension of the space
-            LatticeInt m_side_length{};        // side length of the lattice
-            LatticeInt m_space_size{};         // total number of lattice sites
+            LatticeInt m_space_dim{};             // dimension of the space
+            LatticeInt m_side_length{};           // side length of the lattice
+            LatticeInt m_space_size{};            // total number of lattice sites
+            LatticeInt m_coordination_number{};   // coordination number of the lattice
 
             // hopping matrix, depending only on the topology of lattice
             // hopping constants are normalized to 1.0 .
@@ -58,14 +59,15 @@ namespace Lattice {
             
             // --------------------------------- Interfaces ----------------------------------------
             
-            const LatticeInt SpaceDim()   const ;
-            const LatticeInt SpaceSize()  const ;
-            const LatticeInt SideLength() const ;
+            const LatticeInt SpaceDim()           const ;
+            const LatticeInt SpaceSize()          const ;
+            const LatticeInt SideLength()         const ;
+            const LatticeInt CoordinationNumber() const ;
 
             const MatrixDouble& HoppingMatrix() const ;
             const LatticeInt NearestNeighbour(const LatticeInt site_index, const LatticeInt direction) const ;
-            const VectorInt NearestNeighbour(const LatticeInt site_index) const ;
-            const VectorInt index2site(const LatticeInt site_index) const ;
+            // const VectorInt NearestNeighbour(const LatticeInt site_index) const ;
+            // const VectorInt index2site(const LatticeInt site_index) const ;
 
 
             // -------------------------------- Initializations ------------------------------------
