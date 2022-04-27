@@ -68,27 +68,27 @@ namespace Measure {
             static void measure_local_spin_corr                 (  ScalarObs& local_spin_corr, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_momentum_distribution           (  ScalarObs& momentum_dist, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_spin_density_structure_factor   (  ScalarObs& sdw_factor, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_charge_density_structure_factor (  ScalarObs& cdw_factor, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_s_wave_pairing_corr             (  ScalarObs& s_wave_pairing,
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
 
             // Dynamical Measurements:
@@ -104,17 +104,17 @@ namespace Measure {
             static void measure_greens_functions                (  MatrixObs& greens_functions, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_density_of_states               (  VectorObs& density_of_states, 
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
 
             static void measure_superfluid_stiffness            (  ScalarObs& density_of_states,
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,
-                                                                   const LatticeBase& lattice ) {};
+                                                                   const LatticeBase& lattice );
     
     };
 

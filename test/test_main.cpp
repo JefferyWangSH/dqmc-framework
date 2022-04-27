@@ -59,6 +59,7 @@ int main() {
     std::vector<std::string> obs_list = { 
                                           "filling_number", 
                                           "double_occupancy",
+                                          "kinetic_energy",
                                         //   "greens_functions", 
                                           };
 
@@ -141,6 +142,11 @@ int main() {
 
     if (meas_handler->find("double_occupancy")) {
         auto obs = meas_handler->find_scalar("double_occupancy");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("kinetic_energy")) {
+        auto obs = meas_handler->find_scalar("kinetic_energy");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
 

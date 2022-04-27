@@ -31,7 +31,7 @@ namespace Measure {
         // loop over equivalent time slices
         for (auto t = 0; t < walker.TimeSize(); ++t) {
             filling_number.tmp_value() += walker.ConfigSign(t) * 
-                ( 2 - (walker.GreenttUp(t).trace()+walker.GreenttDn(t).trace())/lattice.SpaceSize() );
+                ( 2 - ( walker.GreenttUp(t).trace()+walker.GreenttDn(t).trace() )/lattice.SpaceSize() );
             ++filling_number;
         }
     }
@@ -45,21 +45,84 @@ namespace Measure {
         for (auto t = 0; t < walker.TimeSize(); ++t) {
             const GreensFunc& gu = walker.GreenttUp(t);
             const GreensFunc& gd = walker.GreenttDn(t);
+            const RealScalar& config_sign = walker.ConfigSign(t);
 
             RealScalar tmp_double_occu = 0.0;
             for (int i = 0; i < lattice.SpaceSize(); ++i) {
-                tmp_double_occu += walker.ConfigSign(t) * (1 - gu(i, i)) * (1 - gd(i, i));
+                tmp_double_occu += (1 - gu(i, i)) * (1 - gd(i, i));
             }
-            double_occupancy.tmp_value() += tmp_double_occu/lattice.SpaceSize();
+            double_occupancy.tmp_value() += config_sign * tmp_double_occu / lattice.SpaceSize();
             ++double_occupancy;
         }
     }
 
 
     void Methods::measure_kinetic_energy( ScalarObs& kinetic_energy, 
-                                 const DqmcWalker& walker,
-                                 const ModelBase& model,
-                                 const LatticeBase& lattice )
+                                          const DqmcWalker& walker,
+                                          const ModelBase& model,
+                                          const LatticeBase& lattice )
+    {   
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            double tmp_kinetic_energy = 0.0;
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                // loop over lattice sites
+                for (auto dir = 0; dir < lattice.SpaceDim(); ++dir) {
+                    // loop over nearest neighbours
+                    // todo: the independent directions should equal to the coordination number of the lattice
+                    tmp_kinetic_energy += gu(i, lattice.NearestNeighbour(i, dir)) 
+                                        + gd(i, lattice.NearestNeighbour(i, dir));
+                }
+            }
+            kinetic_energy.tmp_value() += config_sign * ( 2*model.HoppingT() ) * tmp_kinetic_energy / lattice.SpaceSize();
+            ++kinetic_energy;
+        }
+    }
+
+
+    void Methods::measure_local_spin_corr( ScalarObs& local_spin_corr, 
+                                           const DqmcWalker& walker,
+                                           const ModelBase& model,
+                                           const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_momentum_distribution( ScalarObs& local_spin_corr, 
+                                                 const DqmcWalker& walker,
+                                                 const ModelBase& model,
+                                                 const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_spin_density_structure_factor( ScalarObs& local_spin_corr, 
+                                                         const DqmcWalker& walker,
+                                                         const ModelBase& model,
+                                                         const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_charge_density_structure_factor( ScalarObs& local_spin_corr, 
+                                                           const DqmcWalker& walker,
+                                                           const ModelBase& model,
+                                                           const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_s_wave_pairing_corr( ScalarObs& local_spin_corr, 
+                                               const DqmcWalker& walker,
+                                               const ModelBase& model,
+                                               const LatticeBase& lattice )
     {
         // todo
     }
@@ -77,6 +140,34 @@ namespace Measure {
         dynamic_sign.tmp_value() += walker.ConfigSign();
         ++dynamic_sign;
     }
+
+
+    void Methods::measure_greens_functions( MatrixObs& greens_functions, 
+                                            const DqmcWalker& walker,
+                                            const ModelBase& model,
+                                            const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_density_of_states( VectorObs& greens_functions, 
+                                             const DqmcWalker& walker,
+                                             const ModelBase& model,
+                                             const LatticeBase& lattice )
+    {
+        // todo
+    }
+
+
+    void Methods::measure_superfluid_stiffness( ScalarObs& greens_functions, 
+                                                const DqmcWalker& walker,
+                                                const ModelBase& model,
+                                                const LatticeBase& lattice )
+    {
+        // todo
+    }
+
 
 } // namespace Measure
 
