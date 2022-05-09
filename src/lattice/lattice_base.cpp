@@ -30,11 +30,33 @@ namespace Lattice {
     }
 
 
-    const LatticeDouble LatticeBase::FourierFactor( const LatticeInt site_index, const LatticeInt k_index ) const
+    const LatticeDouble LatticeBase::FourierFactor( const LatticeInt site_index, const LatticeInt momentum_index ) const
     {
         assert( site_index >= 0 && site_index < this->m_space_size );
-        assert( k_index >= 0 && k_index < this->m_num_k_stars );
-        return this->m_fourier_factor_table(site_index, k_index);
+        assert( momentum_index >= 0 && momentum_index < this->m_num_k_stars );
+        return this->m_fourier_factor_table(site_index, momentum_index);
+    }
+
+
+    const VectorInt LatticeBase::Index2Site( const LatticeInt site_index ) const 
+    {   
+        assert( site_index >= 0 && site_index < this->m_space_size );
+        return this->m_index2site_table.row(site_index);
+    }
+
+
+    const VectorDouble LatticeBase::Index2Momentum( const LatticeInt momentum_index ) const 
+    {
+        assert( momentum_index >= 0 && momentum_index < this->m_num_k_stars );
+        return this->m_index2momentum_table.row(momentum_index);
+    }
+
+
+    const LatticeInt LatticeBase::Distance( const LatticeInt site1_index, const LatticeInt site2_index ) const
+    {
+        assert( site1_index >= 0 && site1_index < this->m_space_size );
+        assert( site2_index >= 0 && site2_index < this->m_space_size );
+        return this->m_distance_table(site1_index, site2_index);
     }
 
 

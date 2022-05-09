@@ -47,6 +47,10 @@ namespace Lattice {
             // with the shape of SpaceSize * SpaceDim
             MatrixInt m_index2site_table{};
             
+            // table of the distance between any two sites i and j
+            // with the shape of SpaceSize * SpaceSize
+            MatrixInt m_distance_table{};
+            
             // the map from momentum index to the lattice momentum in the reciprocal lattice
             // the number of rows should be equal to the number of inequivalent momentum points (k stars),
             // and the columns is the space dimension.
@@ -96,7 +100,11 @@ namespace Lattice {
 
             const MatrixDouble& HoppingMatrix() const ;
             const LatticeInt    NearestNeighbour ( const LatticeInt site_index, const LatticeInt direction ) const ;
-            const LatticeDouble FourierFactor    ( const LatticeInt site_index, const LatticeInt k_index )   const ;
+            const LatticeInt    Distance         ( const LatticeInt site1_index, const LatticeInt site2_index ) const ;
+            const LatticeDouble FourierFactor    ( const LatticeInt site_index, const LatticeInt momentum_index ) const ;
+
+            const VectorInt     Index2Site( const LatticeInt site_index ) const ;
+            const VectorDouble  Index2Momentum( const LatticeInt momentum_index ) const ;
 
 
             // -------------------------------- Initializations ------------------------------------
@@ -105,6 +113,7 @@ namespace Lattice {
             virtual void initial_hopping_matrix()          = 0;
             virtual void initial_index2site_table()        = 0;
             virtual void initial_nearest_neighbour_table() = 0;
+            virtual void initial_distance_table()          = 0;
             virtual void initial_index2momentum_table()    = 0;
             virtual void initial_symmetric_points()        = 0;
             virtual void initial_fourier_factor_table()    = 0;

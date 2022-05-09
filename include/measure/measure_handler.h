@@ -25,6 +25,8 @@ namespace Measure {
     using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
     using Matrix = Eigen::MatrixXd;
     using Vector = Eigen::VectorXd;
+    using MomentumIndex = int;
+    using MomentumIndexList = std::vector<int>;
 
 
     // ------------------------------------- Handler class Measure::MeasureHandler ---------------------------------
@@ -41,7 +43,11 @@ namespace Measure {
             int m_sweeps_between_bins{};    // number of the MC sweeps between two adjoining bins
 
             ObsList m_obs_list{};           // list of observables to be measured
-        
+            
+            // lattice momentum for the momentum-dependent measurements
+            MomentumIndex m_momentum{};
+            MomentumIndexList m_momentum_list{};
+            
         
         public:
 
@@ -52,6 +58,11 @@ namespace Measure {
             void set_measure_params( int sweeps_warmup, int bin_num, int bin_size, int sweeps_between_bins );
 
             void set_observables( ObsList obs_list );
+
+            // set up lattice momentum params for momentum-dependent measurements
+            // the input should be provided by Lattice module
+            void set_lattice_momentum( const MomentumIndex momentum_index );
+            void set_lattice_momentum_list( const MomentumIndexList& momentum_index_list );
 
 
             // ------------------------------------- Initializations ----------------------------------------------
@@ -69,6 +80,9 @@ namespace Measure {
             const int SweepsBetweenBins() const;
             const int BinsNum() const;
             const int BinsSize() const;
+
+            const MomentumIndex& Momentum() const;
+            const MomentumIndexList& MomentumList() const;
             
             // the following interfaces have been implemented 
             // in the base class Observable::ObservableHandler.

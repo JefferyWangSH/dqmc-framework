@@ -28,12 +28,15 @@ namespace Lattice {
         private:
 
             // private initialization functions
-            void initial_hopping_matrix();
             void initial_index2site_table();
-            void initial_nearest_neighbour_table();
             void initial_index2momentum_table();
+
+            void initial_nearest_neighbour_table();
+            void initial_distance_table();
             void initial_symmetric_points();
             void initial_fourier_factor_table();
+
+            void initial_hopping_matrix();
 
     };
     

@@ -1,4 +1,5 @@
 #include "measure/measure_methods.h"
+#include "measure/measure_handler.h"
 #include "model/model_base.h"
 #include "lattice/lattice_base.h"
 #include "dqmc_walker.h"
@@ -14,7 +15,8 @@ namespace Measure {
 
     // -----------------------------  Method routines for equal-time measurements  -------------------------------
 
-    void Methods::measure_equaltime_config_sign( ScalarObs& equaltime_sign, 
+    void Methods::measure_equaltime_config_sign( ScalarObs& equaltime_sign,
+                                                 const MeasureHandler& meas_handler,
                                                  const DqmcWalker& walker,
                                                  const ModelBase& model,
                                                  const LatticeBase& lattice )
@@ -24,7 +26,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_filling_number( ScalarObs& filling_number, 
+    void Methods::measure_filling_number( ScalarObs& filling_number,
+                                          const MeasureHandler& meas_handler,
                                           const DqmcWalker& walker,
                                           const ModelBase& model,
                                           const LatticeBase& lattice )
@@ -39,6 +42,7 @@ namespace Measure {
 
 
     void Methods::measure_double_occupancy( ScalarObs& double_occupancy,
+                                            const MeasureHandler& meas_handler,
                                             const DqmcWalker& walker,
                                             const ModelBase& model,
                                             const LatticeBase& lattice )
@@ -58,7 +62,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_kinetic_energy( ScalarObs& kinetic_energy, 
+    void Methods::measure_kinetic_energy( ScalarObs& kinetic_energy,
+                                          const MeasureHandler& meas_handler, 
                                           const DqmcWalker& walker,
                                           const ModelBase& model,
                                           const LatticeBase& lattice )
@@ -68,7 +73,7 @@ namespace Measure {
             const GreensFunc& gd = walker.GreenttDn(t);
             const RealScalar& config_sign = walker.ConfigSign(t);
 
-            double tmp_kinetic_energy = 0.0;
+            RealScalar tmp_kinetic_energy = 0.0;
             for (auto i = 0; i < lattice.SpaceSize(); ++i) {
                 // loop over lattice sites
                 for (auto dir = 0; dir < lattice.SpaceDim(); ++dir) {
@@ -84,16 +89,29 @@ namespace Measure {
     }
 
 
-    void Methods::measure_local_spin_corr( ScalarObs& local_spin_corr, 
+    void Methods::measure_local_spin_corr( ScalarObs& local_spin_corr,
+                                           const MeasureHandler& meas_handler, 
                                            const DqmcWalker& walker,
                                            const ModelBase& model,
                                            const LatticeBase& lattice )
     {
-        // todo
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            RealScalar tmp_local_spin_corr = 0.0;
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                tmp_local_spin_corr += config_sign * ( gu(i,i) + gd(i,i) - 2 * gu(i,i) * gd(i,i) );
+            }
+            local_spin_corr.tmp_value() += tmp_local_spin_corr / lattice.SpaceSize();
+            ++local_spin_corr;
+        }
     }
 
 
-    void Methods::measure_momentum_distribution( ScalarObs& local_spin_corr, 
+    void Methods::measure_momentum_distribution( ScalarObs& momentum_dist,
+                                                 const MeasureHandler& meas_handler, 
                                                  const DqmcWalker& walker,
                                                  const ModelBase& model,
                                                  const LatticeBase& lattice )
@@ -102,7 +120,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_spin_density_structure_factor( ScalarObs& local_spin_corr, 
+    void Methods::measure_spin_density_structure_factor( ScalarObs& sdw_factor, 
+                                                         const MeasureHandler& meas_handler,
                                                          const DqmcWalker& walker,
                                                          const ModelBase& model,
                                                          const LatticeBase& lattice )
@@ -111,7 +130,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_charge_density_structure_factor( ScalarObs& local_spin_corr, 
+    void Methods::measure_charge_density_structure_factor( ScalarObs& cdw_factor,
+                                                           const MeasureHandler& meas_handler, 
                                                            const DqmcWalker& walker,
                                                            const ModelBase& model,
                                                            const LatticeBase& lattice )
@@ -120,7 +140,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_s_wave_pairing_corr( ScalarObs& local_spin_corr, 
+    void Methods::measure_s_wave_pairing_corr( ScalarObs& s_wave_pairing,
+                                               const MeasureHandler& meas_handler, 
                                                const DqmcWalker& walker,
                                                const ModelBase& model,
                                                const LatticeBase& lattice )
@@ -133,7 +154,8 @@ namespace Measure {
 
     // ------------------------------  Method routines for dynamic measurements  ---------------------------------
     
-    void Methods::measure_dynamic_config_sign( ScalarObs& dynamic_sign, 
+    void Methods::measure_dynamic_config_sign( ScalarObs& dynamic_sign,
+                                               const MeasureHandler& meas_handler, 
                                                const DqmcWalker& walker,
                                                const ModelBase& model,
                                                const LatticeBase& lattice )
@@ -144,15 +166,58 @@ namespace Measure {
 
 
     void Methods::measure_greens_functions( MatrixObs& greens_functions, 
+                                            const MeasureHandler& meas_handler,
                                             const DqmcWalker& walker,
                                             const ModelBase& model,
                                             const LatticeBase& lattice )
     {
-        // todo
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            // the factor 1/2 comes from two degenerate spin states
+            const GreensFunc& gt0 = ( t == 0 )?
+                    0.5 * ( walker.Greent0Up(walker.TimeSize()-1) + walker.Greent0Dn(walker.TimeSize()-1) )
+                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Up(t-1) );
+
+            // the base site i
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                // the displacement j
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    // loop for momentum
+                    // todo
+                }
+            }
+        }
+        ++greens_functions;
+        
+//         for (int t = 0; t < hubbard.lt; ++t) {
+//             // factor 1/2 comes from two degenerate spin states
+//             const Eigen::MatrixXd gt0 = ( t == 0 )?
+//                     0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_dn)[hubbard.lt-1])
+//                   : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_dn)[t-1]);
+
+//             // base point i
+//             for (int xi = 0; xi < hubbard.ll; ++xi) {
+//                 for (int yi = 0; yi < hubbard.ll; ++yi) {
+//                     const int i = xi + hubbard.ll * yi;
+//                     // displacement
+//                     for (int dx = 0; dx < hubbard.ll; ++dx) {
+//                         for (int dy = 0; dy < hubbard.ll; ++dy) {
+//                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
+//                             const Eigen::Vector2d r(dx, dy);
+//                             // loop for momentum in qlist
+//                             for (int idq = 0; idq < measure.q_list.size(); ++idq) {
+//                                 greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q_list[idq])) * gt0(j, i) / hubbard.ls;
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//         ++greens_functions;
     }
 
 
-    void Methods::measure_density_of_states( VectorObs& greens_functions, 
+    void Methods::measure_density_of_states( VectorObs& density_of_states,
+                                             const MeasureHandler& meas_handler, 
                                              const DqmcWalker& walker,
                                              const ModelBase& model,
                                              const LatticeBase& lattice )
@@ -161,7 +226,8 @@ namespace Measure {
     }
 
 
-    void Methods::measure_superfluid_stiffness( ScalarObs& greens_functions, 
+    void Methods::measure_superfluid_stiffness( ScalarObs& superfluid_stiffness, 
+                                                const MeasureHandler& meas_handler,
                                                 const DqmcWalker& walker,
                                                 const ModelBase& model,
                                                 const LatticeBase& lattice )
@@ -172,41 +238,6 @@ namespace Measure {
 
 } // namespace Measure
 
-
-
-
-//     void Methods::measure_kinetic_energy(Observable<double> &kinetic_energy, Measure &measure, const Model::Hubbard &hubbard) {
-//         const int ll = hubbard.ll;
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-
-//             double tmp_kinetic_energy = 0.0;
-//             for (int x = 0; x < ll; ++x) {
-//                 for (int y = 0; y < ll; ++y) {
-//                     tmp_kinetic_energy += 2 * hubbard.t * (*hubbard.vec_config_sign)[t] *
-//                                         ( gu(x + ll*y, ((x+1)%ll) + ll*y) + gu(x + ll*y, x + ll*((y+1)%ll))
-//                                         + gd(x + ll*y, ((x+1)%ll) + ll*y) + gd(x + ll*y, x + ll*((y+1)%ll)) );
-//                 }
-//             }
-//             kinetic_energy.tmp_value() += tmp_kinetic_energy / hubbard.ls;
-//             ++kinetic_energy;
-//         }
-//     }
-
-//     void Methods::measure_local_spin_corr(Observable<double> &local_spin_corr, Measure &measure, const Model::Hubbard &hubbard) {
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-
-//             double tmp_local_spin_corr = 0.0;
-//             for (int i = 0; i < hubbard.ls; ++i) {
-//                 tmp_local_spin_corr += (*hubbard.vec_config_sign)[t] * ( gu(i, i) + gd(i, i) - 2 * gu(i, i) * gd(i, i) );
-//             }
-//             local_spin_corr.tmp_value() += tmp_local_spin_corr / hubbard.ls;
-//             ++local_spin_corr;
-//         }
-//     }
 
 //     void Methods::measure_momentum_distribution(Observable<double> &momentum_dist, Measure &measure, const Model::Hubbard &hubbard) {
 //         const int ll = hubbard.ll;

@@ -38,130 +38,138 @@
 
 int main() {
 
-    // // test Repulsive Hubbard
+    // test Repulsive Hubbard
 
-    // // some params
-    // int ll = 4;
-    // double beta = 8.0;
-    // int lt = 160;
+    // some params
+    int ll = 4;
+    double beta = 8.0;
+    int lt = 160;
 
-    // int nwrap = 10;
+    int nwrap = 10;
 
-    // double hopping_t = 1.0;
-    // double onsite_u  = 4.0;
-    // double chemical_potential = 0.0;
+    double hopping_t = 1.0;
+    double onsite_u  = 4.0;
+    double chemical_potential = 0.0;
 
-    // int sweeps_warmup = 512;
-    // int bin_num = 20;
-    // int bin_size = 100;
-    // int sweeps_between_bins = 20;
+    int sweeps_warmup = 512;
+    int bin_num = 20;
+    int bin_size = 100;
+    int sweeps_between_bins = 20;
 
-    // std::vector<std::string> obs_list = { 
-    //                                       "filling_number", 
-    //                                       "double_occupancy",
-    //                                       "kinetic_energy",
-    //                                     //   "greens_functions", 
-    //                                       };
+    std::vector<std::string> obs_list = { 
+                                          "filling_number", 
+                                          "double_occupancy",
+                                          "kinetic_energy",
+                                          "local_spin_corr",
+                                        //   "greens_functions", 
+                                          };
 
-    // // fixed random seed for debug
-    // Utils::Random::set_seed_fixed(12345);
+    // fixed random seed for debug
+    Utils::Random::set_seed_fixed(12345);
 
-    // Model::ModelBase* model = new Model::RepulsiveHubbard();
-    // Lattice::LatticeBase* lattice = new Lattice::Square();
-    // QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
-    // Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
+    Model::ModelBase* model = new Model::RepulsiveHubbard();
+    Lattice::LatticeBase* lattice = new Lattice::Square();
+    QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
+    Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();
 
-    // // set up params
-    // lattice->set_lattice_params({ll,ll});
-    // walker->set_physical_params(beta, lt);
-    // walker->set_stabilization_pace(nwrap);
-    // model->set_model_params(hopping_t, onsite_u, chemical_potential);
-    // meas_handler->set_measure_params(sweeps_warmup, bin_num, bin_size, sweeps_between_bins);
-    // meas_handler->set_observables(obs_list);
+    // set up params
+    lattice->set_lattice_params({ll,ll});
+    walker->set_physical_params(beta, lt);
+    walker->set_stabilization_pace(nwrap);
+    model->set_model_params(hopping_t, onsite_u, chemical_potential);
+    meas_handler->set_measure_params(sweeps_warmup, bin_num, bin_size, sweeps_between_bins);
+    meas_handler->set_observables(obs_list);
+    meas_handler->set_lattice_momentum(lattice->GammaPointIndex());
+    meas_handler->set_lattice_momentum_list(lattice->DeltaLineIndex());
 
-    // // initialize modules
-    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
+    // initialize modules
+    QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
 
-    // // using checkerboard break-up
-    // // CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
-    // // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
+    // using checkerboard break-up
+    // CheckerBoard::CheckerBoardBase* checkerboard = new CheckerBoard::Square();
+    // QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler, *checkerboard);
 
-    // model->set_bosonic_fields_to_random();
+    model->set_bosonic_fields_to_random();
 
-    // QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
+    QuantumMonteCarlo::DqmcInitializer::initial_dqmc(*lattice, *model, *walker, *meas_handler);
 
-    // // walker->sweep_from_0_to_beta(*model);
-    // // walker->sweep_from_beta_to_0(*model);
-    // // walker->sweep_for_dynamic_greens(*model);
-    // // walker->sweep_from_beta_to_0(*model);
+    // walker->sweep_from_0_to_beta(*model);
+    // walker->sweep_from_beta_to_0(*model);
+    // walker->sweep_for_dynamic_greens(*model);
+    // walker->sweep_from_beta_to_0(*model);
 
-    // // QuantumMonteCarlo::Dqmc::sweep_forth_and_back(*walker, *model, *lattice, *meas_handler);
+    // QuantumMonteCarlo::Dqmc::sweep_forth_and_back(*walker, *model, *lattice, *meas_handler);
 
-    // // std::chrono::steady_clock::time_point begin_t{}, end_t{};
-    // // begin_t = std::chrono::steady_clock::now();
-
-
-    // QuantumMonteCarlo::Dqmc::show_progress_bar( true );
-    // QuantumMonteCarlo::Dqmc::progress_bar_format( 70, '=', ' ' );
-
-    // QuantumMonteCarlo::Dqmc::thermalize(*walker, *model, *lattice, *meas_handler);
-    // // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
-
-    // // int loop = 1e3;
-    // // for (int i = 0; i < loop; ++i) {
-    // //     walker->wrap_from_0_to_beta(*model, 0);
-    // //     walker->wrap_from_beta_to_0(*model, 1);
-    // // }
+    // std::chrono::steady_clock::time_point begin_t{}, end_t{};
+    // begin_t = std::chrono::steady_clock::now();
 
 
-    // // end_t = std::chrono::steady_clock::now();
-    // // std::cout << "warm-up : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
+    QuantumMonteCarlo::Dqmc::show_progress_bar( true );
+    QuantumMonteCarlo::Dqmc::progress_bar_format( 70, '=', ' ' );
 
+    QuantumMonteCarlo::Dqmc::thermalize(*walker, *model, *lattice, *meas_handler);
+    // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
 
-    // QuantumMonteCarlo::Dqmc::measure(*walker, *model, *lattice, *meas_handler);
-    // // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
-    // QuantumMonteCarlo::Dqmc::analyse(*meas_handler);
-
-    // // if (meas_handler->find("filling_number")) {
-    // //     auto obs = meas_handler->find_scalar("filling_number");
-    // //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
-    // // }
-
-    // // std::cout << meas_handler->BinsNum() << std::endl;
-    // // std::cout << meas_handler->BinsSize() << std::endl;
-
-    // if (meas_handler->find("equaltime_sign")) {
-    //     auto obs = meas_handler->find_scalar("equaltime_sign");
-    //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    // int loop = 1e3;
+    // for (int i = 0; i < loop; ++i) {
+    //     walker->wrap_from_0_to_beta(*model, 0);
+    //     walker->wrap_from_beta_to_0(*model, 1);
     // }
-      
+
+
+    // end_t = std::chrono::steady_clock::now();
+    // std::cout << "warm-up : " << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - begin_t).count() << std::endl;
+
+
+    QuantumMonteCarlo::Dqmc::measure(*walker, *model, *lattice, *meas_handler);
+    // std::cout << QuantumMonteCarlo::Dqmc::timer() << std::endl;
+    QuantumMonteCarlo::Dqmc::analyse(*meas_handler);
+
     // if (meas_handler->find("filling_number")) {
     //     auto obs = meas_handler->find_scalar("filling_number");
     //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     // }
 
-    // if (meas_handler->find("double_occupancy")) {
-    //     auto obs = meas_handler->find_scalar("double_occupancy");
-    //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
-    // }
+    // std::cout << meas_handler->BinsNum() << std::endl;
+    // std::cout << meas_handler->BinsSize() << std::endl;
 
-    // if (meas_handler->find("kinetic_energy")) {
-    //     auto obs = meas_handler->find_scalar("kinetic_energy");
-    //     std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
-    // }
+    if (meas_handler->find("equaltime_sign")) {
+        auto obs = meas_handler->find_scalar("equaltime_sign");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+      
+    if (meas_handler->find("filling_number")) {
+        auto obs = meas_handler->find_scalar("filling_number");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
 
-    // // std::cout << walker->GreenttUp() << std::endl;
-    // // std::cout << std::endl;
-    // // std::cout << walker->Greent0Up() << std::endl;
-    // // std::cout << std::endl;
-    // // std::cout << lattice->HoppingMatrix() << std::endl;
+    if (meas_handler->find("double_occupancy")) {
+        auto obs = meas_handler->find_scalar("double_occupancy");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
 
-    // // std::cout << std::endl;
-    // // std::cout << meas_handler->isWarmUp() << std::endl;
-    // // std::cout << meas_handler->isEqualTime() << std::endl;
-    // // std::cout << meas_handler->isDynamic() << std::endl;
-    // // std::cout << meas_handler->find_scalar("filling_number").name() << std::endl;
-    // // std::cout << meas_handler->find_matrix("greens_functions").name() << std::endl;
+    if (meas_handler->find("kinetic_energy")) {
+        auto obs = meas_handler->find_scalar("kinetic_energy");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("local_spin_corr")) {
+        auto obs = meas_handler->find_scalar("local_spin_corr");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    // std::cout << walker->GreenttUp() << std::endl;
+    // std::cout << std::endl;
+    // std::cout << walker->Greent0Up() << std::endl;
+    // std::cout << std::endl;
+    // std::cout << lattice->HoppingMatrix() << std::endl;
+
+    // std::cout << std::endl;
+    // std::cout << meas_handler->isWarmUp() << std::endl;
+    // std::cout << meas_handler->isEqualTime() << std::endl;
+    // std::cout << meas_handler->isDynamic() << std::endl;
+    // std::cout << meas_handler->find_scalar("filling_number").name() << std::endl;
+    // std::cout << meas_handler->find_matrix("greens_functions").name() << std::endl;
 
 
 
@@ -173,47 +181,52 @@ int main() {
 
 
 
-    // test lattice momentum
-    int ll = 4;
+    // // test lattice momentum
+    // int ll = 4;
 
-    Lattice::LatticeBase* lattice = new Lattice::Square();
+    // Lattice::LatticeBase* lattice = new Lattice::Square();
 
-    lattice->set_lattice_params({ll,ll});
-    lattice->initial();
+    // lattice->set_lattice_params({ll,ll});
+    // lattice->initial();
+
+    // // std::cout << lattice->Index2Site(1) << std::endl;
+    // // std::cout << lattice->Index2Momentum(lattice->GammaPointIndex()) << std::endl;
+    // // std::cout << lattice->Index2Momentum(lattice->XPointIndex()) << std::endl;
+    // // std::cout << lattice->Index2Momentum(lattice->MPointIndex()) << std::endl;
     
-    // std::cout << lattice->m_index2site_table << std::endl;
-    // std::cout << lattice->m_index2momentum_table << std::endl;
+    // // std::cout << lattice->m_index2site_table << std::endl;
+    // // std::cout << lattice->m_index2momentum_table << std::endl;
 
-    // std::cout << lattice->m_fourier_factor_table << std::endl;
-    // std::cout << lattice->FourierFactor(1,1) << std::endl;
+    // // std::cout << lattice->m_fourier_factor_table << std::endl;
+    // // std::cout << lattice->FourierFactor(1,1) << std::endl;
 
-    // for (auto i : lattice->m_k_stars_index) {
-    //     std::cout << i << std::endl;
-    // }
+    // // for (auto i : lattice->m_k_stars_index) {
+    // //     std::cout << i << std::endl;
+    // // }
 
-    // std::cout << lattice->m_gamma_point_index << std::endl;
-    // std::cout << lattice->m_x_point_index << std::endl;
-    // std::cout << lattice->m_m_point_index << std::endl;
+    // // std::cout << lattice->m_gamma_point_index << std::endl;
+    // // std::cout << lattice->m_x_point_index << std::endl;
+    // // std::cout << lattice->m_m_point_index << std::endl;
 
-    // for (auto i : lattice->m_delta_line_index ) {
-    //     std::cout << i << std::endl;
-    // }
-    // std::cout << std::endl;
+    // // for (auto i : lattice->m_delta_line_index ) {
+    // //     std::cout << i << std::endl;
+    // // }
+    // // std::cout << std::endl;
 
-    // for (auto i : lattice->m_z_line_index ) {
-    //     std::cout << i << std::endl;
-    // }
-    // std::cout << std::endl;
+    // // for (auto i : lattice->m_z_line_index ) {
+    // //     std::cout << i << std::endl;
+    // // }
+    // // std::cout << std::endl;
 
-    // for (auto i : lattice->m_sigma_line_index ) {
-    //     std::cout << i << std::endl;
-    // }
-    // std::cout << std::endl;
+    // // for (auto i : lattice->m_sigma_line_index ) {
+    // //     std::cout << i << std::endl;
+    // // }
+    // // std::cout << std::endl;
     
-    // for (auto i : lattice->m_gamma2x2m2gamma_loop_index ) {
-    //     std::cout << i << std::endl;
-    // }
-    // std::cout << std::endl;
+    // // for (auto i : lattice->m_gamma2x2m2gamma_loop_index ) {
+    // //     std::cout << i << std::endl;
+    // // }
+    // // std::cout << std::endl;
     
 
 

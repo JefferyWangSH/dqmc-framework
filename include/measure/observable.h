@@ -22,6 +22,7 @@
 namespace QuantumMonteCarlo { class DqmcWalker; }
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
+namespace Measure { class MeasureHandler; }
 
 
 namespace Observable {
@@ -51,7 +52,9 @@ namespace Observable {
             using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
             using ModelBase = Model::ModelBase;
             using LatticeBase = Lattice::LatticeBase;
-            using ObsMethod = void( Observable<ObsType>&, 
+            using MeasureHandler = Measure::MeasureHandler;
+            using ObsMethod = void( Observable<ObsType>&,
+                                    const MeasureHandler&, 
                                     const DqmcWalker&, 
                                     const ModelBase&,
                                     const LatticeBase& );
@@ -116,11 +119,12 @@ namespace Observable {
             // ------------------------------- Other member functions ----------------------------------
             
             // perform one step of measurment
-            void measure(   const DqmcWalker& walker, 
-                            const ModelBase& model, 
-                            const LatticeBase& lattice  )
+            void measure( const MeasureHandler& meas_handler,
+                          const DqmcWalker& walker, 
+                          const ModelBase& model, 
+                          const LatticeBase& lattice )
             { 
-                this->m_method(*this, walker, model, lattice); 
+                this->m_method( *this, meas_handler, walker, model, lattice ); 
             }
 
             // allocate memory

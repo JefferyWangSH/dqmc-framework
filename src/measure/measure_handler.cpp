@@ -15,6 +15,9 @@ namespace Measure {
     const int MeasureHandler::BinsNum() const { return this->m_bin_num; }
     const int MeasureHandler::BinsSize() const { return this->m_bin_size; }
 
+    const MomentumIndex& MeasureHandler::Momentum() const { return this->m_momentum; }
+    const MomentumIndexList& MeasureHandler::MomentumList() const { return this->m_momentum_list; }
+
 
     void MeasureHandler::set_measure_params( int sweeps_warmup, int bin_num, int bin_size, int sweeps_between_bins )
     {
@@ -32,6 +35,18 @@ namespace Measure {
     void MeasureHandler::set_observables( ObsList obs_list )
     {
         this->m_obs_list = obs_list;
+    }
+
+
+    void MeasureHandler::set_lattice_momentum( const MomentumIndex momentum_index )
+    {
+        this->m_momentum = momentum_index;
+    }
+
+
+    void MeasureHandler::set_lattice_momentum_list( const MomentumIndexList& momentum_index_list ) 
+    {
+        this->m_momentum_list = momentum_index_list; 
     }
 
 
@@ -108,15 +123,15 @@ namespace Measure {
                                             const LatticeBase& lattice )
     {
         for (auto& scalar_obs : this->m_eqtime_scalar_obs) {
-            scalar_obs->measure(walker, model, lattice);
+            scalar_obs->measure(*this, walker, model, lattice);
         }
         for (auto& vector_obs : this->m_eqtime_vector_obs) {
-            vector_obs->measure(walker, model, lattice);
+            vector_obs->measure(*this, walker, model, lattice);
         }
         for (auto& matrix_obs : this->m_eqtime_matrix_obs) {
-            matrix_obs->measure(walker, model, lattice);
+            matrix_obs->measure(*this, walker, model, lattice);
         }
-        this->m_equaltime_sign->measure(walker, model, lattice);
+        this->m_equaltime_sign->measure(*this, walker, model, lattice);
     }
 
     
@@ -125,15 +140,15 @@ namespace Measure {
                                           const LatticeBase& lattice )
     {
         for (auto& scalar_obs : this->m_dynamic_scalar_obs) {
-            scalar_obs->measure(walker, model, lattice);
+            scalar_obs->measure(*this, walker, model, lattice);
         }
         for (auto& vector_obs : this->m_dynamic_vector_obs) {
-            vector_obs->measure(walker, model, lattice);
+            vector_obs->measure(*this, walker, model, lattice);
         }
         for (auto& matrix_obs : this->m_dynamic_matrix_obs) {
-            matrix_obs->measure(walker, model, lattice);
+            matrix_obs->measure(*this, walker, model, lattice);
         }
-        this->m_dynamic_sign->measure(walker, model, lattice);
+        this->m_dynamic_sign->measure(*this, walker, model, lattice);
     }
 
 
