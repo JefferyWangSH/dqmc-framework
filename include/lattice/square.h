@@ -19,13 +19,10 @@ namespace Lattice {
             Square() = default;
 
             // set up lattice parameters
-            void set_lattice_params(const SideLengthVec& side_length_vec);            
+            void set_lattice_params(const LatticeIntVec& side_length_vec);            
 
             // initializations
             void initial();
-
-            // definition of vector products 
-            // const double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp);
         
 
         private:
@@ -34,6 +31,9 @@ namespace Lattice {
             void initial_hopping_matrix();
             void initial_index2site_table();
             void initial_nearest_neighbour_table();
+            void initial_index2momentum_table();
+            void initial_symmetric_points();
+            void initial_fourier_factor_table();
 
     };
     

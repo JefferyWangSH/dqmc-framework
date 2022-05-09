@@ -3,7 +3,7 @@
 
 namespace Lattice {
 
-    void Square::set_lattice_params(const SideLengthVec& side_length_vec) 
+    void Square::set_lattice_params(const LatticeIntVec& side_length_vec) 
     {   
         // lattice in two dimension
         assert( (int)side_length_vec.size() == 2 );
@@ -64,19 +64,98 @@ namespace Lattice {
     }
 
 
+    void Square::initial_index2momentum_table()
+    {
+        // total number of k stars (inequivalent momentum points) in 2d square lattice,
+        // which locate in the zone surrounded by loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0).
+        // the point group of 2d sqaure lattice is C4v
+        this->m_num_k_stars = (std::floor(this->m_side_length/2.0)+1)*(std::floor(this->m_side_length/2.0)+2)/2;
+        
+        // initialize indices of athis->m_side_length k stars
+        this->m_k_stars_index.reserve(this->m_num_k_stars);
+        for (auto index = 0; index < this->m_num_k_stars; ++index) {
+            this->m_k_stars_index.emplace_back(index);
+        }
+        
+        // initialize index2momentum table
+        this->m_index2momentum_table.resize(this->m_num_k_stars, this->m_space_dim);
+        int count = 0; 
+        for (auto i = std::ceil(this->m_side_length/2.0); i <= this->m_side_length; ++i) {
+            for (auto j = std::ceil(this->m_side_length/2.0); j <= i; ++j) {
+                this->m_index2momentum_table.row(count) = Eigen::Vector2d(  
+                    (double)i/this->m_side_length * 2*M_PI - M_PI, (double)j/this->m_side_length * 2*M_PI - M_PI
+                );
+                count++;
+            }
+        }
+    }
+            
+
+    void Square::initial_symmetric_points() 
+    {
+        // some higher symmetric points of 2d sqaure lattice
+        // Gamma point:  (0,  0)
+        // X point:      (pi, 0)
+        // M point:      (pi, pi)
+        this->m_gamma_point_index = 0;
+        this->m_x_point_index     = this->m_num_k_stars - std::floor(this->m_side_length/2.0) - 1;
+        this->m_m_point_index     = this->m_num_k_stars - 1; 
+
+        // Delta line:   (0,0)   ->  (pi,0)
+        // Z line:       (pi,0)  ->  (pi,pi)
+        // Sigma line:   (pi,pi) ->  (0,0)
+        this->m_delta_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
+        this->m_z_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
+        this->m_sigma_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
+        for (auto i = 0; i < std::floor(this->m_side_length/2.0)+1; ++i) {
+            this->m_delta_line_index.emplace_back(i*(i+1)/2);
+            this->m_z_line_index.emplace_back(this->m_x_point_index+i);
+            this->m_sigma_line_index.emplace_back(i*(i+3)/2);
+        }
+
+        // loop: (0,0) -> (pi,0) -> (pi,pi) -> (0,0)
+        this->m_gamma2x2m2gamma_loop_index.reserve(3*(this->m_side_length-std::ceil(this->m_side_length/2.0)));
+        for (auto i = 0; i < std::floor(this->m_side_length/2.0); ++i) {
+            // along (0,0) -> (pi,0) direation
+            this->m_gamma2x2m2gamma_loop_index.emplace_back(i*(i+1)/2);
+        }
+        for (auto i = 0; i < std::floor(this->m_side_length/2.0); ++i) {
+            // along (pi,0) -> (pi,pi) direction
+            this->m_gamma2x2m2gamma_loop_index.emplace_back(this->m_x_point_index+i);
+        }
+        for (auto i = std::floor(this->m_side_length/2.0); i >= 1; --i) {
+            // along (pi,pi) -> (0,0) direction
+            this->m_gamma2x2m2gamma_loop_index.emplace_back(i*(i+3)/2);
+        }
+    }
+
+
+    void Square::initial_fourier_factor_table()
+    {
+        // Re( exp(-ikx) ) for lattice site x and momentum k 
+        this->m_fourier_factor_table.resize(this->m_space_size, this->m_num_k_stars);
+        for (auto x_index = 0; x_index < this->m_space_size; ++x_index) {
+            for (auto k_index = 0; k_index < this->m_num_k_stars; ++k_index) {
+                // this defines the inner product of a site vector x and a momemtum vector k 
+                this->m_fourier_factor_table(x_index, k_index) = cos( 
+                        ( - this->m_index2site_table(x_index,0) * this->m_index2momentum_table(k_index,0)
+                          - this->m_index2site_table(x_index,1) * this->m_index2momentum_table(k_index,1) )
+                );
+            }
+        }
+    }
+
+
     void Square::initial()
     {
         this->initial_nearest_neighbour_table();
         this->initial_index2site_table();
-        this->initial_hopping_matrix();
+        this->initial_index2momentum_table();
+        this->initial_symmetric_points();
+        this->initial_fourier_factor_table();
+
+        this->initial_hopping_matrix();        
     }
 
-
-    // const double Square::product(const std::array<double,2>& vecr, const std::array<double,2>& vecp) {
-    //     const auto& [rx, ry] = vecr;
-    //     const auto& [px, py] = vecp;
-    //     // for square lattice, the two basis are orthogonal
-    //     return rx * px + ry * py;
-    // }
 
 } // namespace Lattice

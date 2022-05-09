@@ -9,6 +9,7 @@ namespace Measure {
     // some aliases
     using RealScalar = double; 
     using GreensFunc = Eigen::MatrixXd;
+    using Vector = Eigen::VectorXd;
 
 
     // -----------------------------  Method routines for equal-time measurements  -------------------------------

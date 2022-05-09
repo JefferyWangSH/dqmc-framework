@@ -16,10 +16,12 @@
 namespace Lattice {
 
     using LatticeInt = int;
+    using LatticeDouble = double;
+    using LatticeIntVec = std::vector<int>;
     using MatrixDouble = Eigen::MatrixXd;
+    using VectorDouble = Eigen::VectorXd;
     using MatrixInt = Eigen::MatrixXi;
     using VectorInt = Eigen::VectorXi;
-    using SideLengthVec = std::vector<int>;
 
 
     // -------------------------- Pure virtual base class Lattice::LatticeBase ----------------------------
@@ -29,6 +31,7 @@ namespace Lattice {
             LatticeInt m_side_length{};           // side length of the lattice
             LatticeInt m_space_size{};            // total number of lattice sites
             LatticeInt m_coordination_number{};   // coordination number of the lattice
+            LatticeInt m_num_k_stars{};           // number of k stars ( inequivalent momentum points )
 
             // hopping matrix, depending only on the topology of lattice
             // hopping constants are normalized to 1.0 .
@@ -44,9 +47,25 @@ namespace Lattice {
             // with the shape of SpaceSize * SpaceDim
             MatrixInt m_index2site_table{};
             
-            // // todo:
-            // // momentum in the reciprocal lattice
-            // MatrixInt m_index2momentum_table{};
+            // the map from momentum index to the lattice momentum in the reciprocal lattice
+            // the number of rows should be equal to the number of inequivalent momentum points (k stars),
+            // and the columns is the space dimension.
+            MatrixDouble m_index2momentum_table{};
+
+            // table of fourier transformation factor
+            // e.g. Re( exp(ikx) ) for lattice site x and momentum k 
+            MatrixDouble m_fourier_factor_table{};
+
+            // some higher symmetric points in the reciprocal lattice
+            // todo: move these to the derived class of specialized lattice
+            LatticeInt m_gamma_point_index{};
+            LatticeInt m_m_point_index{};
+            LatticeInt m_x_point_index{};
+            LatticeIntVec m_delta_line_index{};
+            LatticeIntVec m_z_line_index{};
+            LatticeIntVec m_sigma_line_index{};
+            LatticeIntVec m_gamma2x2m2gamma_loop_index{};   // indices of the defined loop
+            LatticeIntVec m_k_stars_index{};                // all inequivalent momentum points
 
 
         public:
@@ -54,7 +73,7 @@ namespace Lattice {
 
             // ---------------------------- Set up lattice parameters ------------------------------
             // read lattice params from a vector of side lengths
-            virtual void set_lattice_params(const SideLengthVec& side_length_vec) = 0;
+            virtual void set_lattice_params( const LatticeIntVec& side_length_vec ) = 0;
 
             
             // --------------------------------- Interfaces ----------------------------------------
@@ -63,11 +82,21 @@ namespace Lattice {
             const LatticeInt SpaceSize()          const ;
             const LatticeInt SideLength()         const ;
             const LatticeInt CoordinationNumber() const ;
+            const LatticeInt kStarsNum()          const ;
+
+            // some symmetric points
+            const LatticeInt GammaPointIndex()    const ;
+            const LatticeInt MPointIndex()        const ;
+            const LatticeInt XPointIndex()        const ;
+            const LatticeIntVec& DeltaLineIndex() const ;
+            const LatticeIntVec& ZLineIndex()     const ;
+            const LatticeIntVec& SigmaLineIndex() const ;
+            const LatticeIntVec& kStarsIndex()    const ;
+            const LatticeIntVec& Gamma2X2M2GammaLoopIndex() const ;
 
             const MatrixDouble& HoppingMatrix() const ;
-            const LatticeInt NearestNeighbour(const LatticeInt site_index, const LatticeInt direction) const ;
-            // const VectorInt NearestNeighbour(const LatticeInt site_index) const ;
-            // const VectorInt index2site(const LatticeInt site_index) const ;
+            const LatticeInt    NearestNeighbour ( const LatticeInt site_index, const LatticeInt direction ) const ;
+            const LatticeDouble FourierFactor    ( const LatticeInt site_index, const LatticeInt k_index )   const ;
 
 
             // -------------------------------- Initializations ------------------------------------
@@ -76,14 +105,9 @@ namespace Lattice {
             virtual void initial_hopping_matrix()          = 0;
             virtual void initial_index2site_table()        = 0;
             virtual void initial_nearest_neighbour_table() = 0;
-            
-            // todo
-            // virtual void initial_lattice_momentum_table()  = 0;
-
-
-            // -------------------------- Definition of vector products ----------------------------
-            // // vector product of space vector r and moemntum p, depending on the geometry of lattice
-            // virtual const double product(const std::array<double,2>& vecr, const std::array<double,2>& vecp) = 0;
+            virtual void initial_index2momentum_table()    = 0;
+            virtual void initial_symmetric_points()        = 0;
+            virtual void initial_fourier_factor_table()    = 0;
 
     };
 
