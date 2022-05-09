@@ -1,5 +1,6 @@
-# DQMC-Hubbard Model
-![workflow](https://github.com/JefferyWangSH/dqmc-hubbard-model/actions/workflows/main.yml/badge.svg?branch=master)
+# DQMC-Hubbard Model 
+# This project is currently under heavy development !
+![workflow](https://github.com/JefferyWangSH/dqmc-hubbard-model/actions/workflows/dqmc_test.yml/badge.svg?branch=master)
 
 In this repository, we present a C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to fermion Hubbard model on two-dimensional square lattice.
 
@@ -9,15 +10,15 @@ Simulations of the model with both attractive and repulsive interaction are perf
 
 ## Installation ##
 
-### Prerequisite ###
+### Prerequisites ###
 
 * `gcc/g++` `( version >= 7.1, support C++17 standard )` and `cmake` `( version >= 3.21 )` installed.
 * `Boost C++ libraries` `( version >= 1.71 )` installed.
-* `Eigen library` `( version >= 3.3.7 )` providing a user-friendly interface of matrices.
+* `Eigen library` `( version >= 3.4.0 )` providing a user-friendly interface of matrices.
 * `Intel Math Kernel Library (MKL)` for high-accuracy linear algebra and numerical stabilization.
 * `Message Passing Interface (MPI)` for large scale of distributed parallelization. Both `OpenMPI` and `Intel MPI` are tested and work well.
 
-### Usage ###
+### Usages ###
 
 1. Download source codes from github.
     ``` shell
