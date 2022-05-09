@@ -1,4 +1,4 @@
-name: dqmc-hubbard
+name: dqmc-test
 
 on:
   push:
@@ -42,21 +42,31 @@ jobs:
         run: sudo apt-get install libboost-all-dev
       
       - name: Install Eigen3
-        run: sudo apt-get install libeigen3-dev
+        run: |
+          wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+          tar -zxvf eigen-3.4.0.tar.gz
+          mkdir eigen-3.4.0/build && cd eigen-3.4.0/build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ..
+          sudo make install
       
       - name: Checkout project code
         uses: actions/checkout@v2
 
-      - name: Build with CMake
+      - name: Build Tests with CMake
         run: |
-          cd ${{github.workspace}}/build
-          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}} && make
+          cd ${{github.workspace}}/test/build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/test && make
 
-      - name: Show helping messages
-        run: ${{github.workspace}}/build/dqmc_hubbard --help
+      # - name: Build with CMake
+      #   run: |
+      #     cd ${{github.workspace}}/build
+      #     cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}} && make
+
+      # - name: Show helping messages
+      #   run: ${{github.workspace}}/build/dqmc_hubbard --help
       
-      - name: Run dqmc simulation
-        run: |
-          mkdir -p ${{github.workspace}}/results/example
-          mpirun -np 4 --oversubscribe ${{github.workspace}}/build/dqmc_hubbard
+      # - name: Run dqmc simulation
+      #   run: |
+      #     mkdir -p ${{github.workspace}}/results/example
+      #     mpirun -np 4 --oversubscribe ${{github.workspace}}/build/dqmc_hubbard
       
