@@ -8,6 +8,21 @@
 
 namespace QuantumMonteCarlo {
 
+
+    void DqmcInitializer::set_measured_momentum( MeasureHandler& meas_handler, 
+                                                 const MomentumIndex& momentum_index )
+    {
+        meas_handler.set_measured_momentum( momentum_index );
+    }
+
+
+    void DqmcInitializer::set_measured_momentum_list( MeasureHandler& meas_handler, 
+                                                      const MomentumIndexList& momentum_index_list )
+    {
+        meas_handler.set_measured_momentum_list( momentum_index_list );
+    }
+
+
     void DqmcInitializer::initial_modules( LatticeBase& lattice, 
                                            ModelBase& model, 
                                            DqmcWalker& walker,
@@ -17,7 +32,7 @@ namespace QuantumMonteCarlo {
         // and the orders of initializations below are important.
 
         // initialize lattice module
-        lattice.initial();
+        if ( !lattice.InitialStatus() ) { lattice.initial(); }
 
         // initialize MeasureHandler module
         meas_handler.initial( lattice, walker );
@@ -42,7 +57,7 @@ namespace QuantumMonteCarlo {
         // and the orders of initializations below are important.
 
         // initialize lattice module
-        lattice.initial();
+        if ( !lattice.InitialStatus() ) { lattice.initial(); }
 
         // initialize MeasureHandler module
         meas_handler.initial( lattice, walker );
@@ -56,7 +71,7 @@ namespace QuantumMonteCarlo {
         // initialize checkerboard module and link to model class
         checkerboard.set_checkerboard_params( lattice, model, walker );
         checkerboard.initial();
-        model.link(checkerboard);
+        model.link( checkerboard );
     }
 
 

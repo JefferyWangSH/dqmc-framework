@@ -60,9 +60,9 @@ namespace Measure {
             void set_observables( ObsList obs_list );
 
             // set up lattice momentum params for momentum-dependent measurements
-            // the input should be provided by Lattice module
-            void set_lattice_momentum( const MomentumIndex momentum_index );
-            void set_lattice_momentum_list( const MomentumIndexList& momentum_index_list );
+            // the input momentum list should be provided by Lattice module
+            void set_measured_momentum( const MomentumIndex& momentum_index );
+            void set_measured_momentum_list( const MomentumIndexList& momentum_index_list );
 
 
             // ------------------------------------- Initializations ----------------------------------------------
@@ -82,7 +82,9 @@ namespace Measure {
             const int BinsSize() const;
 
             const MomentumIndex& Momentum() const;
+            const MomentumIndex& MomentumList( const int i ) const;
             const MomentumIndexList& MomentumList() const;
+
             
             // the following interfaces have been implemented 
             // in the base class Observable::ObservableHandler.

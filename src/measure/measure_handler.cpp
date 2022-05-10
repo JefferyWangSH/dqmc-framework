@@ -17,6 +17,11 @@ namespace Measure {
 
     const MomentumIndex& MeasureHandler::Momentum() const { return this->m_momentum; }
     const MomentumIndexList& MeasureHandler::MomentumList() const { return this->m_momentum_list; }
+    const MomentumIndex& MeasureHandler::MomentumList( const int i ) const 
+    { 
+        assert( i >= 0 && i < (int)this->m_momentum_list.size() );
+        return this->m_momentum_list[i]; 
+    }
 
 
     void MeasureHandler::set_measure_params( int sweeps_warmup, int bin_num, int bin_size, int sweeps_between_bins )
@@ -38,13 +43,13 @@ namespace Measure {
     }
 
 
-    void MeasureHandler::set_lattice_momentum( const MomentumIndex momentum_index )
+    void MeasureHandler::set_measured_momentum( const MomentumIndex& momentum_index )
     {
         this->m_momentum = momentum_index;
     }
 
 
-    void MeasureHandler::set_lattice_momentum_list( const MomentumIndexList& momentum_index_list ) 
+    void MeasureHandler::set_measured_momentum_list( const MomentumIndexList& momentum_index_list ) 
     {
         this->m_momentum_list = momentum_index_list; 
     }
@@ -77,13 +82,13 @@ namespace Measure {
                 scalar_obs->allocate();
             }
             for (auto& vector_obs : this->m_eqtime_vector_obs) {
+                // note that the dimensions of the observable should be adjusted or specialized here
                 vector_obs->set_zero_element(Vector::Zero(walker.TimeSize()));
                 vector_obs->set_number_of_bins(this->m_bin_num);
                 vector_obs->allocate();
             }
             for (auto& matrix_obs : this->m_eqtime_matrix_obs) {
-                // the dimensions of the observable can be adjusted or specialized
-                // todo
+                // specialize dimensions for certain observables if needed 
                 matrix_obs->set_zero_element(Matrix::Zero(lattice.SpaceSize(), lattice.SpaceSize()));
                 matrix_obs->set_number_of_bins(this->m_bin_num);
                 matrix_obs->allocate();
@@ -103,16 +108,26 @@ namespace Measure {
                 scalar_obs->allocate();
             }
             for (auto& vector_obs : this->m_dynamic_vector_obs) {
+                // specialize dimensions for certain observables if needed 
                 vector_obs->set_zero_element(Vector::Zero(walker.TimeSize()));
                 vector_obs->set_number_of_bins(this->m_bin_num);
                 vector_obs->allocate();
             }
             for (auto& matrix_obs : this->m_dynamic_matrix_obs) {
-                // the dimensions of the observable can be adjusted or specialized
-                // todo
-                matrix_obs->set_zero_element(Matrix::Zero(lattice.SpaceSize(), lattice.SpaceSize()));
-                matrix_obs->set_number_of_bins(this->m_bin_num);
-                matrix_obs->allocate();
+                // specialize the dimensions of greens functions
+                if ( matrix_obs->name() == "greens_functions" ) {
+                    // for greens function measure, the rows represent different lattice momentum 
+                    // and the columns represent imaginary-time grids. 
+                    matrix_obs->set_zero_element(Matrix::Zero(this->m_momentum_list.size(), walker.TimeSize()));
+                    matrix_obs->set_number_of_bins(this->m_bin_num);
+                    matrix_obs->allocate();
+                }
+                else {
+                    // otherwise initialize by default
+                    matrix_obs->set_zero_element(Matrix::Zero(lattice.SpaceSize(), lattice.SpaceSize()));
+                    matrix_obs->set_number_of_bins(this->m_bin_num);
+                    matrix_obs->allocate();
+                }
             }
         }
     }
