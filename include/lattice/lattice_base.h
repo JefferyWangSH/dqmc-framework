@@ -15,6 +15,7 @@
 
 namespace Lattice {
 
+    using LatticeBool = bool;
     using LatticeInt = int;
     using LatticeDouble = double;
     using LatticeIntVec = std::vector<int>;
@@ -27,11 +28,14 @@ namespace Lattice {
     // -------------------------- Pure virtual base class Lattice::LatticeBase ----------------------------
     class LatticeBase {
         protected:
-            LatticeInt m_space_dim{};             // dimension of the space
-            LatticeInt m_side_length{};           // side length of the lattice
-            LatticeInt m_space_size{};            // total number of lattice sites
-            LatticeInt m_coordination_number{};   // coordination number of the lattice
-            LatticeInt m_num_k_stars{};           // number of k stars ( inequivalent momentum points )
+
+            LatticeBool m_initial_status{false};        // status of initialization
+
+            LatticeInt  m_space_dim{};                  // dimension of the space
+            LatticeInt  m_side_length{};                // side length of the lattice
+            LatticeInt  m_space_size{};                 // total number of lattice sites
+            LatticeInt  m_coordination_number{};        // coordination number of the lattice
+            LatticeInt  m_num_k_stars{};                // number of k stars ( inequivalent momentum points )
 
             // hopping matrix, depending only on the topology of lattice
             // hopping constants are normalized to 1.0 .
@@ -47,9 +51,10 @@ namespace Lattice {
             // with the shape of SpaceSize * SpaceDim
             MatrixInt m_index2site_table{};
             
-            // table of the distance between any two sites i and j
-            // with the shape of SpaceSize * SpaceSize
-            MatrixInt m_distance_table{};
+            // table of the displacement between any two sites i and j, pointing from i to j
+            // the displacement is represented by a site index due to the periodic boundary condition,
+            // and the shape of the table is SpaceSize * SpaceSize.
+            MatrixInt m_displacement_table{};
             
             // the map from momentum index to the lattice momentum in the reciprocal lattice
             // the number of rows should be equal to the number of inequivalent momentum points (k stars),
@@ -82,25 +87,27 @@ namespace Lattice {
             
             // --------------------------------- Interfaces ----------------------------------------
             
-            const LatticeInt SpaceDim()           const ;
-            const LatticeInt SpaceSize()          const ;
-            const LatticeInt SideLength()         const ;
-            const LatticeInt CoordinationNumber() const ;
-            const LatticeInt kStarsNum()          const ;
+            const LatticeBool InitialStatus()      const ;
+            const LatticeInt  SpaceDim()           const ;
+            const LatticeInt  SpaceSize()          const ;
+            const LatticeInt  SideLength()         const ;
+            const LatticeInt  CoordinationNumber() const ;
+            const LatticeInt  kStarsNum()          const ;
 
             // some symmetric points
-            const LatticeInt GammaPointIndex()    const ;
-            const LatticeInt MPointIndex()        const ;
-            const LatticeInt XPointIndex()        const ;
-            const LatticeIntVec& DeltaLineIndex() const ;
-            const LatticeIntVec& ZLineIndex()     const ;
-            const LatticeIntVec& SigmaLineIndex() const ;
-            const LatticeIntVec& kStarsIndex()    const ;
+            const LatticeInt GammaPointIndex()     const ;
+            const LatticeInt MPointIndex()         const ;
+            const LatticeInt XPointIndex()         const ;
+            const LatticeIntVec& DeltaLineIndex()  const ;
+            const LatticeIntVec& ZLineIndex()      const ;
+            const LatticeIntVec& SigmaLineIndex()  const ;
+            const LatticeIntVec& kStarsIndex()     const ;
             const LatticeIntVec& Gamma2X2M2GammaLoopIndex() const ;
 
             const MatrixDouble& HoppingMatrix() const ;
+            const MatrixDouble& FourierFactor() const ;
             const LatticeInt    NearestNeighbour ( const LatticeInt site_index, const LatticeInt direction ) const ;
-            const LatticeInt    Distance         ( const LatticeInt site1_index, const LatticeInt site2_index ) const ;
+            const LatticeInt    Displacement     ( const LatticeInt site1_index, const LatticeInt site2_index ) const ;
             const LatticeDouble FourierFactor    ( const LatticeInt site_index, const LatticeInt momentum_index ) const ;
 
             const VectorInt     Index2Site( const LatticeInt site_index ) const ;
@@ -113,7 +120,7 @@ namespace Lattice {
             virtual void initial_hopping_matrix()          = 0;
             virtual void initial_index2site_table()        = 0;
             virtual void initial_nearest_neighbour_table() = 0;
-            virtual void initial_distance_table()          = 0;
+            virtual void initial_displacement_table()      = 0;
             virtual void initial_index2momentum_table()    = 0;
             virtual void initial_symmetric_points()        = 0;
             virtual void initial_fourier_factor_table()    = 0;

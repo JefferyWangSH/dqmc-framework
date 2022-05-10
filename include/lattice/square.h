@@ -32,7 +32,7 @@ namespace Lattice {
             void initial_index2momentum_table();
 
             void initial_nearest_neighbour_table();
-            void initial_distance_table();
+            void initial_displacement_table();
             void initial_symmetric_points();
             void initial_fourier_factor_table();
 

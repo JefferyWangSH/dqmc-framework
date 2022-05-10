@@ -21,7 +21,7 @@ namespace Lattice {
     void Square::initial_index2site_table()
     {
         this->m_index2site_table.resize(this->m_space_size, this->m_space_dim);
-        for (int index = 0; index < this->m_space_size; ++index) {
+        for (auto index = 0; index < this->m_space_size; ++index) {
             // map the site index to the site vector (x,y)
             this->m_index2site_table(index, 0) = index % this->m_side_length;
             this->m_index2site_table(index, 1) = index / this->m_side_length;
@@ -75,9 +75,23 @@ namespace Lattice {
     }
 
 
-    void Square::initial_distance_table()
+    void Square::initial_displacement_table()
     {
-        // todo
+        this->m_displacement_table.resize(this->m_space_size, this->m_space_size);
+        for (auto i = 0; i < this->m_space_size; ++i) {
+            const auto xi = i % this->m_side_length;
+            const auto yi = i / this->m_side_length;
+            
+            for (auto j = 0; j < this->m_space_size; ++j) {
+                const auto xj = j % this->m_side_length;
+                const auto yj = j / this->m_side_length;
+
+                // displacement pointing from site i to site j
+                const auto dx = (xj - xi + this->m_side_length) % this->m_side_length;
+                const auto dy = (yj - yi + this->m_side_length) % this->m_side_length;
+                this->m_displacement_table(i, j) = dx + dy * this->m_side_length;
+            }
+        }
     }
             
 
@@ -154,15 +168,20 @@ namespace Lattice {
 
     void Square::initial()
     {   
-        this->initial_index2site_table();
-        this->initial_index2momentum_table();
+        // avoid multiple initialization
+        if ( !this->m_initial_status ) {
+            this->initial_index2site_table();
+            this->initial_index2momentum_table();
 
-        this->initial_nearest_neighbour_table();
-        this->initial_distance_table();
-        this->initial_symmetric_points();
-        this->initial_fourier_factor_table();
+            this->initial_nearest_neighbour_table();
+            this->initial_displacement_table();
+            this->initial_symmetric_points();
+            this->initial_fourier_factor_table();
 
-        this->initial_hopping_matrix();        
+            this->initial_hopping_matrix();  
+
+            this->m_initial_status = true;
+        }
     }
 
 

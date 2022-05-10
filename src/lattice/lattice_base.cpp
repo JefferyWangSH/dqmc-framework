@@ -2,11 +2,12 @@
 
 namespace Lattice {
     
-    const LatticeInt LatticeBase::SpaceDim() const { return this->m_space_dim; }
-    const LatticeInt LatticeBase::SpaceSize() const { return this->m_space_size; }
-    const LatticeInt LatticeBase::SideLength() const { return this->m_side_length; }
-    const LatticeInt LatticeBase::CoordinationNumber() const { return this->m_coordination_number; }
-    const LatticeInt LatticeBase::kStarsNum() const { return this->m_num_k_stars; }
+    const LatticeBool LatticeBase::InitialStatus() const { return this->m_initial_status; }
+    const LatticeInt  LatticeBase::SpaceDim() const { return this->m_space_dim; }
+    const LatticeInt  LatticeBase::SpaceSize() const { return this->m_space_size; }
+    const LatticeInt  LatticeBase::SideLength() const { return this->m_side_length; }
+    const LatticeInt  LatticeBase::CoordinationNumber() const { return this->m_coordination_number; }
+    const LatticeInt  LatticeBase::kStarsNum() const { return this->m_num_k_stars; }
 
 
     const LatticeInt LatticeBase::GammaPointIndex() const { return this->m_gamma_point_index; }
@@ -20,6 +21,7 @@ namespace Lattice {
 
 
     const MatrixDouble& LatticeBase::HoppingMatrix() const { return this->m_hopping_matrix; }
+    const MatrixDouble& LatticeBase::FourierFactor() const { return this->m_fourier_factor_table; }
 
 
     const LatticeInt LatticeBase::NearestNeighbour( const LatticeInt site_index, const LatticeInt direction ) const
@@ -52,11 +54,11 @@ namespace Lattice {
     }
 
 
-    const LatticeInt LatticeBase::Distance( const LatticeInt site1_index, const LatticeInt site2_index ) const
+    const LatticeInt LatticeBase::Displacement( const LatticeInt site1_index, const LatticeInt site2_index ) const
     {
         assert( site1_index >= 0 && site1_index < this->m_space_size );
         assert( site2_index >= 0 && site2_index < this->m_space_size );
-        return this->m_distance_table(site1_index, site2_index);
+        return this->m_displacement_table(site1_index, site2_index);
     }
 
 
