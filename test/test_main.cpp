@@ -61,7 +61,7 @@ int main() {
                                           "double_occupancy",
                                           "kinetic_energy",
                                           "local_spin_corr",
-                                        //   "greens_functions", 
+                                          "greens_functions", 
                                           };
 
     // fixed random seed for debug
@@ -74,15 +74,23 @@ int main() {
 
     // set up params
     lattice->set_lattice_params({ll,ll});
+    // lattice should be initialized once lattice params have been set.
+    lattice->initial();
     walker->set_physical_params(beta, lt);
     walker->set_stabilization_pace(nwrap);
     model->set_model_params(hopping_t, onsite_u, chemical_potential);
     meas_handler->set_measure_params(sweeps_warmup, bin_num, bin_size, sweeps_between_bins);
     meas_handler->set_observables(obs_list);
-    meas_handler->set_lattice_momentum(lattice->GammaPointIndex());
-    meas_handler->set_lattice_momentum_list(lattice->DeltaLineIndex());
+
+    // make sure that the lattice module has been initialized
+    if ( lattice->InitialStatus() ) {
+        QuantumMonteCarlo::DqmcInitializer::set_measured_momentum(*meas_handler, lattice->GammaPointIndex());
+        QuantumMonteCarlo::DqmcInitializer::set_measured_momentum_list(*meas_handler, lattice->kStarsIndex());
+    }
 
     // initialize modules
+    // lattice module has been initialized before, so in this function 
+    // it is provided for the initialization of other modules
     QuantumMonteCarlo::DqmcInitializer::initial_modules(*lattice, *model, *walker, *meas_handler);
 
     // using checkerboard break-up
@@ -133,30 +141,50 @@ int main() {
     // std::cout << meas_handler->BinsNum() << std::endl;
     // std::cout << meas_handler->BinsSize() << std::endl;
 
+    std::cout << " wrap error :  " << walker->WrapError() << std::endl;
+
     if (meas_handler->find("equaltime_sign")) {
-        auto obs = meas_handler->find_scalar("equaltime_sign");
+        const auto obs = meas_handler->find<Observable::ScalarObs>("equaltime_sign");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("dynamic_sign")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("dynamic_sign");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
       
     if (meas_handler->find("filling_number")) {
-        auto obs = meas_handler->find_scalar("filling_number");
+        auto obs = meas_handler->find<Observable::ScalarObs>("filling_number");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
 
     if (meas_handler->find("double_occupancy")) {
-        auto obs = meas_handler->find_scalar("double_occupancy");
+        auto obs = meas_handler->find<Observable::ScalarObs>("double_occupancy");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
 
     if (meas_handler->find("kinetic_energy")) {
-        auto obs = meas_handler->find_scalar("kinetic_energy");
+        auto obs = meas_handler->find<Observable::ScalarObs>("kinetic_energy");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
 
     if (meas_handler->find("local_spin_corr")) {
-        auto obs = meas_handler->find_scalar("local_spin_corr");
+        auto obs = meas_handler->find<Observable::ScalarObs>("local_spin_corr");
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
+
+    if (meas_handler->find("greens_functions")) {
+        auto obs = meas_handler->find<Observable::MatrixObs>("greens_functions");
+        std::cout << obs.name() << std::endl;
+        for (int t = 0; t < walker->TimeSize(); ++t) {
+            std::cout << t << "     " 
+                      << obs.mean_value()(1,t) << "      " 
+                      << obs.error_bar()(1,t) 
+                      << std::endl;
+        }
+    }
+
+    // std::cout << lattice->Index2Momentum(5) << std::endl;
 
     // std::cout << walker->GreenttUp() << std::endl;
     // std::cout << std::endl;
@@ -188,6 +216,9 @@ int main() {
 
     // lattice->set_lattice_params({ll,ll});
     // lattice->initial();
+
+    // std::cout << lattice->Displacement(3,2) << std::endl; 
+    // std::cout << lattice->Displacement(2,4) << std::endl; 
 
     // // std::cout << lattice->Index2Site(1) << std::endl;
     // // std::cout << lattice->Index2Momentum(lattice->GammaPointIndex()) << std::endl;

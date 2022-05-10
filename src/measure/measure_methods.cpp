@@ -10,6 +10,7 @@ namespace Measure {
     // some aliases
     using RealScalar = double; 
     using GreensFunc = Eigen::MatrixXd;
+    using Matrix = Eigen::MatrixXd;
     using Vector = Eigen::VectorXd;
 
 
@@ -170,49 +171,30 @@ namespace Measure {
                                             const DqmcWalker& walker,
                                             const ModelBase& model,
                                             const LatticeBase& lattice )
-    {
+    {   
+        // because the auxiliary field configurations are not changed for time-displaced measurements,
+        // the sign of the configuration should be the same for all imaginary-time grids.  
+        const auto& config_sign = walker.ConfigSign();
+
         for (auto t = 0; t < walker.TimeSize(); ++t) {
             // the factor 1/2 comes from two degenerate spin states
             const GreensFunc& gt0 = ( t == 0 )?
-                    0.5 * ( walker.Greent0Up(walker.TimeSize()-1) + walker.Greent0Dn(walker.TimeSize()-1) )
-                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Up(t-1) );
+                    0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
+                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) ); 
 
-            // the base site i
+            // the first site i
             for (auto i = 0; i < lattice.SpaceSize(); ++i) {
-                // the displacement j
+                // the second site j
                 for (auto j = 0; j < lattice.SpaceSize(); ++j) {
-                    // loop for momentum
-                    // todo
+                    // loop for momentum explicitly
+                    for (auto k = 0; k < (int)meas_handler.MomentumList().size(); ++k) {
+                        greens_functions.tmp_value()(k,t) += config_sign * gt0(j,i) / lattice.SpaceSize()
+                            * lattice.FourierFactor(lattice.Displacement(i,j), meas_handler.MomentumList(k));
+                    }
                 }
             }
         }
         ++greens_functions;
-        
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             // factor 1/2 comes from two degenerate spin states
-//             const Eigen::MatrixXd gt0 = ( t == 0 )?
-//                     0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_dn)[hubbard.lt-1])
-//                   : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_dn)[t-1]);
-
-//             // base point i
-//             for (int xi = 0; xi < hubbard.ll; ++xi) {
-//                 for (int yi = 0; yi < hubbard.ll; ++yi) {
-//                     const int i = xi + hubbard.ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < hubbard.ll; ++dx) {
-//                         for (int dy = 0; dy < hubbard.ll; ++dy) {
-//                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             // loop for momentum in qlist
-//                             for (int idq = 0; idq < measure.q_list.size(); ++idq) {
-//                                 greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q_list[idq])) * gt0(j, i) / hubbard.ls;
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         ++greens_functions;
     }
 
 

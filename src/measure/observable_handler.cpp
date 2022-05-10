@@ -14,6 +14,7 @@ namespace Observable {
                 != this->m_eqtime_obs_name.end() );
     }
 
+
     bool ObservableHandler::is_dynamic(const ObsName& obs_name) const 
     {
         return ( std::find( this->m_dynamic_obs_name.begin(), 
@@ -22,37 +23,10 @@ namespace Observable {
                 != this->m_dynamic_obs_name.end() );
     }
 
+
     bool ObservableHandler::find(const ObsName& obs_name) 
     {
         return ( this->m_obs_map.find(obs_name) != this->m_obs_map.end() );
-    }
-
-
-    const ScalarObs ObservableHandler::find_scalar(const ObsName& obs_name) 
-    {
-        if ( this->find(obs_name) ) {
-            auto ptrObs = std::dynamic_pointer_cast<ScalarObs>(this->m_obs_map[obs_name]);
-            if ( ptrObs ) { return *ptrObs; }
-        }
-        return ScalarObs();
-    }
-    
-    const VectorObs ObservableHandler::find_vector(const ObsName& obs_name) 
-    {
-        if ( this->find(obs_name) ) {
-            auto ptrObs = std::dynamic_pointer_cast<VectorObs>(this->m_obs_map[obs_name]);
-            if ( ptrObs ) { return *ptrObs; }
-        }
-        return VectorObs();
-    }
-
-    const MatrixObs ObservableHandler::find_matrix(const ObsName& obs_name) 
-    {
-        if ( this->find(obs_name) ) {
-            auto ptrObs = std::dynamic_pointer_cast<MatrixObs>(this->m_obs_map[obs_name]);
-            if ( ptrObs ) { return *ptrObs; }
-        }
-        return MatrixObs();
     }
 
 

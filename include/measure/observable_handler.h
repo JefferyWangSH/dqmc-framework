@@ -15,6 +15,12 @@
 
 namespace Observable {
 
+    using ObsName = std::string;
+    using ObsNameList = std::vector<std::string>;
+    using EqtimeObsNameList = std::vector<std::string>;
+    using DynamicObsNameList = std::vector<std::string>;
+    
+
     // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
     class ObservableHandler {
         protected:
@@ -32,11 +38,6 @@ namespace Observable {
             using DynamicScalarObs = std::vector<std::shared_ptr<ScalarObs>>;
             using DynamicVectorObs = std::vector<std::shared_ptr<VectorObs>>;
             using DynamicMatrixObs = std::vector<std::shared_ptr<MatrixObs>>;
-
-            using ObsName = std::string;
-            using ObsNameList = std::vector<std::string>;
-            using EqtimeObsNameList = std::vector<std::string>;
-            using DynamicObsNameList = std::vector<std::string>;
 
             // map of observables for quick reference
             // only for finding or searching cetain observable, and frequently calls should be avoided
@@ -79,9 +80,7 @@ namespace Observable {
             bool find(const ObsName& obs_name);
 
             // return certain type of the observable class
-            const ScalarObs find_scalar(const ObsName& obs_name);
-            const VectorObs find_vector(const ObsName& obs_name);
-            const MatrixObs find_matrix(const ObsName& obs_name);
+            template<typename ObsType> const ObsType find(const ObsName& obs_name);
 
             // initialize the handler
             void initial(const ObsNameList& obs_list);
@@ -100,6 +99,18 @@ namespace Observable {
             void deallocate();
 
     };
+
+
+    // implementation of template member function
+    template<typename ObsType> 
+    const ObsType ObservableHandler::find(const ObsName& obs_name) {
+        if ( this->find(obs_name) ) {
+            auto ptrObs = std::dynamic_pointer_cast<ObsType>(this->m_obs_map[obs_name]);
+            if ( ptrObs ) { return *ptrObs; }
+        }
+        return ObsType();
+    }
+
 
 } // namespace Observable
 
