@@ -331,11 +331,12 @@ namespace Measure {
 
     // The superfluid stiffness rho_s, also known as helicity modules, is defined as 
     //     rho_s = ( Gamma_L - Gamma_T ) / 4
-    // where Gamma_L and Gamma_T are longitudinal and horizontal current-current (Jx-Jx) correlation
+    // where Gamma_L and Gamma_T are longitudinal and horizontal current-current (Jx-Jx) correlations
     // in the static (omega = 0) and long wave limit.
     // The current-current (Jx-Jx) correlation function Gamma_xx(r,t) in real space is defined as 
     //     Gamma_xx(r,t) = < jx(r,t) * jx(0,0) >
     // with the current operator jx(r,t) = i t \sum sigma ( c^+(r+x,t) * c(r,t) - c^+(r,t) * c(r+x,t) )(sigma)
+    // The superfluid stiffness is useful in locating the KT transition temperature of 2d superconducting phase transition.
     // see more information in 10.1103/PhysRevB.69.184501
     void Methods::measure_superfluid_stiffness( ScalarObs& superfluid_stiffness, 
                                                 const MeasureHandler& meas_handler,
@@ -343,8 +344,9 @@ namespace Measure {
                                                 const ModelBase& model,
                                                 const LatticeBase& lattice )
     {   
-        // currently only support square lattice
-        // and the side length should be even so that the minimal momentum along x and y directions can differ.
+        // currently only support square lattice,
+        // and the side length of the lattice should be even 
+        // so that the minimal momentum along x and y directions can differ.
         assert( dynamic_cast<const Lattice::Square*>(&lattice) != nullptr );
         assert( lattice.SideLength() % 2 == 0 );
 
@@ -382,16 +384,17 @@ namespace Measure {
                     const auto rx = lattice.Index2Site(lattice.Displacement(i,j), 0);
                     const auto ry = lattice.Index2Site(lattice.Displacement(i,j), 1);
 
-                    // becasue this two momentum are equivalent and belong to the same irreducible representation,
-                    // we only have the fourier factor table of kx in our storage, whose momentum index is 1.
-                    // this may seem quite tricky here that we do the replacement
+                    // becasue these two momentum kx and ky are equivalent,
+                    // and belong to the same irreducible representation (k star),
+                    // we will only have the fourier factor table of kx = (kx,0) in our memory, whose momentum index is 1.
+                    // it may seem quite tricky here that we do the replacement
                     //     kx * r = (kx,0) * (rx,ry)    = kx * rx   ->  (kx,0) * (rx,0)
                     //     ky * r = (0,ky=kx) * (rx,ry) = kx * ry   ->  (kx,0) * (ry,0)
-                    // with the site (rx,0) labels by index rx and the site (ry,0) lables by index ry.     
-                    // this will keep the fourier factors invariant.
+                    // with the site (rx,0) labeled by index rx and the site (ry,0) labeled by index ry.     
+                    // this replacement will keep the fourier factors invariant.
                     const auto fourier_factor = lattice.FourierFactor(rx, 1) - lattice.FourierFactor(ry, 1);
                     
-                    // it should be noted that this is only valid when the lattice has a even side length,
+                    // it should be noted that this replacement is only valid when the lattice has a even side length,
                     // otherwise the kx and ky will become the same momentum point due to the finite size effect.
                     
                     // compute the stiffness
