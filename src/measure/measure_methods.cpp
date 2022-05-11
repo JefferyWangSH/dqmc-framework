@@ -2,6 +2,7 @@
 #include "measure/measure_handler.h"
 #include "model/model_base.h"
 #include "lattice/lattice_base.h"
+#include "lattice/square.h"
 #include "dqmc_walker.h"
 
 
@@ -16,6 +17,8 @@ namespace Measure {
 
     // -----------------------------  Method routines for equal-time measurements  -------------------------------
 
+
+    // The sign of the bosonic field configurations for equal-time measurements, useful for reweighting
     void Methods::measure_equaltime_config_sign( ScalarObs& equaltime_sign,
                                                  const MeasureHandler& meas_handler,
                                                  const DqmcWalker& walker,
@@ -27,6 +30,8 @@ namespace Measure {
     }
 
 
+    // Filling number defined as \sum i ( n_up + n_dn )(i)
+    // which represents the total number of electrons
     void Methods::measure_filling_number( ScalarObs& filling_number,
                                           const MeasureHandler& meas_handler,
                                           const DqmcWalker& walker,
@@ -42,6 +47,8 @@ namespace Measure {
     }
 
 
+    // Double occupation defined as \sum i ( n_up * n_dn )(i)
+    // which quantizes the possibility that two electrons with opposite spin occupy the same site
     void Methods::measure_double_occupancy( ScalarObs& double_occupancy,
                                             const MeasureHandler& meas_handler,
                                             const DqmcWalker& walker,
@@ -63,6 +70,8 @@ namespace Measure {
     }
 
 
+    // Kinetic energy defined as -t \sum <ij> ( c^+_j c_i + h.c. )
+    // which measures the hoppings between two sites, e.g. hoppings between nearest neighbours
     void Methods::measure_kinetic_energy( ScalarObs& kinetic_energy,
                                           const MeasureHandler& meas_handler, 
                                           const DqmcWalker& walker,
@@ -90,6 +99,9 @@ namespace Measure {
     }
 
 
+    // In general, spin correlations is defined as C(i,t) = < (n_up - n_dn)(i,t) * (n_up - n_dn)(0,0) >
+    // which measure the correlations of spins between two space-time points.
+    // the local correlations are the limit of i = 0 and t = 0.
     void Methods::measure_local_spin_corr( ScalarObs& local_spin_corr,
                                            const MeasureHandler& meas_handler, 
                                            const DqmcWalker& walker,
@@ -111,43 +123,137 @@ namespace Measure {
     }
 
 
+    // Distribution of electrons in momentum space defined as n(k) = ( n_up + n_dn )(k)
+    // measured for one specific momentum point 
+    // todo: scan the momentum space
     void Methods::measure_momentum_distribution( ScalarObs& momentum_dist,
                                                  const MeasureHandler& meas_handler, 
                                                  const DqmcWalker& walker,
                                                  const ModelBase& model,
                                                  const LatticeBase& lattice )
-    {
-        // todo
+    {  
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            RealScalar tmp_momentum_dist = 0.0;
+            // the first site i
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                // the second site j
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    tmp_momentum_dist += ( gu(j,i) + gd(j,i) )
+                        * lattice.FourierFactor( lattice.Displacement(i,j), meas_handler.Momentum() );
+                }
+            }
+            momentum_dist.tmp_value() += config_sign * ( 1 - 0.5 * tmp_momentum_dist / lattice.SpaceSize() );
+            ++momentum_dist;
+        }
     }
 
 
+    // Structure factor of spin density wave (SDW) defined as 
+    // 1/(4N) \sum ij ( exp( -i Q*(ri-rj) ) * (n_up - n_dn)(j) * (n_up - n_dn)(i) ) 
+    // where Q is the wave momentum of sdw, and the factor 1/4 comes from the spin 1/2 of electrons
     void Methods::measure_spin_density_structure_factor( ScalarObs& sdw_factor, 
                                                          const MeasureHandler& meas_handler,
                                                          const DqmcWalker& walker,
                                                          const ModelBase& model,
                                                          const LatticeBase& lattice )
     {
-        // todo
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            //  g(i,j) = < c_i * c^+_j > are the greens functions
+            // gc(i,j) = < c^+_i * c_j > are isomorphic to the conjugation of greens functions
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const GreensFunc& guc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gu.transpose();
+            const GreensFunc& gdc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gd.transpose();
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            // loop over site i, j and take averages
+            RealScalar tmp_sdw = 0.0;
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    // factor 1/4 comes from spin 1/2 of electrons
+                    tmp_sdw += 0.25 * config_sign 
+                        * lattice.FourierFactor( lattice.Displacement(i,j), meas_handler.Momentum() )
+                        * ( + guc(i,i) * guc(j,j) + guc(i,j) * gu(i,j)
+                            + gdc(i,i) * gdc(j,j) + gdc(i,j) * gd(i,j)
+                            - gdc(i,i) * guc(j,j) - guc(i,i) * gdc(j,j) );
+                }
+            }
+            sdw_factor.tmp_value() += tmp_sdw / ( lattice.SpaceSize()*lattice.SpaceSize() );
+            ++sdw_factor;
+        }
     }
 
 
+    // Structure factor of charge density wave (CDW) defined as 
+    // 1/N \sum ij ( exp( -i Q*(ri-rj) ) * (n_up + n_dn)(j) * (n_up + n_dn)(i) ) 
+    // where Q is the wave momentum of cdw.
     void Methods::measure_charge_density_structure_factor( ScalarObs& cdw_factor,
                                                            const MeasureHandler& meas_handler, 
                                                            const DqmcWalker& walker,
                                                            const ModelBase& model,
                                                            const LatticeBase& lattice )
     {
-        // todo
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            //  g(i,j) = < c_i * c^+_j > are the greens functions
+            // gc(i,j) = < c^+_i * c_j > are isomorphic to the conjugation of greens functions
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const GreensFunc& guc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gu.transpose();
+            const GreensFunc& gdc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gd.transpose();
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            // loop over site i, j and take averages
+            RealScalar tmp_cdw = 0.0;
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    tmp_cdw += config_sign * lattice.FourierFactor( lattice.Displacement(i,j), meas_handler.Momentum() )
+                        * ( + guc(i,i) * guc(j,j) + guc(i,j) * gu(i,j)
+                            + gdc(i,i) * gdc(j,j) + gdc(i,j) * gd(i,j)
+                            + gdc(i,i) * guc(j,j) + guc(i,i) * gdc(j,j) );
+                }
+            }
+            cdw_factor.tmp_value() += tmp_cdw / ( lattice.SpaceSize()*lattice.SpaceSize() );
+            ++cdw_factor;
+        }
     }
 
 
+    // The s-wave superconducting pairing is defined as Delta = 1/sqrt(N) \sum i ( c_up * c_dn )(i)
+    // Accordingly, the correlation function Ps reads
+    //   Ps  =  1/2 ( Delta^+ * Delta + h.c. )
+    //       =  1/N \sum ij ( (delta_ij - Gup(j,i)) * (delta_ij - Gdn(j,i)) )
+    // which serves as the Laudau order paramerter, and, with special attention, is an extensive quantity. 
+    // Note the 1/2 prefactor in definition of Ps cancels the duplicated countings of ij.
     void Methods::measure_s_wave_pairing_corr( ScalarObs& s_wave_pairing,
                                                const MeasureHandler& meas_handler, 
                                                const DqmcWalker& walker,
                                                const ModelBase& model,
                                                const LatticeBase& lattice )
     {
-        // todo
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            //  g(i,j) = < c_i * c^+_j > are the greens functions
+            // gc(i,j) = < c^+_i * c_j > are isomorphic to the conjugation of greens functions
+            const GreensFunc& gu = walker.GreenttUp(t);
+            const GreensFunc& gd = walker.GreenttDn(t);
+            const GreensFunc& guc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gu.transpose();
+            const GreensFunc& gdc = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gd.transpose();
+            const RealScalar& config_sign = walker.ConfigSign(t);
+
+            // loop over site i, j and take averages
+            RealScalar tmp_s_wave_pairing = 0.0;
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    tmp_s_wave_pairing += config_sign * ( guc(i,j) * gdc(i,j) );
+                }
+            }
+            // entensive quantity
+            s_wave_pairing.tmp_value() += tmp_s_wave_pairing / lattice.SpaceSize();
+            ++s_wave_pairing;
+        }
     }
 
 
@@ -155,6 +261,8 @@ namespace Measure {
 
     // ------------------------------  Method routines for dynamic measurements  ---------------------------------
     
+
+    // The sign of the bosonic field configurations for dynamic measurements
     void Methods::measure_dynamic_config_sign( ScalarObs& dynamic_sign,
                                                const MeasureHandler& meas_handler, 
                                                const DqmcWalker& walker,
@@ -166,6 +274,9 @@ namespace Measure {
     }
 
 
+    // Green's functions G(k,t) = < c(k,t) c^+(k,0) > in momentum space 
+    // which are defined as the Fourier transmations of G(i,j) in real space
+    // G(k,t)  =  1/N \sum ij exp( -i k*(rj-ri) ) * ( c_j(t) * c^+_i(0) )
     void Methods::measure_greens_functions( MatrixObs& greens_functions, 
                                             const MeasureHandler& meas_handler,
                                             const DqmcWalker& walker,
@@ -177,7 +288,7 @@ namespace Measure {
         const auto& config_sign = walker.ConfigSign();
 
         for (auto t = 0; t < walker.TimeSize(); ++t) {
-            // the factor 1/2 comes from two degenerate spin states
+            // the factor 1/2 comes from two degenerate spin states ( model dependent )
             const GreensFunc& gt0 = ( t == 0 )?
                     0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
                   : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) ); 
@@ -198,263 +309,112 @@ namespace Measure {
     }
 
 
+    // Density of states D(t) defined as 1/N \sum i ( c(i,t) * c^+(i,0) ) 
+    // whose fourier transformations are exactly the usual density of states D(omega).
     void Methods::measure_density_of_states( VectorObs& density_of_states,
                                              const MeasureHandler& meas_handler, 
                                              const DqmcWalker& walker,
                                              const ModelBase& model,
                                              const LatticeBase& lattice )
-    {
-        // todo
+    {   
+        const auto& config_sign = walker.ConfigSign();
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            // the factor 1/2 comes from two degenerate spin states ( model dependent )
+            const GreensFunc& gt0 = ( t == 0 )?
+                    0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
+                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) ); 
+            density_of_states.tmp_value()(t) += config_sign * gt0.trace() / lattice.SpaceSize();
+        }
+        ++density_of_states;
     }
 
 
+    // The superfluid stiffness rho_s, also known as helicity modules, is defined as 
+    //     rho_s = ( Gamma_L - Gamma_T ) / 4
+    // where Gamma_L and Gamma_T are longitudinal and horizontal current-current (Jx-Jx) correlation
+    // in the static (omega = 0) and long wave limit.
+    // The current-current (Jx-Jx) correlation function Gamma_xx(r,t) in real space is defined as 
+    //     Gamma_xx(r,t) = < jx(r,t) * jx(0,0) >
+    // with the current operator jx(r,t) = i t \sum sigma ( c^+(r+x,t) * c(r,t) - c^+(r,t) * c(r+x,t) )(sigma)
+    // see more information in 10.1103/PhysRevB.69.184501
     void Methods::measure_superfluid_stiffness( ScalarObs& superfluid_stiffness, 
                                                 const MeasureHandler& meas_handler,
                                                 const DqmcWalker& walker,
                                                 const ModelBase& model,
                                                 const LatticeBase& lattice )
-    {
-        // todo
+    {   
+        // currently only support square lattice
+        // and the side length should be even so that the minimal momentum along x and y directions can differ.
+        assert( dynamic_cast<const Lattice::Square*>(&lattice) != nullptr );
+        assert( lattice.SideLength() % 2 == 0 );
+
+        RealScalar tmp_rho_s = 0.0;
+
+        const GreensFunc& g00_up = walker.GreenttUp(walker.TimeSize()-1); 
+        const GreensFunc& g00_dn = walker.GreenttDn(walker.TimeSize()-1); 
+        const auto& config_sign = walker.ConfigSign();
+
+        for (auto t = 0; t < walker.TimeSize(); ++t) {
+            // dynamic greens functions
+            // degenerating to equal-time greens function if t equals 0.
+            const GreensFunc& gt0_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.Greent0Up(t-1);
+            const GreensFunc& g0t_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.Green0tUp(t-1);
+            const GreensFunc& gtt_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.GreenttUp(t-1);
+            const GreensFunc& gt0_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.Greent0Dn(t-1);
+            const GreensFunc& g0t_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.Green0tDn(t-1);
+            const GreensFunc& gtt_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.GreenttDn(t-1);
+        
+            // the first site i
+            for (auto i = 0; i < lattice.SpaceSize(); ++i) {
+                // the nearest neighbor of site i along positive direction of axis x
+                const auto ipx = lattice.NearestNeighbour(i, 0);
+
+                // the second site j
+                for (auto j = 0; j < lattice.SpaceSize(); ++j) {
+                    // the nearest neighbor of site j along positive direction of axis x
+                    const auto jpx = lattice.NearestNeighbour(j, 0);
+                    
+                    // we would like to compute the factor of fourier transformation
+                    //     exp ( -i kx * r ) - exp ( -i ky * r )
+                    // where r = rj - ri is the displacement between site i and j,
+                    // and kx, ky are the minimal momentum along x and y direction respectively
+                    //     kx = ( 2pi/L, 0 )    ky = ( 0, 2pi/L )
+                    const auto rx = lattice.Index2Site(lattice.Displacement(i,j), 0);
+                    const auto ry = lattice.Index2Site(lattice.Displacement(i,j), 1);
+
+                    // becasue this two momentum are equivalent and belong to the same irreducible representation,
+                    // we only have the fourier factor table of kx in our storage, whose momentum index is 1.
+                    // this may seem quite tricky here that we do the replacement
+                    //     kx * r = (kx,0) * (rx,ry)    = kx * rx   ->  (kx,0) * (rx,0)
+                    //     ky * r = (0,ky=kx) * (rx,ry) = kx * ry   ->  (kx,0) * (ry,0)
+                    // with the site (rx,0) labels by index rx and the site (ry,0) lables by index ry.     
+                    // this will keep the fourier factors invariant.
+                    const auto fourier_factor = lattice.FourierFactor(rx, 1) - lattice.FourierFactor(ry, 1);
+                    
+                    // it should be noted that this is only valid when the lattice has a even side length,
+                    // otherwise the kx and ky will become the same momentum point due to the finite size effect.
+                    
+                    // compute the stiffness
+                    tmp_rho_s += model.HoppingT() * model.HoppingT() * config_sign * fourier_factor * (
+                            // uncorrelated part
+                            - ( gtt_up(j,jpx) - gtt_up(jpx,j) + gtt_dn(j,jpx) - gtt_dn(jpx,j) ) *
+                              ( g00_up(i,ipx) - g00_up(ipx,i) + g00_dn(i,ipx) - g00_dn(ipx,i) )
+                                        
+                            // correlated part
+                            - g0t_up(ipx,jpx) * gt0_up(j,i) - g0t_dn(ipx, jpx) * gt0_dn(j, i)
+                            + g0t_up(i,jpx) * gt0_up(j,ipx) + g0t_dn(i, jpx) * gt0_dn(j, ipx)
+                            + g0t_up(ipx,j) * gt0_up(jpx,i) + g0t_dn(ipx, j) * gt0_dn(jpx, i)
+                            - g0t_up(i,j) * gt0_up(jpx,ipx) - g0t_dn(i, j) * gt0_dn(jpx, ipx) );
+                }
+            }
+        }
+        // the 1/4 prefactor is because that the Cooper pair carries charge 2
+        // see https://arxiv.org/pdf/1912.08848.pdf
+        superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / ( lattice.SpaceSize()*lattice.SpaceSize() );
+        ++superfluid_stiffness;
     }
+
 
 
 } // namespace Measure
 
-
-//     void Methods::measure_momentum_distribution(Observable<double> &momentum_dist, Measure &measure, const Model::Hubbard &hubbard) {
-//         const int ll = hubbard.ll;
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-
-//             double tmp_momentum_dist = 0.0;
-//             // base point
-//             for (int xi = 0; xi < ll; ++xi) {
-//                 for (int yi = 0; yi < ll; ++yi) {
-//                     const int i = xi + ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < ll; ++dx) {
-//                         for (int dy = 0; dy < ll; ++dy) {
-//                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             tmp_momentum_dist += cos(-r.dot(measure.q)) * (gu(j, i) + gd(j, i));
-//                         }
-//                     }
-//                 }
-//             }
-//             momentum_dist.tmp_value() += (*hubbard.vec_config_sign)[t] * (1 - 0.5 * tmp_momentum_dist / hubbard.ls);
-//             ++momentum_dist;
-//         }
-//     }
-
-//     void Methods::measure_spin_density_structure_factor(Observable<double> &sdw_factor, Measure &measure, const Model::Hubbard &hubbard) {
-//         const int ll = hubbard.ll;
-//         const int ls = hubbard.ls;
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-
-//             // g(i,j)  = < c_i * c^+_j >
-//             // gc(i,j) = < c^+_i * c_j >
-//             const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - gu.transpose();
-//             const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - gd.transpose();
-
-//             // loop for site i and average
-//             double tmp_sdw = 0.0;
-//             for (int xi = 0; xi < ll; ++xi) {
-//                 for (int yi = 0; yi < ll; ++yi) {
-//                     const int i = xi + ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < ll; ++dx) {
-//                         for (int dy = 0; dy < ll; ++dy) {
-//                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             const double factor = (*hubbard.vec_config_sign)[t] * cos(-r.dot(measure.q));
-//                             // factor 1/4 comes from spin 1/2
-//                             tmp_sdw += 0.25 * factor * ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
-//                                                          + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
-//                                                          - gdc(i, i) * guc(j, j) - guc(i, i) * gdc(j, j) );
-//                         }
-//                     }
-//                 }
-//             }
-//             sdw_factor.tmp_value() += tmp_sdw / hubbard.ls / hubbard.ls;
-//             ++sdw_factor;
-//         }
-//     }
-
-//     void Methods::measure_charge_density_structure_factor(Observable<double> &cdw_factor, Measure &measure, const Model::Hubbard &hubbard) {
-//         const int ll = hubbard.ll;
-//         const int ls = hubbard.ls;
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             const Eigen::MatrixXd gu = (*hubbard.vec_green_tt_up)[t];
-//             const Eigen::MatrixXd gd = (*hubbard.vec_green_tt_dn)[t];
-
-//             // g(i,j)  = < c_i * c^+_j >
-//             // gc(i,j) = < c^+_i * c_j >
-//             const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - gu.transpose();
-//             const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - gd.transpose();
-
-//             // loop for site i and average
-//             double tmp_cdw = 0.0;
-//             for (int xi = 0; xi < ll; ++xi) {
-//                 for (int yi = 0; yi < ll; ++yi) {
-//                     const int i = xi + ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < ll; ++dx) {
-//                         for (int dy = 0; dy < ll; ++dy) {
-//                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             const double factor = (*hubbard.vec_config_sign)[t] * cos(-r.dot(measure.q));
-//                             tmp_cdw += factor * ( + guc(i, i) * guc(j, j) + guc(i, j) * gu(i, j)
-//                                                   + gdc(i, i) * gdc(j, j) + gdc(i, j) * gd(i, j)
-//                                                   + gdc(i, i) * guc(j, j) + guc(i, i) * gdc(j, j) );
-//                         }
-//                     }
-//                 }
-//             }
-//             cdw_factor.tmp_value() += tmp_cdw / hubbard.ls / hubbard.ls;
-//             ++cdw_factor;
-//         }
-//     }
-
-//     void Methods::measure_s_wave_pairing_corr(Observable<double> &s_wave_pairing, Measure &measure, const Model::Hubbard &hubbard) {
-//         const int ll = hubbard.ll;
-//         const int ls = hubbard.ls;
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             // The s-wave pairing order parameter is defined as \Delta = 1/\sqrt(N) \sum_i c_up_i * c_dn_i
-//             // Accordingly, the s-wave pairing correlation function P_s is defined as  
-//             //   P_s = 1/2 ( \Delta^+ * \Delta + h.c. )
-//             //       = 1/N \sum_ij ( (\delta_ij - G_up(t,t)_ji) * (\delta_ij - G_dn(t,t)_ji) )
-//             // which is a extensive quantity. The 1/2 prefactor in definition of P_s cancels the duplicated counting of ij.
-            
-//             // g(i,j)  = < c_i * c^+_j >
-//             // gc(i,j) = < c^+_i * c_j >
-//             const Eigen::MatrixXd guc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_up)[t].transpose();
-//             const Eigen::MatrixXd gdc = Eigen::MatrixXd::Identity(ls, ls) - (*hubbard.vec_green_tt_dn)[t].transpose();
-
-//             // loop for site i and average
-//             double tmp_s_wave_pairing = 0.0;
-//             for (int xi = 0; xi < ll; ++xi) {
-//                 for (int yi = 0; yi < ll; ++yi) {
-//                     const int i = xi + ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < ll; ++dx) {
-//                         for (int dy = 0; dy < ll; ++dy) {
-//                             const int j = (xi + dx) % ll + ll * ((yi + dy) % ll);
-//                             const double factor = (*hubbard.vec_config_sign)[t];
-//                             tmp_s_wave_pairing += (*hubbard.vec_config_sign)[t] * ( guc(i, j)* gdc(i, j) );
-//                         }
-//                     }
-//                 }
-//             }
-//             // entensive quantity
-//             s_wave_pairing.tmp_value() += tmp_s_wave_pairing / hubbard.ls;
-//             ++s_wave_pairing;
-//         }
-//     }
-
-
-
-//     /** Time-displaced ( Dynamical ) Measurements */
-
-
-//     void Methods::measure_greens_functions(Observable<Eigen::MatrixXd> &greens_functions, Measure &measure, const Model::Hubbard &hubbard) {
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             // factor 1/2 comes from two degenerate spin states
-//             const Eigen::MatrixXd gt0 = ( t == 0 )?
-//                     0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_dn)[hubbard.lt-1])
-//                   : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_dn)[t-1]);
-
-//             // base point i
-//             for (int xi = 0; xi < hubbard.ll; ++xi) {
-//                 for (int yi = 0; yi < hubbard.ll; ++yi) {
-//                     const int i = xi + hubbard.ll * yi;
-//                     // displacement
-//                     for (int dx = 0; dx < hubbard.ll; ++dx) {
-//                         for (int dy = 0; dy < hubbard.ll; ++dy) {
-//                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             // loop for momentum in qlist
-//                             for (int idq = 0; idq < measure.q_list.size(); ++idq) {
-//                                 greens_functions.tmp_value()(idq, t) += hubbard.config_sign * cos(-r.dot(measure.q_list[idq])) * gt0(j, i) / hubbard.ls;
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         ++greens_functions;
-//     }
-
-//     void Methods::measure_density_of_states(Observable<Eigen::VectorXd> &density_of_states, Measure &measure, const Model::Hubbard &hubbard) {
-//         for (int t = 0; t < hubbard.lt; ++t) {
-//             // spin degenerate model
-//             const Eigen::MatrixXd gt0 = ( t == 0 )?
-//                 0.5 * ((*hubbard.vec_green_tt_up)[hubbard.lt-1] + (*hubbard.vec_green_tt_dn)[hubbard.lt-1])
-//               : 0.5 * ((*hubbard.vec_green_t0_up)[t-1] + (*hubbard.vec_green_t0_dn)[t-1]);
-//             density_of_states.tmp_value()(t) += hubbard.config_sign * gt0.trace() / hubbard.ls;
-//         }
-//         ++density_of_states;
-//     }
-
-//     void Methods::measure_superfluid_stiffness(Observable<double> &superfluid_stiffness, Measure &measure, const Model::Hubbard &hubbard) {
-//         // momentum qx and qy
-//         const Eigen::VectorXd qx = ( Eigen::VectorXd(2) << 2 * M_PI / hubbard.ll, 0.0 ).finished();
-//         const Eigen::VectorXd qy = ( Eigen::VectorXd(2) << 0.0, 2 * M_PI / hubbard.ll ).finished();
-        
-//         // Superfluid stiffness \rho_s = 1/4 * ( Gamma^L - Gamma^T )
-//         double tmp_rho_s = 0.0;
-//         Eigen::MatrixXd gt0_up, g0t_up, gtt_up;
-//         Eigen::MatrixXd gt0_dn, g0t_dn, gtt_dn;
-//         const Eigen::MatrixXd g00_up = (*hubbard.vec_green_tt_up)[hubbard.lt-1]; 
-//         const Eigen::MatrixXd g00_dn = (*hubbard.vec_green_tt_dn)[hubbard.lt-1]; 
-
-//         for (int l = 0; l < hubbard.lt; ++l) {
-//             const int tau = (l == 0)? hubbard.lt-1 : l-1;
-//             gt0_up = (*hubbard.vec_green_t0_up)[tau];
-//             g0t_up = (*hubbard.vec_green_0t_up)[tau];
-//             gtt_up = (*hubbard.vec_green_tt_up)[tau];
-//             gt0_dn = (*hubbard.vec_green_t0_dn)[tau];
-//             g0t_dn = (*hubbard.vec_green_0t_dn)[tau];
-//             gtt_dn = (*hubbard.vec_green_tt_dn)[tau];
-
-//             // space point i is chosen as our base point, which is going to be averaged
-//             for (int xi = 0; xi < hubbard.ll; ++xi) {
-//                 for (int yi = 0; yi < hubbard.ll; ++yi) {
-//                     const int i = xi + hubbard.ll * yi;
-//                     const int ipx = (xi + 1) % hubbard.ll + hubbard.ll * yi;
-
-//                     // displacement
-//                     for (int dx = 0; dx < hubbard.ll; ++dx) {
-//                         for (int dy = 0; dy < hubbard.ll; ++dy) {
-//                             /* for a given site l and time-slice tau
-//                             * the current-current correlation Jx-Jx: \Gamma_xx (l, \tau) = < jx(l, \tau) * jx(0, 0) > */
-//                             const int j = (xi + dx) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-//                             const int jpx = (xi + dx + 1) % hubbard.ll + hubbard.ll * ((yi + dy) % hubbard.ll);
-//                             const Eigen::Vector2d r(dx, dy);
-//                             const double factor = hubbard.config_sign * (cos(r.dot(qx)) - cos(r.dot(qy)));
-
-//                             tmp_rho_s += hubbard.t * hubbard.t * factor * (
-//                                     // uncorrelated part
-//                                     - ( gtt_up(j, jpx) - gtt_up(jpx, j) + gtt_dn(j, jpx) - gtt_dn(jpx, j) ) *
-//                                       ( g00_up(i, ipx) - g00_up(ipx, i) + g00_dn(i, ipx) - g00_dn(ipx, i) )
-                                    
-//                                     // correlated part
-//                                     - g0t_up(ipx, jpx) * gt0_up(j, i) - g0t_dn(ipx, jpx) * gt0_dn(j, i)
-//                                     + g0t_up(i, jpx) * gt0_up(j, ipx) + g0t_dn(i, jpx) * gt0_dn(j, ipx)
-//                                     + g0t_up(ipx, j) * gt0_up(jpx, i) + g0t_dn(ipx, j) * gt0_dn(jpx, i)
-//                                     - g0t_up(i, j) * gt0_up(jpx, ipx) - g0t_dn(i, j) * gt0_dn(jpx, ipx) );
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         // average over base point i
-//         // the 1/4 prefactor is due to Cooper pairs with charge 2
-//         // see https://arxiv.org/pdf/1912.08848.pdf
-//         superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / hubbard.ls / hubbard.ls;
-//         ++superfluid_stiffness;
-//     }
-
-// } // namespace Measure

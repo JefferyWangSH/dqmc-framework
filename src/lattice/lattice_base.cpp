@@ -47,10 +47,26 @@ namespace Lattice {
     }
 
 
+    const LatticeInt LatticeBase::Index2Site( const LatticeInt site_index, const LatticeInt axis ) const 
+    {   
+        assert( site_index >= 0 && site_index < this->m_space_size );
+        assert( axis >= 0 && axis < this->m_space_dim );
+        return this->m_index2site_table(site_index, axis);
+    }
+
+
     const VectorDouble LatticeBase::Index2Momentum( const LatticeInt momentum_index ) const 
     {
         assert( momentum_index >= 0 && momentum_index < this->m_num_k_stars );
         return this->m_index2momentum_table.row(momentum_index);
+    }
+
+
+    const LatticeDouble LatticeBase::Index2Momentum( const LatticeInt momentum_index, const LatticeInt axis ) const 
+    {   
+        assert( momentum_index >= 0 && momentum_index < this->m_num_k_stars );
+        assert( axis >= 0 && axis < this->m_space_dim );
+        return this->m_index2momentum_table(momentum_index, axis);
     }
 
 

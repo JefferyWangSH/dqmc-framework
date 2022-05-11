@@ -40,14 +40,14 @@ namespace Measure {
             // Model::ModelBase and Lattice::LatticeBase class.
 
             // Equal-time Measurements:
-            //    1. Filling number <n>
-            //    2. Double occupancy D = < n_up*n_dn >
+            //    1. Filling number < n >
+            //    2. Double occupancy D = < n_up * n_dn >
             //    3. Single particle kinetic energy
             //    4. Distributions of electrons in momentum space
-            //    5. Local spin correlation, magnetization C(0,0) = < (n_up - n_dn)^2 >
+            //    5. Local spin correlation, magnetization C(0,0) = < ( n_up - n_dn )^2 >
             //    6. Spin density structure factor (SDW)
             //    7. Charge density structure factor (CDW)
-            //    8. S wave Cooper pairing correlation function
+            //    8. S-wave Cooper pairing correlation functions
 
             static void measure_equaltime_config_sign           (  ScalarObs& equaltime_sign,
                                                                    const MeasureHandler& meas_handler,
@@ -105,9 +105,9 @@ namespace Measure {
 
 
             // Dynamical Measurements:
-            //    1. Dynamical green's functions in momentum space: G(k, tau) = < c(k, tau) * c^+(k, 0) >
-            //    2. Density of states in imaginary time space: N(tau) = 1/N * \sum_{i} G(tau, 0)_{ii}
-            //    3. Superfluid stiffness \rho_s of superconducting: \rho_s = (\Gamma_L - \Gamma_T) / 4
+            //    1. Dynamical green's functions in momentum space: G(k,t) = < c(k,t) * c^+(k,0) >
+            //    2. Density of states in imaginary-time space: D(tau) = 1/N \sum i < c(i,t) * c^+(i,0) >
+            //    3. Superfluid stiffness rho_s of superconducting: rho_s = ( Gamma_L - Gamma_T ) / 4
             
             static void measure_dynamic_config_sign             (  ScalarObs& dynamic_sign, 
                                                                    const MeasureHandler& meas_handler,

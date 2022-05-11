@@ -111,7 +111,9 @@ namespace Lattice {
             const LatticeDouble FourierFactor    ( const LatticeInt site_index, const LatticeInt momentum_index ) const ;
 
             const VectorInt     Index2Site( const LatticeInt site_index ) const ;
+            const LatticeInt    Index2Site( const LatticeInt site_index, const LatticeInt axis ) const ;
             const VectorDouble  Index2Momentum( const LatticeInt momentum_index ) const ;
+            const LatticeDouble Index2Momentum( const LatticeInt momentum_index, const LatticeInt axis ) const ;
 
 
             // -------------------------------- Initializations ------------------------------------

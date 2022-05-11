@@ -61,11 +61,17 @@ int main() {
                                           "double_occupancy",
                                           "kinetic_energy",
                                           "local_spin_corr",
-                                          "greens_functions", 
+                                          "greens_functions",
+                                          "density_of_states",
+                                          "momentum_distribution",
+                                          "spin_density_structure_factor",
+                                          "charge_density_structure_factor",
+                                          "s_wave_pairing_corr",
+                                          "superfluid_stiffness",
                                           };
 
     // fixed random seed for debug
-    Utils::Random::set_seed_fixed(12345);
+    // Utils::Random::set_seed_fixed(12345);
 
     Model::ModelBase* model = new Model::RepulsiveHubbard();
     Lattice::LatticeBase* lattice = new Lattice::Square();
@@ -84,7 +90,7 @@ int main() {
 
     // make sure that the lattice module has been initialized
     if ( lattice->InitialStatus() ) {
-        QuantumMonteCarlo::DqmcInitializer::set_measured_momentum(*meas_handler, lattice->GammaPointIndex());
+        QuantumMonteCarlo::DqmcInitializer::set_measured_momentum(*meas_handler, lattice->MPointIndex());
         QuantumMonteCarlo::DqmcInitializer::set_measured_momentum_list(*meas_handler, lattice->kStarsIndex());
     }
 
@@ -173,16 +179,54 @@ int main() {
         std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
 
-    if (meas_handler->find("greens_functions")) {
-        auto obs = meas_handler->find<Observable::MatrixObs>("greens_functions");
-        std::cout << obs.name() << std::endl;
-        for (int t = 0; t < walker->TimeSize(); ++t) {
-            std::cout << t << "     " 
-                      << obs.mean_value()(1,t) << "      " 
-                      << obs.error_bar()(1,t) 
-                      << std::endl;
-        }
+    if (meas_handler->find("momentum_distribution")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("momentum_distribution");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
     }
+
+    if (meas_handler->find("spin_density_structure_factor")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("spin_density_structure_factor");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("charge_density_structure_factor")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("charge_density_structure_factor");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    if (meas_handler->find("s_wave_pairing_corr")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("s_wave_pairing_corr");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    // important!!!
+    // todo: the correctness of superfluid stiffness measurements should be further checked in attractive hubbard model
+    if (meas_handler->find("superfluid_stiffness")) {
+        auto obs = meas_handler->find<Observable::ScalarObs>("superfluid_stiffness");
+        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    }
+
+    // if (meas_handler->find("greens_functions")) {
+    //     auto obs = meas_handler->find<Observable::MatrixObs>("greens_functions");
+    //     std::cout << obs.name() << std::endl;
+    //     for (int t = 0; t < walker->TimeSize(); ++t) {
+    //         std::cout << t << "     " 
+    //                   << obs.mean_value()(1,t) << "      " 
+    //                   << obs.error_bar()(1,t) 
+    //                   << std::endl;
+    //     }
+    // }
+
+    // if (meas_handler->find("density_of_states")) {
+    //     auto obs = meas_handler->find<Observable::VectorObs>("density_of_states");
+    //     std::cout << obs.name() << std::endl;
+    //     for (int t = 0; t < walker->TimeSize(); ++t) {
+    //         std::cout << t << "     " 
+    //                   << obs.mean_value()(t) << "      " 
+    //                   << obs.error_bar()(t) 
+    //                   << std::endl;
+    //     }
+    // }
 
     // std::cout << lattice->Index2Momentum(5) << std::endl;
 
