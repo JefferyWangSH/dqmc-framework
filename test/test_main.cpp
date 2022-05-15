@@ -53,7 +53,7 @@ int main() {
     double chemical_potential = 0.0;
 
     int sweeps_warmup = 512;
-    int bin_num = 100;
+    int bin_num = 20;
     int bin_size = 100;
     int sweeps_between_bins = 20;
 
@@ -71,8 +71,10 @@ int main() {
                                           "superfluid_stiffness",
                                           };
 
+    // // set up random seeds
+    // Utils::Random::set_seed( std::time(nullptr)+123 );
     // fixed random seed for debug
-    Utils::Random::set_seed_fixed(12345);
+    Utils::Random::set_seed( 12345 );
 
     Model::ModelBase* model = new Model::AttractiveHubbard();
     Lattice::LatticeBase* lattice = new Lattice::Square();

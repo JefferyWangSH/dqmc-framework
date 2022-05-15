@@ -11,11 +11,10 @@ namespace Utils {
         public:
             static std::default_random_engine Engine;
 
-            // setup seeds randomly accroding to the processor rank in MPI
-            static void set_seed(const int& rank);
-
-            // setup fixed seeds for debug usages
-            static void set_seed_fixed(const int& seed);
+            // explicitly setup seeds for the random engine
+            // e.g. set_seed(123) with fixed seed for debug usages
+            // or set_seed( time(nullptr)+rank ) to setup different seeds for different Mpi process
+            static void set_seed( const int seed );
     };
 
 } // namespace Utils

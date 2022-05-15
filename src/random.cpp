@@ -2,14 +2,10 @@
 
 namespace Utils {
 
-    // initialization of static member
+    // initialization of the static member
     std::default_random_engine Random::Engine( time(nullptr) );
 
-    void Random::set_seed(const int& rank) {
-        Engine.seed( time(nullptr)+rank );
-    }
-
-    void Random::set_seed_fixed(const int& seed) {
+    void Random::set_seed(const int seed) {
         Engine.seed( seed );
     }
 
