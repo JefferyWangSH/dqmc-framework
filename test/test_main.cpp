@@ -5,6 +5,7 @@
 
 #include "model/model_base.h"
 #include "model/repulsive_hubbard.h"
+#include "model/attractive_hubbard.h"
 
 #include "measure/observable.h"
 #include "measure/observable_handler.h"
@@ -52,7 +53,7 @@ int main() {
     double chemical_potential = 0.0;
 
     int sweeps_warmup = 512;
-    int bin_num = 20;
+    int bin_num = 100;
     int bin_size = 100;
     int sweeps_between_bins = 20;
 
@@ -71,9 +72,9 @@ int main() {
                                           };
 
     // fixed random seed for debug
-    // Utils::Random::set_seed_fixed(12345);
+    Utils::Random::set_seed_fixed(12345);
 
-    Model::ModelBase* model = new Model::RepulsiveHubbard();
+    Model::ModelBase* model = new Model::AttractiveHubbard();
     Lattice::LatticeBase* lattice = new Lattice::Square();
     QuantumMonteCarlo::DqmcWalker* walker = new QuantumMonteCarlo::DqmcWalker();
     Measure::MeasureHandler* meas_handler = new Measure::MeasureHandler();

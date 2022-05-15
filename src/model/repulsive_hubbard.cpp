@@ -35,7 +35,6 @@ namespace Model {
     {
         assert( hopping_t >= 0.0 );
         assert( onsite_u >= 0.0 );
-        assert( chemical_potential >= 0.0 );
         this->m_hopping_t = hopping_t;
         this->m_onsite_u = onsite_u;
         this->m_chemical_potential = chemical_potential;
@@ -59,7 +58,6 @@ namespace Model {
     {   
         const int space_size = lattice.SpaceSize();
         const RealScalar time_interval = walker.TimeInterval();
-        // todo: check the +/- sign of the chemical potential here
         const SpaceSpaceMat chemical_potential_mat = this->m_chemical_potential * SpaceSpaceMat::Identity(space_size,space_size);
         const SpaceSpaceMat Kmat = -this->m_hopping_t * lattice.HoppingMatrix() + chemical_potential_mat;
         
