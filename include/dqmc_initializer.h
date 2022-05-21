@@ -35,7 +35,7 @@ namespace QuantumMonteCarlo {
 
             // set up measured momentum for momentum-dependent observables
             // note that the MomentumIndex should be provided by specific lattice module,
-            // and do not mannully assign the input momentum to avoid unexpected mistakes.
+            // and do not assign the momentum mannully, in case unexpected mistakes may occur.
             // some pre-designed interfaces of lattice momentum ( k stars ) are provided
             // in the derived Lattice classes for measuring usages.
             static void set_measured_momentum       ( MeasureHandler& meas_handler, 

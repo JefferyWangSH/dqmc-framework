@@ -109,7 +109,7 @@ namespace Model {
 
             // ------------------------------------------ Setup interfaces -----------------------------------------------
 
-            // setup model params ( interface for derived classed )
+            // setup model params ( interface for the derived classes )
             virtual void set_model_params(RealScalar, RealScalar, RealScalar) = 0;
 
             virtual const RealScalar HoppingT() const = 0; 

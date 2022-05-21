@@ -95,6 +95,7 @@ namespace Lattice {
             const LatticeInt  kStarsNum()          const ;
 
             // some symmetric points
+            // todo: move to derived lattice classes
             const LatticeInt GammaPointIndex()     const ;
             const LatticeInt MPointIndex()         const ;
             const LatticeInt XPointIndex()         const ;

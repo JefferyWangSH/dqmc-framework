@@ -29,6 +29,8 @@
 #include <unistd.h>
 #include "utils/progressbar.hpp"
 
+#include "utils/toml.hpp"
+
 // #include "random.h"
 // #include "hubbard.h"
 
@@ -39,7 +41,6 @@
 
 int main() {
 
-    // test Repulsive Hubbard
 
     // some params
     int ll = 4;
@@ -93,6 +94,7 @@ int main() {
 
     // make sure that the lattice module has been initialized
     if ( lattice->InitialStatus() ) {
+        // todo: not necessary ? integrated into the toml-read process
         QuantumMonteCarlo::DqmcInitializer::set_measured_momentum(*meas_handler, lattice->MPointIndex());
         QuantumMonteCarlo::DqmcInitializer::set_measured_momentum_list(*meas_handler, lattice->kStarsIndex());
     }
@@ -245,6 +247,73 @@ int main() {
     // std::cout << meas_handler->isDynamic() << std::endl;
     // std::cout << meas_handler->find_scalar("filling_number").name() << std::endl;
     // std::cout << meas_handler->find_matrix("greens_functions").name() << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // // test toml++
+
+    // auto config = toml::parse_file( "../configuration.toml" );
+
+    // // // get key-value pairs
+    // // std::string_view library_name = config["library"]["name"].value_or("sv");
+    // // std::string_view library_author = config["library"]["authors"][0].value_or("sv");
+    // // int64_t depends_on_cpp_version = config["dependencies"]["cpp"].value_or(0);
+
+    // // modify the data
+    // config.insert_or_assign("alternatives", toml::array{
+    //     "cpptoml",
+    //     "toml11",
+    //     "Boost.TOML"
+    // });
+
+    // // use a visitor to iterate over heterogenous data
+    // config.for_each([](auto& key, auto& value)
+    // {
+    //     std::cout << value << "\n";
+    //     if constexpr (toml::is_string<decltype(value)>) {
+    //         // do_something_with_string_values(value);
+    //     }
+    // });
+
+    // // // you can also iterate more 'traditionally' using a ranged-for
+    // // for (auto&& [k, v] : config)
+    // // {
+    // //     // ...
+    // // }
+
+    // // // re-serialize as TOML
+    // // std::cout << config << "\n";
+
+    // // // re-serialize as JSON
+    // // std::cout << toml::json_formatter{ config } << "\n";
+
+    // // // re-serialize as YAML
+    // // std::cout << toml::yaml_formatter{ config } << "\n";
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
