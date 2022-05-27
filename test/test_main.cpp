@@ -58,19 +58,20 @@ int main() {
     int bin_size = 100;
     int sweeps_between_bins = 20;
 
-    std::vector<std::string_view> obs_list = { 
-                                          "filling_number", 
-                                          "double_occupancy",
-                                          "kinetic_energy",
-                                          "local_spin_corr",
-                                          "greens_functions",
-                                          "density_of_states",
-                                          "momentum_distribution",
-                                          "spin_density_structure_factor",
-                                          "charge_density_structure_factor",
-                                          "s_wave_pairing_corr",
-                                          "superfluid_stiffness",
-                                          };
+    std::vector<std::string_view> obs_list = Observable::ObservableHandler::ObservableAll;
+    // std::vector<std::string_view> obs_list = { 
+    //                                       "filling_number", 
+    //                                       "double_occupancy",
+    //                                       "kinetic_energy",
+    //                                       "local_spin_corr",
+    //                                       "greens_functions",
+    //                                       "density_of_states",
+    //                                       "momentum_distribution",
+    //                                       "spin_density_structure_factor",
+    //                                       "charge_density_structure_factor",
+    //                                       "s_wave_pairing_corr",
+    //                                       "superfluid_stiffness",
+    //                                       };
 
     // // set up random seeds
     // Utils::Random::set_seed( std::time(nullptr)+123 );

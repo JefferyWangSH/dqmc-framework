@@ -5,24 +5,58 @@
 
 namespace Observable {
 
-    // static members
+    // definitions of static members
+    // tables of all supported physical observables for measurements
+    // equal-time observables
+    ObsTable ObservableHandler::m_eqtime_obs_table  = {
+                                    "filling_number", 
+                                    "double_occupancy", 
+                                    "kinetic_energy", 
+                                    "momentum_distribution", 
+                                    "local_spin_corr", 
+                                    "spin_density_structure_factor", 
+                                    "charge_density_structure_factor", 
+                                    "s_wave_pairing_corr",
+                                };
+
+    // dynamic observables
+    ObsTable ObservableHandler::m_dynamic_obs_table = {
+                                    "greens_functions", 
+                                    "density_of_states", 
+                                    "superfluid_stiffness", 
+                                };
+
+    // public member for external calls
+    ObsTable ObservableHandler::ObservableAll = {
+                                    "filling_number", 
+                                    "double_occupancy", 
+                                    "kinetic_energy", 
+                                    "momentum_distribution", 
+                                    "local_spin_corr", 
+                                    "spin_density_structure_factor", 
+                                    "charge_density_structure_factor", 
+                                    "s_wave_pairing_corr",
+                                    "greens_functions", 
+                                    "density_of_states", 
+                                    "superfluid_stiffness", 
+                                };
 
 
     bool ObservableHandler::is_eqtime(const ObsName& obs_name) const 
     {
-        return ( std::find( this->m_eqtime_obs_name.begin(), 
-                            this->m_eqtime_obs_name.end(), 
+        return ( std::find( this->m_eqtime_obs_table.begin(), 
+                            this->m_eqtime_obs_table.end(), 
                             obs_name  ) 
-                != this->m_eqtime_obs_name.end() );
+                != this->m_eqtime_obs_table.end() );
     }
 
 
     bool ObservableHandler::is_dynamic(const ObsName& obs_name) const 
     {
-        return ( std::find( this->m_dynamic_obs_name.begin(), 
-                            this->m_dynamic_obs_name.end(), 
+        return ( std::find( this->m_dynamic_obs_table.begin(), 
+                            this->m_dynamic_obs_table.end(), 
                             obs_name  ) 
-                != this->m_dynamic_obs_name.end() );
+                != this->m_dynamic_obs_table.end() );
     }
 
 

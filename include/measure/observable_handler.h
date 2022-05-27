@@ -17,8 +17,7 @@ namespace Observable {
 
     using ObsName = std::string_view;
     using ObsNameList = std::vector<std::string_view>;
-    using EqtimeObsTable = std::vector<std::string_view>;
-    using DynamicObsTable = std::vector<std::string_view>;
+    using ObsTable = std::vector<std::string_view>;
     
 
     // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
@@ -54,27 +53,16 @@ namespace Observable {
             ptrScalarObs m_equaltime_sign{};
             ptrScalarObs m_dynamic_sign{};
 
-            // list of supported physical observables
-            EqtimeObsTable m_eqtime_obs_name =   {
-                                                                "filling_number", 
-                                                                "double_occupancy", 
-                                                                "kinetic_energy", 
-                                                                "momentum_distribution", 
-                                                                "local_spin_corr", 
-                                                                "spin_density_structure_factor", 
-                                                                "charge_density_structure_factor", 
-                                                                "s_wave_pairing_corr",
-                                                            };
-
-            DynamicObsTable m_dynamic_obs_name = {
-                                                                "greens_functions", 
-                                                                "density_of_states", 
-                                                                "superfluid_stiffness", 
-                                                            };
+            // protected tables for supported physical observables
+            static ObsTable m_eqtime_obs_table;
+            static ObsTable m_dynamic_obs_table;
 
         public:
 
             ObservableHandler() = default;
+
+            // public static memebr of all supported observables for external calls
+            static ObsTable ObservableAll;
 
             // check if certain observable exists
             bool find(const ObsName& obs_name);
