@@ -58,7 +58,7 @@ int main() {
     int bin_size = 100;
     int sweeps_between_bins = 20;
 
-    std::vector<std::string> obs_list = { 
+    std::vector<std::string_view> obs_list = { 
                                           "filling_number", 
                                           "double_occupancy",
                                           "kinetic_energy",
@@ -264,44 +264,126 @@ int main() {
 
     // // test toml++
 
-    // auto config = toml::parse_file( "../configuration.toml" );
+    // auto config = toml::parse_file( "../config.toml" );
 
-    // // // get key-value pairs
-    // // std::string_view library_name = config["library"]["name"].value_or("sv");
-    // // std::string_view library_author = config["library"]["authors"][0].value_or("sv");
-    // // int64_t depends_on_cpp_version = config["dependencies"]["cpp"].value_or(0);
+    // // get key-value pairs
+    // const std::string_view model_type = config["Model"]["type"].value_or("RepulsiveHubbard");
+    // const auto checker_board = config["CheckerBoard"]["whether_or_not"].value_or(true);
 
-    // // modify the data
-    // config.insert_or_assign("alternatives", toml::array{
-    //     "cpptoml",
-    //     "toml11",
-    //     "Boost.TOML"
-    // });
+    // // std::cout << model_type << std::endl;
+    // // std::cout << checker_board << std::endl;
 
-    // // use a visitor to iterate over heterogenous data
-    // config.for_each([](auto& key, auto& value)
-    // {
-    //     std::cout << value << "\n";
-    //     if constexpr (toml::is_string<decltype(value)>) {
-    //         // do_something_with_string_values(value);
-    //     }
-    // });
-
-    // // // you can also iterate more 'traditionally' using a ranged-for
-    // // for (auto&& [k, v] : config)
-    // // {
-    // //     // ...
+    // // std::vector<int> lattice_size;
+    // // toml::array* arr = config["Lattice"]["cell"].as_array();
+    // // if (arr && arr->is_homogeneous<int64_t>()) {
+    // //     lattice_size.reserve(arr->size());
+    // //     for (auto&& el : *arr) {
+    // //         lattice_size.emplace_back(el.value_or(0));
+    // //     }
+    // // }
+    // // std::cout << lattice_size.size() << std::endl;
+    // // for (auto el : lattice_size) {
+    // //     std::cout << el << std::endl;
     // // }
 
-    // // // re-serialize as TOML
-    // // std::cout << config << "\n";
 
-    // // // re-serialize as JSON
-    // // std::cout << toml::json_formatter{ config } << "\n";
+    // std::vector<std::string_view> observables;
+    // toml::array* arr = config["Measure"]["observables"].as_array();
+    // if (arr && arr->is_homogeneous<std::string>()) {
+    //     observables.reserve(arr->size());
+    //     for (auto&& el : *arr) {
+    //         observables.emplace_back(el.value_or(""));
+    //     }
+    // }
+    // std::cout << observables.size() << std::endl;
+    // for (auto el : observables) {
+    //     std::cout << el << std::endl;
+    // }
+    
 
-    // // // re-serialize as YAML
-    // // std::cout << toml::yaml_formatter{ config } << "\n";
+    // // if ( toml::array* arr = config["Lattice"]["cell"].as_array() )
+    // // {
+    // //     // visitation with for_each() helps deal with heterogeneous data
+    // //     if (arr && arr->is_homogeneous<int64_t>()) {
+            
+    // //         arr->for_each([](auto&& el)
+    // //         {   
+    // //             extern std::vector<int> lattice_size;
+    // //             lattice_size.emplace_back(el.value_or(1));
 
+    // //             if constexpr (toml::is_integer<decltype(el)>) {
+    // //                 // lattice_size.emplace_back(el);
+    // //             }
+                
+    //     //         // lattice_size.push_back(el);
+    //     //         // if (arr && arr->is_homogeneous<int64_t>()) {
+                    
+    //     //         // }
+    //     //     });
+    //     // }
+        
+    // //     std::cout << lattice_size.size() << std::endl;
+    // //     std::cout << lattice_size[0] << std::endl;
+    // //     std::cout << lattice_size[1] << std::endl;
+    // // }
+
+    // // std::cout << lattice_size.size() << std::endl;
+
+    // // auto config = toml::parse_file( "../configuration.toml" );
+
+    // // // // get key-value pairs
+    // // // std::string_view library_name = config["library"]["name"].value_or("sv");
+    // // // std::string_view library_author = config["library"]["authors"][0].value_or("sv");
+    // // // int64_t depends_on_cpp_version = config["dependencies"]["cpp"].value_or(0);
+
+    // // // modify the data
+    // // config.insert_or_assign("alternatives", toml::array{
+    // //     "cpptoml",
+    // //     "toml11",
+    // //     "Boost.TOML"
+    // // });
+
+    // // // use a visitor to iterate over heterogenous data
+    // // config.for_each([](auto& key, auto& value)
+    // // {
+    // //     std::cout << value << "\n";
+    // //     if constexpr (toml::is_string<decltype(value)>) {
+    // //         // do_something_with_string_values(value);
+    // //     }
+    // // });
+
+    // // // // you can also iterate more 'traditionally' using a ranged-for
+    // // // for (auto&& [k, v] : config)
+    // // // {
+    // // //     // ...
+    // // // }
+
+    // // // // re-serialize as TOML
+    // // // std::cout << config << "\n";
+
+    // // // // re-serialize as JSON
+    // // // std::cout << toml::json_formatter{ config } << "\n";
+
+    // // // // re-serialize as YAML
+    // // // std::cout << toml::yaml_formatter{ config } << "\n";
+
+
+    // // if (toml::array* arr = config["Lattice"]["cell"].as_array())
+    // // {
+    // //     // visitation with for_each() helps deal with heterogeneous data
+    // //     arr->for_each([](auto&& el)
+    // //     {
+    // //         if constexpr (toml::is_number<decltype(el)>)
+    // //             (*el)++;
+    // //         else if constexpr (toml::is_string<decltype(el)>)
+    // //             el = "five"sv;
+    // //     });
+
+    // //     // arrays are very similar to std::vector
+    // //     arr->push_back(7);
+    // //     arr->emplace_back<toml::array>(8, 9);
+    // //     std::cout << "numbers: " << numbers << "\n";
+    // // }
 
 
 

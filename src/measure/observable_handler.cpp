@@ -5,6 +5,8 @@
 
 namespace Observable {
 
+    // static members
+
 
     bool ObservableHandler::is_eqtime(const ObsName& obs_name) const 
     {

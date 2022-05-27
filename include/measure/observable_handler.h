@@ -15,17 +15,17 @@
 
 namespace Observable {
 
-    using ObsName = std::string;
-    using ObsNameList = std::vector<std::string>;
-    using EqtimeObsNameList = std::vector<std::string>;
-    using DynamicObsNameList = std::vector<std::string>;
+    using ObsName = std::string_view;
+    using ObsNameList = std::vector<std::string_view>;
+    using EqtimeObsTable = std::vector<std::string_view>;
+    using DynamicObsTable = std::vector<std::string_view>;
     
 
     // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
     class ObservableHandler {
         protected:
 
-            using ObsMap = std::map<std::string, std::shared_ptr<ObservableBase>>;
+            using ObsMap = std::map<std::string_view, std::shared_ptr<ObservableBase>>;
 
             using ptrBaseObs = std::shared_ptr<ObservableBase>;
             using ptrScalarObs = std::shared_ptr<ScalarObs>;
@@ -55,22 +55,22 @@ namespace Observable {
             ptrScalarObs m_dynamic_sign{};
 
             // list of supported physical observables
-            EqtimeObsNameList m_eqtime_obs_name =   {
-                                                        "filling_number", 
-                                                        "double_occupancy", 
-                                                        "kinetic_energy", 
-                                                        "momentum_distribution", 
-                                                        "local_spin_corr", 
-                                                        "spin_density_structure_factor", 
-                                                        "charge_density_structure_factor", 
-                                                        "s_wave_pairing_corr",
-                                                    };
+            EqtimeObsTable m_eqtime_obs_name =   {
+                                                                "filling_number", 
+                                                                "double_occupancy", 
+                                                                "kinetic_energy", 
+                                                                "momentum_distribution", 
+                                                                "local_spin_corr", 
+                                                                "spin_density_structure_factor", 
+                                                                "charge_density_structure_factor", 
+                                                                "s_wave_pairing_corr",
+                                                            };
 
-            DynamicObsNameList m_dynamic_obs_name = {
-                                                        "greens_functions", 
-                                                        "density_of_states", 
-                                                        "superfluid_stiffness", 
-                                                    };
+            DynamicObsTable m_dynamic_obs_name = {
+                                                                "greens_functions", 
+                                                                "density_of_states", 
+                                                                "superfluid_stiffness", 
+                                                            };
 
         public:
 
