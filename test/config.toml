@@ -1,0 +1,31 @@
+# example config input
+
+
+[Model]
+type = "AttractiveHubbard"
+
+[Model.Params]
+hopping_t = 1.0
+onsite_u = 4.0
+chemical_potential = 0.0
+
+[Lattice]
+type = "Square"
+cell = [ 4, 4 ]
+momentum = "GammaPoint"
+momentum_list = "KstarsAll"
+
+[CheckerBoard]
+whether_or_not = false
+
+[MonteCarlo]
+beta = 8.0
+time_size = 160
+stabilization_pace = 10
+
+[Measure]
+sweeps_warmup = 512
+bin_num = 20
+bin_size = 100
+sweeps_between_bins = 20
+observables = [ "all" ]
