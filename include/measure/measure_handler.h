@@ -19,7 +19,7 @@ namespace QuantumMonteCarlo { class DqmcWalker; }
 
 namespace Measure {
 
-    using ObsList = std::vector<std::string_view>;
+    using ObsList = std::vector<std::string>;
     using ModelBase = Model::ModelBase;
     using LatticeBase = Lattice::LatticeBase;
     using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
@@ -90,13 +90,11 @@ namespace Measure {
             // in the base class Observable::ObservableHandler.
             // and can be directly called in the MeasureHandler class.
 
-            // check if certain observable exists
+            // // check if certain observable exists
             // bool find(const ObsName& obs_name);
 
-            // return certain type of the observable class
-            // const ScalarObs find_scalar(const ObsName& obs_name);
-            // const VectorObs find_vector(const ObsName& obs_name);
-            // const MatrixObs find_matrix(const ObsName& obs_name);
+            // // return certain type of the observable class
+            // template<typename ObsType> const ObsType find(const ObsName& obs_name);
 
 
             // ---------------------------- Subroutines for measuring observables ---------------------------------

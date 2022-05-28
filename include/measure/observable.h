@@ -64,7 +64,7 @@ namespace Observable {
             ObsType m_tmp_value{};
             ObsType m_zero_elem{};
 
-            std::string_view m_name{};
+            std::string m_name{};
             int m_count{0};
             int m_bin_num{0};
             std::vector<ObsType> m_bin_data{};
@@ -88,7 +88,7 @@ namespace Observable {
             int& counts() { return this->m_count; }
             int  counts() const { return this->m_count; }
             int  bin_num() const { return this->m_bin_num; }
-            std::string_view name() const { return this->m_name; }
+            std::string name() const { return this->m_name; }
             
             const ObsType& zero_element() const { return this->m_zero_elem; } 
             const ObsType& mean_value() const { return this->m_mean_value; }
@@ -112,7 +112,7 @@ namespace Observable {
             
             void set_number_of_bins(const int& bin_num) { this->m_bin_num = bin_num; }
             void set_zero_element(const ObsType& zero_elem) { this->m_zero_elem = zero_elem; }
-            void set_observable_name(const std::string_view& name) { this->m_name = name; }
+            void set_observable_name(const std::string& name) { this->m_name = name; }
             void add_method(const std::function<ObsMethod>& method) { this->m_method = method; }
 
 

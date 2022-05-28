@@ -14,6 +14,19 @@ namespace Lattice {
     
     // ------------------------ Derived class Lattice::Square for 2d square lattice ----------------------------
     class Square : public LatticeBase {
+
+        private:
+            
+            // some high symmetric points in the reciprocal lattice
+            LatticeInt m_gamma_point_index{};
+            LatticeInt m_m_point_index{};
+            LatticeInt m_x_point_index{};
+            LatticeIntVec m_delta_line_index{};
+            LatticeIntVec m_z_line_index{};
+            LatticeIntVec m_sigma_line_index{};
+            LatticeIntVec m_gamma2x2m2gamma_loop_index{};   // indexes of the defined loop
+
+
         public:
         
             Square() = default;
@@ -23,7 +36,16 @@ namespace Lattice {
 
             // initializations
             void initial();
-        
+
+            // interfaces for high symmetric momentum points
+            const LatticeInt GammaPointIndex()     const ;
+            const LatticeInt MPointIndex()         const ;
+            const LatticeInt XPointIndex()         const ;
+            const LatticeIntVec& DeltaLineIndex()  const ;
+            const LatticeIntVec& ZLineIndex()      const ;
+            const LatticeIntVec& SigmaLineIndex()  const ;
+            const LatticeIntVec& Gamma2X2M2GammaLoopIndex() const ;
+            
 
         private:
 

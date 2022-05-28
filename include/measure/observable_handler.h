@@ -15,16 +15,16 @@
 
 namespace Observable {
 
-    using ObsName = std::string_view;
-    using ObsNameList = std::vector<std::string_view>;
-    using ObsTable = std::vector<std::string_view>;
+    using ObsName = std::string;
+    using ObsNameList = std::vector<std::string>;
+    using ObsTable = std::vector<std::string>;
     
 
     // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
     class ObservableHandler {
         protected:
 
-            using ObsMap = std::map<std::string_view, std::shared_ptr<ObservableBase>>;
+            using ObsMap = std::map<std::string, std::shared_ptr<ObservableBase>>;
 
             using ptrBaseObs = std::shared_ptr<ObservableBase>;
             using ptrScalarObs = std::shared_ptr<ScalarObs>;

@@ -35,13 +35,13 @@ namespace QuantumMonteCarlo {
         auto config = toml::parse_file( toml_config );
 
 
-        // ------------------------------------------------------------------------------------------
-        //                                  Parse the Model module
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                      Parse the Model module
+        // --------------------------------------------------------------------------------------------------
         // create the model object and set up parameters case by case
         const std::string_view model_type = config["Model"]["type"].value_or("RepulsiveHubbard");
         
-        // -------------------------------  Repulsive Hubbard model  --------------------------------
+        // -----------------------------------  Repulsive Hubbard model  ------------------------------------
         if ( model_type == "RepulsiveHubbard" ) 
         {
             const double hopping_t          = config["Model"]["Params"]["hopping_t"].value_or(1.0);
@@ -54,7 +54,7 @@ namespace QuantumMonteCarlo {
 
         }
 
-        // -------------------------------  Attractive Hubbard model  -------------------------------
+        // -----------------------------------  Attractive Hubbard model  -----------------------------------
         else if ( model_type == "AttractiveHubbard" ) 
         {
             const double hopping_t          = config["Model"]["Params"]["hopping_t"].value_or(1.0);
@@ -73,13 +73,13 @@ namespace QuantumMonteCarlo {
         }
 
 
-        // ------------------------------------------------------------------------------------------
-        //                                 Parse the Lattice module
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                    Parse the Lattice module
+        // --------------------------------------------------------------------------------------------------
         // create the lattice object and set up parameters
         const std::string_view lattice_type = config["Lattice"]["type"].value_or("Square");
 
-        // ---------------------------------  2D Square lattice  ------------------------------------
+        // -------------------------------------  2D Square lattice  ----------------------------------------
         if ( lattice_type == "Square" ) 
         {   
             // parse size of the lattice
@@ -111,13 +111,13 @@ namespace QuantumMonteCarlo {
             if ( !lattice->InitialStatus() ) { lattice->initial(); }
         }
 
-        // ---------------------------------  3D Cubic lattice  -------------------------------------
+        // -------------------------------------  3D Cubic lattice  -----------------------------------------
         else if ( lattice_type == "Cubic" )
         {
             // todo
         }
 
-        // --------------------------------  2D Honeycomb lattice  ----------------------------------
+        // ------------------------------------  2D Honeycomb lattice  --------------------------------------
         else if ( lattice_type == "Honeycomb" )
         {
             // todo
@@ -130,9 +130,9 @@ namespace QuantumMonteCarlo {
         }
 
 
-        // ------------------------------------------------------------------------------------------
-        //                            Parse the CheckerBoard module
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                  Parse the CheckerBoard module
+        // --------------------------------------------------------------------------------------------------
         // note that the checkerboard method is currently only implemented for 2d square lattice
         const bool is_checker_board = config["CheckerBoard"]["whether_or_not"].value_or(false);
         
@@ -149,9 +149,9 @@ namespace QuantumMonteCarlo {
         }
 
 
-        // ------------------------------------------------------------------------------------------
-        //                            Parse the DqmcWalker module
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                   Parse the DqmcWalker module
+        // --------------------------------------------------------------------------------------------------
         const int beta = config["MonteCarlo"]["beta"].value_or(4.0);
         const double time_size = config["MonteCarlo"]["time_size"].value_or(80);
         const int stabilization_pace = config["MonteCarlo"]["stabilization_pace"].value_or(10);
@@ -163,16 +163,16 @@ namespace QuantumMonteCarlo {
         walker->set_stabilization_pace( stabilization_pace );
 
 
-        // ------------------------------------------------------------------------------------------
-        //                          Parse the Measure Handler module
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                Parse the Measure Handler module
+        // --------------------------------------------------------------------------------------------------
         const int sweeps_warmup = config["Measure"]["sweeps_warmup"].value_or(512);
         const int bin_num = config["Measure"]["bin_num"].value_or(20);
         const int bin_size = config["Measure"]["bin_size"].value_or(100);
         const int sweeps_between_bins = config["Measure"]["sweeps_between_bins"].value_or(20);
         
         // parse obervable lists
-        std::vector<std::string_view> observables;
+        std::vector<std::string> observables;
         toml::array* observable_arr = config["Measure"]["observables"].as_array();
         if ( observable_arr && observable_arr->is_homogeneous<std::string>() ) {
             observables.reserve(observable_arr->size());
@@ -208,9 +208,9 @@ namespace QuantumMonteCarlo {
         meas_handler->set_observables( observables );
 
 
-        // ------------------------------------------------------------------------------------------
-        //                          Parse the input Momentum parmas
-        // ------------------------------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------
+        //                                Parse the input Momentum parmas
+        // --------------------------------------------------------------------------------------------------
         // set up momentum and momentum list for measurements
         const std::string_view momentum = config["Lattice"]["momentum"].value_or("");
         const std::string_view momentum_list = config["Lattice"]["momentum_list"].value_or("");
@@ -218,35 +218,44 @@ namespace QuantumMonteCarlo {
         // make sure that the lattice module is initialized ahead
         if ( lattice->InitialStatus() ) 
         {   
-            // ---------------------------------  2D Square lattice  --------------------------------
+            // -----------------------------------  2D Square lattice  --------------------------------------
             if ( lattice_type == "Square" ) {
-                if ( momentum == "GammaPoint" )  { meas_handler->set_measured_momentum( lattice->GammaPointIndex() ); }
-                else if ( momentum == "MPoint" ) { meas_handler->set_measured_momentum( lattice->MPointIndex() ); }
-                else if ( momentum == "XPoint" ) { meas_handler->set_measured_momentum( lattice->XPointIndex() ); }
-                else { 
-                    std::cerr << " Undefined momentum \'" << momentum << "\' for 2d square lattice,"
-                              << " please check the config." << std::endl;
+                // covert base class pointer to that of the derived square lattice class
+                if ( const auto square_lattice = dynamic_cast<const Lattice::Square*>(lattice.get()) ) {
+
+                    if ( momentum == "GammaPoint" )  { meas_handler->set_measured_momentum( square_lattice->GammaPointIndex() ); }
+                    else if ( momentum == "MPoint" ) { meas_handler->set_measured_momentum( square_lattice->MPointIndex() ); }
+                    else if ( momentum == "XPoint" ) { meas_handler->set_measured_momentum( square_lattice->XPointIndex() ); }
+                    else { 
+                        std::cerr << " Undefined momentum \'" << momentum << "\' for 2d square lattice,"
+                                  << " please check the config." << std::endl;
+                        exit(1);
+                    }
+
+                    if ( momentum_list == "KstarsAll" ) { meas_handler->set_measured_momentum_list( square_lattice->kStarsIndex() ); }
+                    else if ( momentum_list == "DeltaLine" ) { meas_handler->set_measured_momentum_list( square_lattice->DeltaLineIndex() ); }
+                    else if ( momentum_list == "ZLine" ) { meas_handler->set_measured_momentum_list( square_lattice->ZLineIndex() ); }
+                    else if ( momentum_list == "SigmaLine" ) { meas_handler->set_measured_momentum_list( square_lattice->SigmaLineIndex() ); }
+                    else if ( momentum_list == "Gamma2X2M2GammaLoop" ) { meas_handler->set_measured_momentum_list( square_lattice->Gamma2X2M2GammaLoopIndex() ); }
+                    else { 
+                        std::cerr << " Undefined momentum list \'" << momentum_list << "\' for 2d square lattice,"
+                                  << " please check the config." << std::endl;
+                        exit(1);
+                    }
+                }
+                else {
+                    std::cerr << " Fail to convert \'Lattice::LatticeBase\' to \'Lattice::Square\'." << std::endl;
                     exit(1);
                 }
 
-                if ( momentum_list == "KstarsAll" ) { meas_handler->set_measured_momentum_list( lattice->kStarsIndex() ); }
-                else if ( momentum_list == "DeltaLine" ) { meas_handler->set_measured_momentum_list( lattice->DeltaLineIndex() ); }
-                else if ( momentum_list == "ZLine" ) { meas_handler->set_measured_momentum_list( lattice->ZLineIndex() ); }
-                else if ( momentum_list == "SigmaLine" ) { meas_handler->set_measured_momentum_list( lattice->SigmaLineIndex() ); }
-                else if ( momentum_list == "Gamma2X2M2GammaLoop" ) { meas_handler->set_measured_momentum_list( lattice->Gamma2X2M2GammaLoopIndex() ); }
-                else { 
-                    std::cerr << " Undefined momentum list \'" << momentum_list << "\' for 2d square lattice,"
-                              << " please check the config." << std::endl;
-                    exit(1);
-                }
             }
 
-            // ---------------------------------  3D Cubic lattice  ---------------------------------
+            // -----------------------------------  3D Cubic lattice  ---------------------------------------
             if ( lattice_type == "Cubic" ) {
                 // todo
             }
 
-            // -------------------------------  2D Honeycomb lattice  -------------------------------
+            // ----------------------------------  2D Honeycomb lattice  ------------------------------------
             if ( lattice_type == "Honeycomb" ) {
                 // todo
             }

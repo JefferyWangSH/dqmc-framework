@@ -65,16 +65,8 @@ namespace Lattice {
             // e.g. Re( exp(ikx) ) for lattice site x and momentum k 
             MatrixDouble m_fourier_factor_table{};
 
-            // some higher symmetric points in the reciprocal lattice
-            // todo: move these to the derived class of specialized lattice
-            LatticeInt m_gamma_point_index{};
-            LatticeInt m_m_point_index{};
-            LatticeInt m_x_point_index{};
-            LatticeIntVec m_delta_line_index{};
-            LatticeIntVec m_z_line_index{};
-            LatticeIntVec m_sigma_line_index{};
-            LatticeIntVec m_gamma2x2m2gamma_loop_index{};   // indices of the defined loop
-            LatticeIntVec m_k_stars_index{};                // all inequivalent momentum points
+            // all inequivalent momentum points ( k stars ) in the reciprocal lattice
+            LatticeIntVec m_k_stars_index{};
 
 
         public:
@@ -93,17 +85,8 @@ namespace Lattice {
             const LatticeInt  SideLength()         const ;
             const LatticeInt  CoordinationNumber() const ;
             const LatticeInt  kStarsNum()          const ;
-
-            // some symmetric points
-            // todo: move to derived lattice classes
-            const LatticeInt GammaPointIndex()     const ;
-            const LatticeInt MPointIndex()         const ;
-            const LatticeInt XPointIndex()         const ;
-            const LatticeIntVec& DeltaLineIndex()  const ;
-            const LatticeIntVec& ZLineIndex()      const ;
-            const LatticeIntVec& SigmaLineIndex()  const ;
+            
             const LatticeIntVec& kStarsIndex()     const ;
-            const LatticeIntVec& Gamma2X2M2GammaLoopIndex() const ;
 
             const MatrixDouble& HoppingMatrix() const ;
             const MatrixDouble& FourierFactor() const ;
