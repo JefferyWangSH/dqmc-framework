@@ -1,31 +1,57 @@
-# example config input
+## example config input
+## Dqmc Coniguration file with toml
 
 
 [Model]
-type = "AttractiveHubbard"
+    # supported model types: RepulsiveHubbard and AttractiveHubbard 
+    type = "AttractiveHubbard"
 
-[Model.Params]
-hopping_t = 1.0
-onsite_u = 4.0
-chemical_potential = 0.0
+    [Model.Params]
+    hopping_t = 1.0
+    onsite_u = 4.0
+    chemical_potential = 0.0
 
 [Lattice]
-type = "Square"
-cell = [ 4, 4 ]
-momentum = "GammaPoint"
-momentum_list = "KstarsAll"
+    # support lattice type: Square, Cubic(todo) and Honeycomb(todo)
+    type = "Square"
+    cell = [ 4, 4 ]
+
+    # symmetric points in the reciprocal lattice ( k stars )
+    # for 2d square lattice, the following options are supported
+    #   1. GammaPoint, MPoint, XPoint for single high symmetric momentum point
+    #   2. DeltaLine, ZLine, SigmaLine, Gamma2X2M2GammaLoop for high symmetric lines
+    #   3. KstarsAll for all inequivalent momentum points
+    momentum = "GammaPoint"
+    momentum_list = "KstarsAll"
 
 [CheckerBoard]
-whether_or_not = false
+    # checkerboard break-ups, currently only supported for 2d square lattice
+    whether_or_not = false
 
 [MonteCarlo]
-beta = 8.0
-time_size = 160
-stabilization_pace = 10
+    beta = 8.0
+    time_size = 160
+    stabilization_pace = 10
 
 [Measure]
-sweeps_warmup = 512
-bin_num = 20
-bin_size = 100
-sweeps_between_bins = 20
-observables = [ "all" ]
+    sweeps_warmup = 512
+    bin_num = 20
+    bin_size = 100
+    sweeps_between_bins = 20
+    
+    # Supported physical observables for dqmc measurements
+    #   1. filling_number                   (equal-time)
+    #   2. double_occupancy                 (equal-time)
+    #   3. kinetic_energy                   (equal-time)
+    #   4. momentum_distribution            (equal-time)
+    #   5. local_spin_corr                  (equal-time)
+    #   6. spin_density_structure_factor    (equal-time)
+    #   7. charge_density_structure_factor  (equal-time)
+    #   8. s_wave_pairing_corr              (equal-time)
+    #   9. greens_functions                 (dynamical)
+    #  10. density_of_states                (dynamical)
+    #  11. superfluid_stiffness             (dynamical, and only for 2d square lattice)
+    
+    # option 'all/All'  : measure all supported observables
+    # option 'none/None': measure nothing
+    observables = [ "all" ]
