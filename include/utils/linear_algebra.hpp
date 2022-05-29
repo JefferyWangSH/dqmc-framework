@@ -64,7 +64,8 @@ namespace Utils {
 
             // check for convergence
             if( info > 0 ) {
-                std::cerr << "The algorithm computing SVD failed to converge." << std::endl;
+                std::cerr << "Utils::LinearAlgebra::mkl_lapack_dgesvd(): "
+                          << "the algorithm computing SVD failed to converge." << std::endl;
                 exit(1);
             }
 
@@ -86,10 +87,10 @@ namespace Utils {
           *  @param s -> diagonal eigen matrix.
           *  @param t -> rotation matrix, columns being eigenstates.
           */
-        static void mkl_lapack_dsyev(   const int& size, 
-                                        const Eigen::MatrixXd& mat, 
-                                        Eigen::VectorXd& s, 
-                                        Eigen::MatrixXd& t  ) 
+        static void mkl_lapack_dsyev(  const int& size, 
+                                       const Eigen::MatrixXd& mat, 
+                                       Eigen::VectorXd& s, 
+                                       Eigen::MatrixXd& t  ) 
         {
             assert( mat.rows() == size );
             assert( mat.cols() == size );
@@ -109,7 +110,8 @@ namespace Utils {
 
             // check for convergence
             if( info > 0 ) {
-                std::cerr << "The algorithm failed to compute eigenvalues." << std::endl;
+                std::cerr << "Utils::LinearAlgebra::mkl_lapack_dsyev(): " 
+                          << "the algorithm failed to compute eigenvalues." << std::endl;
                 exit(1);
             }
 

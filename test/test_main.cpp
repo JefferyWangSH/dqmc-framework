@@ -14,6 +14,7 @@
 #include "dqmc_walker.h"
 #include "dqmc.h"
 #include "dqmc_initializer.h"
+#include "dqmc_io.h"
 
 #include "svd_stack.h"
 #include "fft_solver.h"

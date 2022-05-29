@@ -68,7 +68,8 @@ namespace QuantumMonteCarlo {
 
         else
         {
-            std::cerr << " Undefined model type \'" << model_type << "\', please check the config." << std::endl; 
+            std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                      << "undefined model type \'" << model_type << "\', please check the config." << std::endl; 
             exit(1);
         }
 
@@ -89,16 +90,18 @@ namespace QuantumMonteCarlo {
                 lattice_size.reserve(lattice_arr->size());
                 for ( auto&& el : *lattice_arr ) {
                     if ( el.value_or(0) < 1 ) {
-                        std::cerr << " The input cell of the 2d square lattice should be a vector containing two positive intergers,"
-                                  << " please check the config." << std::endl;
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "the input cell of 2d square lattice should be a vector containing two positive intergers, "
+                                  << "please check the config." << std::endl;
                         exit(1);
                     }
                     lattice_size.emplace_back(el.value_or(0));
                 }
             }
             else {
-                std::cerr << " The input cell of the 2d square lattice should be a vector containing two positive intergers,"
-                          << " please check the config." << std::endl;
+                std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                          << "the input cell of 2d square lattice should be a vector containing two positive intergers, "
+                          << "please check the config." << std::endl;
                 exit(1);
             }
 
@@ -125,7 +128,8 @@ namespace QuantumMonteCarlo {
 
         else 
         {
-            std::cerr << " Undefined lattice type \'" << lattice_type << "\', please check the config." << std::endl; 
+            std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                      << "undefined lattice type \'" << lattice_type << "\', please check the config." << std::endl; 
             exit(1);
         }
 
@@ -142,8 +146,9 @@ namespace QuantumMonteCarlo {
                 checkerboard = std::make_unique<CheckerBoard::Square>();
             }
             else {
-                std::cerr << " The checkerboard method is currently only implemented for 2d square lattice,"
-                          <<  " please check the config." << std::endl;
+                std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                          << "the checkerboard method is currently only implemented for 2d square lattice, "
+                          << "please check the config." << std::endl;
                 exit(1);
             }
         }
@@ -181,7 +186,8 @@ namespace QuantumMonteCarlo {
             }
         }
         else {
-            std::cerr << " Undefined observables, please check the config." << std::endl;
+            std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                      << "undefined observables, please check the config." << std::endl;
             exit(1);
         }
 
@@ -227,8 +233,9 @@ namespace QuantumMonteCarlo {
                     else if ( momentum == "MPoint" ) { meas_handler->set_measured_momentum( square_lattice->MPointIndex() ); }
                     else if ( momentum == "XPoint" ) { meas_handler->set_measured_momentum( square_lattice->XPointIndex() ); }
                     else { 
-                        std::cerr << " Undefined momentum \'" << momentum << "\' for 2d square lattice,"
-                                  << " please check the config." << std::endl;
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "undefined momentum \'" << momentum << "\' for 2d square lattice, "
+                                  << "please check the config." << std::endl;
                         exit(1);
                     }
 
@@ -238,13 +245,15 @@ namespace QuantumMonteCarlo {
                     else if ( momentum_list == "SigmaLine" ) { meas_handler->set_measured_momentum_list( square_lattice->SigmaLineIndex() ); }
                     else if ( momentum_list == "Gamma2X2M2GammaLoop" ) { meas_handler->set_measured_momentum_list( square_lattice->Gamma2X2M2GammaLoopIndex() ); }
                     else { 
-                        std::cerr << " Undefined momentum list \'" << momentum_list << "\' for 2d square lattice,"
-                                  << " please check the config." << std::endl;
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "undefined momentum list \'" << momentum_list << "\' for 2d square lattice, "
+                                  << "please check the config." << std::endl;
                         exit(1);
                     }
                 }
                 else {
-                    std::cerr << " Fail to convert \'Lattice::LatticeBase\' to \'Lattice::Square\'." << std::endl;
+                    std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                              << "fail to convert \'Lattice::LatticeBase\' to \'Lattice::Square\'." << std::endl;
                     exit(1);
                 }
 

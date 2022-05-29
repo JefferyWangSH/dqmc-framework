@@ -123,7 +123,7 @@ namespace Model {
             virtual void initial_params      (const LatticeBase& lattice, const Walker& walker) = 0;
             virtual void initial_KV_matrices (const LatticeBase& lattice, const Walker& walker) = 0;
 
-            // randomrize the bosonic fields, which is model-dependent
+            // randomize the bosonic fields, which is model-dependent
             virtual void set_bosonic_fields_to_random() = 0;
 
             

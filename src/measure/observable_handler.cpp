@@ -116,7 +116,8 @@ namespace Observable {
         // check the validity of the input
         if ( !this->check_validity(obs_list) ) {
             // unsupported observables found, throw errors
-            std::cerr << " Unsupported observable type from the input. " << std::endl;
+            std::cerr << "Observable::ObservableHandler::initial(): "
+                      << "unsupported observable type from the input." << std::endl;
             exit(1);
         }
 
