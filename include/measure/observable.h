@@ -9,6 +9,7 @@
   *  Support observable types of scalar, vector and matrix kinds.
   */
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <functional>
@@ -33,7 +34,7 @@ namespace Observable {
     using MatrixType = Eigen::MatrixXd;
 
     
-    // --------------------------- Abstract base class Observable::ObservableBase ----------------------------
+    // ------------------------------  Abstract base class Observable::ObservableBase  -------------------------------
     // this class should not be instantiated in any case 
     // it only serves as a pointer to its derived class
     class ObservableBase {
@@ -45,10 +46,11 @@ namespace Observable {
     };
 
     
-    // -----------------------  Derived template class Observable::Observable<ObsType> -----------------------
+    // ---------------------------  Derived template class Observable::Observable<ObsType>  --------------------------
     template<typename ObsType> class Observable : public ObservableBase {
         private:
             
+            // useful aliases
             using DqmcWalker = QuantumMonteCarlo::DqmcWalker;
             using ModelBase = Model::ModelBase;
             using LatticeBase = Lattice::LatticeBase;
@@ -59,18 +61,19 @@ namespace Observable {
                                     const ModelBase&,
                                     const LatticeBase& );
 
-            ObsType m_mean_value{};
-            ObsType m_error_bar{};
-            ObsType m_tmp_value{};
-            ObsType m_zero_elem{};
 
-            std::string m_name{};
-            int m_count{0};
-            int m_bin_num{0};
-            std::vector<ObsType> m_bin_data{};
+            ObsType m_mean_value{};                 // statistical mean value
+            ObsType m_error_bar{};                  // estimated error bar
+            ObsType m_tmp_value{};                  // temporary value during sample collections
+            ObsType m_zero_elem{};                  // zero element to clear temporary values
 
-            // user-defined method of measurements
-            std::function<ObsMethod> m_method{};
+            std::string m_name{};                   // name of the observable
+            std::string m_desc{};                   // description of the observable, used as output message
+            int m_count{0};                         // countings
+            int m_bin_num{0};                       // total number of bins
+            std::vector<ObsType> m_bin_data{};      // collected data in bins
+
+            std::function<ObsMethod> m_method{};    // user-defined measuring method
 
         
         public:
@@ -83,12 +86,13 @@ namespace Observable {
             int operator++() { return ++this->m_count; }
 
 
-            // --------------------------------- Interface functions -----------------------------------
+            // -------------------------------------  Interface functions  ------------------------------------------
             
             int& counts() { return this->m_count; }
             int  counts() const { return this->m_count; }
             int  bin_num() const { return this->m_bin_num; }
-            std::string name() const { return this->m_name; }
+            const std::string name() const { return this->m_name; }
+            const std::string description() const { return this->m_desc; }
             
             const ObsType& zero_element() const { return this->m_zero_elem; } 
             const ObsType& mean_value() const { return this->m_mean_value; }
@@ -108,17 +112,17 @@ namespace Observable {
             }
 
 
-            // ----------------------------- Set up parameters and methods -----------------------------
+            // ---------------------------------  Set up parameters and methods  ------------------------------------
             
             void set_number_of_bins(const int& bin_num) { this->m_bin_num = bin_num; }
             void set_zero_element(const ObsType& zero_elem) { this->m_zero_elem = zero_elem; }
-            void set_observable_name(const std::string& name) { this->m_name = name; }
+            void set_name_and_description(const std::string& name, const std::string& desc) { this->m_name = name; this->m_desc = desc; }
             void add_method(const std::function<ObsMethod>& method) { this->m_method = method; }
 
 
-            // ------------------------------- Other member functions ----------------------------------
+            // -------------------------------------  Other member functions  ---------------------------------------
             
-            // perform one step of measurment
+            // perform one step of measurement
             void measure( const MeasureHandler& meas_handler,
                           const DqmcWalker& walker, 
                           const ModelBase& model, 
@@ -140,23 +144,26 @@ namespace Observable {
                 }
             }
 
+            // clear statistical data, preparing for a new measurement
             void clear_stats() {
                 this->m_mean_value = this->m_zero_elem;
                 this->m_error_bar = this->m_zero_elem;
             }
-
+            
+            // clear temporary data
             void clear_temporary() {
                 this->m_tmp_value = this->m_zero_elem;
                 this->m_count = 0;
             }
 
+            // clear data of bin collections
             void clear_bin_data() {
                 for (auto& bin_data : this->m_bin_data) {
                     bin_data = this->m_zero_elem;
                 }
             }
 
-            // perform the analysis
+            // perform data analysis, especially computing the mean and error
             void analyse() {
                 this->clear_stats();
                 this->calculate_mean_value();
@@ -166,22 +173,41 @@ namespace Observable {
 
         private:
 
-            // calculating mean value of measurements
+            // calculating mean value of the measurement
             void calculate_mean_value() {
                 this->m_mean_value = std::accumulate(this->m_bin_data.begin(), this->m_bin_data.end(), this->m_zero_elem);
                 this->m_mean_value /= this->bin_num();
             }
             
-            // the error bar is calculated according to the specific data type of observables,
-            // which are defined in cpp file as specialized template member functions.
-            void calculate_error_bar();
+            // estimate error bar of the measurement
+            void calculate_error_bar() {
+                // for observables with Scalar type
+                if constexpr ( std::is_same_v<ObsType, ScalarType> ) {
+                    for (const auto& bin_data : this->m_bin_data) {
+                        this->m_error_bar += std::pow(bin_data, 2);
+                    }
+                    this->m_error_bar /= this->bin_num();
+                    this->m_error_bar = std::sqrt(this->m_error_bar - std::pow(this->m_mean_value,2)) / std::sqrt(this->bin_num()-1);
+                }
+
+                // for observables with Vector and Matrix types
+                else if constexpr ( std::is_same_v<ObsType, VectorType> || std::is_same_v<ObsType, MatrixType> ) {
+                    for (const auto& bin_data : this->m_bin_data) {
+                        this->m_error_bar += bin_data.array().square().matrix();
+                    }
+                    this->m_error_bar /= this->bin_num();
+                    this->m_error_bar = ( this->m_error_bar.array() - this->m_mean_value.array().square() ).sqrt().matrix() / std::sqrt(this->bin_num()-1);
+                }
+
+                // others observable type, raising errors
+                else {
+                    std::cerr << "Observable::Observable<ObsType>::calculate_error_bar(): "
+                              << "undefined observable type."
+                              << std::endl;
+                    exit(1);
+                }
+            }
     };
-
-
-    // declaration of specialized template member functions
-    template<> void Observable<ScalarType>::calculate_error_bar();
-    template<> void Observable<VectorType>::calculate_error_bar();
-    template<> void Observable<MatrixType>::calculate_error_bar();
 
 
     // some aliases
