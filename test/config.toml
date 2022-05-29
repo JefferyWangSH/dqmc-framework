@@ -21,7 +21,7 @@
     #   1. GammaPoint, MPoint, XPoint for single high symmetric momentum point
     #   2. DeltaLine, ZLine, SigmaLine, Gamma2X2M2GammaLoop for high symmetric lines
     #   3. KstarsAll for all inequivalent momentum points
-    momentum = "GammaPoint"
+    momentum = "MPoint"
     momentum_list = "KstarsAll"
 
 [CheckerBoard]

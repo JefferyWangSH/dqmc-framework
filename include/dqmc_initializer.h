@@ -45,8 +45,8 @@ namespace QuantumMonteCarlo {
             // parse parmameters from the toml configuration file
             // create modules and setup module parameters according to the input configurations
             static void parse_toml_config           ( std::string_view toml_config,
-                                                      LatticeBasePtr& lattice, 
                                                       ModelBasePtr& model, 
+                                                      LatticeBasePtr& lattice, 
                                                       DqmcWalkerPtr& walker,
                                                       MeasureHandlerPtr& meas_handler,
                                                       CheckerBoardBasePtr& checkerboard );
@@ -54,16 +54,16 @@ namespace QuantumMonteCarlo {
 
             // initialize modules including Lattice, Model, DqmcWalker and MeasureHandler
             // without checkerboard breakups.
-            static void initial_modules             ( LatticeBase& lattice, 
-                                                      ModelBase& model, 
+            static void initial_modules             ( ModelBase& model, 
+                                                      LatticeBase& lattice, 
                                                       DqmcWalker& walker,
                                                       MeasureHandler& meas_handler );
             
 
             // initialize modules including Lattice, Model, DqmcWalker and MeasureHandler
             // with checkerboard breakups. 
-            static void initial_modules             ( LatticeBase& lattice, 
-                                                      ModelBase& model, 
+            static void initial_modules             ( ModelBase& model, 
+                                                      LatticeBase& lattice, 
                                                       DqmcWalker& walker,
                                                       MeasureHandler& meas_handler,
                                                       CheckerBoardBase& checkerboard );
@@ -71,8 +71,8 @@ namespace QuantumMonteCarlo {
 
             // prepare for the dqmc simulation,
             // especially initializing the greens functions and SVD stacks
-            static void initial_dqmc                ( LatticeBase& lattice, 
-                                                      ModelBase& model,
+            static void initial_dqmc                ( ModelBase& model,
+                                                      LatticeBase& lattice, 
                                                       DqmcWalker& walker,
                                                       MeasureHandler& meas_handler );
 

@@ -76,10 +76,8 @@ namespace QuantumMonteCarlo {
                                                   Dqmc::m_progress_bar_complete_char,       // complete character
                                                   Dqmc::m_progress_bar_incomplete_char      // incomplete character
                                                 );
-            
-            // timer begin
-            Dqmc::timer_begin();
 
+            // warm-up sweeps
             for ( auto sweep = 1; sweep <= meas_handler.WarmUpSweeps()/2; ++sweep ) {
                 // sweep forth and back without measuring
                 walker.sweep_from_0_to_beta(model);
@@ -96,9 +94,6 @@ namespace QuantumMonteCarlo {
             if ( Dqmc::m_show_progress_bar ) {
                 std::cout << " Warming up  "; progressbar.done();
             }
-
-            // timer finish
-            Dqmc::timer_end();
         }
     }
 
@@ -116,9 +111,7 @@ namespace QuantumMonteCarlo {
                                                   Dqmc::m_progress_bar_complete_char,
                                                   Dqmc::m_progress_bar_incomplete_char );
 
-            // timer begin
-            Dqmc::timer_begin();
-
+            // measuring sweeps
             for ( auto bin = 0; bin < meas_handler.BinsNum(); ++bin ) {
                 for ( auto sweep = 1; sweep <= meas_handler.BinsSize()/2; ++sweep ) {
                     // update and measure
@@ -147,9 +140,6 @@ namespace QuantumMonteCarlo {
             if ( Dqmc::m_show_progress_bar ) {
                 std::cout << " Measuring   "; progressbar.done();
             }
-            
-            // timer finish
-            Dqmc::timer_end();
         }
     }
 

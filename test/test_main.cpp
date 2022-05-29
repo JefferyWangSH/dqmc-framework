@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "lattice/lattice_base.h"
 #include "lattice/square.h"
@@ -57,90 +58,113 @@ int main() {
     // parse parmas from the configuation file
     QuantumMonteCarlo::DqmcInitializer::parse_toml_config( 
             "../config.toml", 
-            lattice, model, walker, meas_handler, checkerboard );
+            model, lattice, walker, meas_handler, checkerboard );
 
     // initialize models
     if ( checkerboard ) { 
         // using checkerboard break-up
-        QuantumMonteCarlo::DqmcInitializer::initial_modules( *lattice, *model, *walker, *meas_handler, *checkerboard ); 
+        QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler, *checkerboard ); 
     }
     else { 
-        QuantumMonteCarlo::DqmcInitializer::initial_modules( *lattice, *model, *walker, *meas_handler ); 
+        QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler ); 
     }
 
     // randomly initialize the bosonic fields
     // todo: read fields from file
     model->set_bosonic_fields_to_random();
+    // QuantumMonteCarlo::DqmcIO::read_bosonic_fields_from_file( "../out.dat", *model);
 
     // initialize modules for dqmc
-    QuantumMonteCarlo::DqmcInitializer::initial_dqmc( *lattice, *model, *walker, *meas_handler );
+    QuantumMonteCarlo::DqmcInitializer::initial_dqmc( *model, *lattice, *walker, *meas_handler );
 
+    QuantumMonteCarlo::DqmcIO::output_init_info( std::cout, *model, *lattice, *walker, *meas_handler, checkerboard );
 
     QuantumMonteCarlo::Dqmc::show_progress_bar( true );
-    QuantumMonteCarlo::Dqmc::progress_bar_format( 70, '=', ' ' );
+    QuantumMonteCarlo::Dqmc::progress_bar_format( 60, '=', ' ' );
+    QuantumMonteCarlo::Dqmc::timer_begin();
 
     QuantumMonteCarlo::Dqmc::thermalize( *walker, *model, *lattice, *meas_handler );
     QuantumMonteCarlo::Dqmc::measure( *walker, *model, *lattice, *meas_handler );
     QuantumMonteCarlo::Dqmc::analyse( *meas_handler );
 
+    QuantumMonteCarlo::Dqmc::timer_end();
 
-    std::cout << " wrap error :  " << walker->WrapError() << std::endl;
+    QuantumMonteCarlo::DqmcIO::output_ending_info( std::cout, *walker );
 
-    if (meas_handler->find("equaltime_sign")) {
-        const auto obs = meas_handler->find<Observable::ScalarObs>("equaltime_sign");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    
+    // std::ofstream outfile("../out.dat");
+    // QuantumMonteCarlo::DqmcIO::output_observable_in_bins(
+    //     outfile, meas_handler->find<Observable::VectorObs>("density_of_states")
+    // );
+    // outfile.close();
+
+    // QuantumMonteCarlo::DqmcIO::output_k_stars( std::cout, *lattice );
+
+    // QuantumMonteCarlo::DqmcIO::output_imaginary_time_grids( std::cout, *walker );
+
+    // std::ofstream outfile("../out.dat");
+    // QuantumMonteCarlo::DqmcIO::output_bosonic_fields( outfile, *model );
+    // outfile.close();
+
+
+
+    if ( meas_handler->find("equaltime_sign") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("equaltime_sign") );
     }
 
-    if (meas_handler->find("dynamic_sign")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("dynamic_sign");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("dynamic_sign") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("dynamic_sign") );
     }
+
+    std::cout << std::endl;
       
-    if (meas_handler->find("filling_number")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("filling_number");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("filling_number") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("filling_number") );
     }
 
-    if (meas_handler->find("double_occupancy")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("double_occupancy");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("double_occupancy") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("double_occupancy") );
     }
 
-    if (meas_handler->find("kinetic_energy")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("kinetic_energy");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("kinetic_energy") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("kinetic_energy") );
     }
 
-    if (meas_handler->find("local_spin_corr")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("local_spin_corr");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("local_spin_corr") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("local_spin_corr") );
     }
 
-    if (meas_handler->find("momentum_distribution")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("momentum_distribution");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("momentum_distribution") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("momentum_distribution") );
     }
 
-    if (meas_handler->find("spin_density_structure_factor")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("spin_density_structure_factor");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("spin_density_structure_factor") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("spin_density_structure_factor") );
     }
 
-    if (meas_handler->find("charge_density_structure_factor")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("charge_density_structure_factor");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("charge_density_structure_factor") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("charge_density_structure_factor") );
     }
 
-    if (meas_handler->find("s_wave_pairing_corr")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("s_wave_pairing_corr");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("s_wave_pairing_corr") ) {
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("s_wave_pairing_corr") );
     }
 
     // important!!!
     // todo: the correctness of superfluid stiffness measurements should be further checked in attractive hubbard model
-    if (meas_handler->find("superfluid_stiffness")) {
-        auto obs = meas_handler->find<Observable::ScalarObs>("superfluid_stiffness");
-        std::cout << obs.name() << "  " << obs.mean_value() << "  " << obs.error_bar() << std::endl;
+    if ( meas_handler->find("superfluid_stiffness") ) {  
+        QuantumMonteCarlo::DqmcIO::output_observable( 
+            std::cout, meas_handler->find<Observable::ScalarObs>("superfluid_stiffness") );
     }
 
     // if (meas_handler->find("greens_functions")) {

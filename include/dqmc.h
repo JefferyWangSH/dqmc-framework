@@ -45,6 +45,12 @@ namespace QuantumMonteCarlo {
             // return the duration time of the dqmc process, e.g thermalization or measurements
             static const double timer();
 
+            // start the timer
+            static void timer_begin();
+            
+            // end the timer
+            static void timer_end();
+
             
             // ------------------------------------ Crucial Dqmc routines -------------------------------------
             
@@ -72,12 +78,6 @@ namespace QuantumMonteCarlo {
             static unsigned int m_progress_bar_width;
             static char m_progress_bar_complete_char, m_progress_bar_incomplete_char;
             static std::chrono::steady_clock::time_point m_begin_time, m_end_time;
-
-            // start the timer
-            static void timer_begin();
-            
-            // end the timer
-            static void timer_end();
 
             // sweep and update the field configurations 
             // from 0 to beta and back from beta to 0

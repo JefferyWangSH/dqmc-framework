@@ -5,14 +5,18 @@
 
 /**
   *  This header file defines Model::AttractiveHubbard class 
-  *  for describing the attractive fermion hubbard model, which derived from Model::ModelBase.
+  *  for describing the attractive fermion hubbard model, which is derived from Model::ModelBase.
   */  
 
 #include "model/model_base.h"
 
 
-namespace Model {
+// forward declaration
+namespace QuantumMonteCarlo {
+    class DqmcIO;
+}
 
+namespace Model {
 
     // --------------------------------- Derived class Model::AttractiveHubbard -------------------------------------
     class AttractiveHubbard : public ModelBase {
@@ -38,6 +42,12 @@ namespace Model {
 
 
         public:
+            
+            // ----------------------------------------- Friend class ---------------------------------------------
+            // friend class QuantumMonteCarlo::DqmcIO for reading the bosonic fields from file 
+            // or outputting the current field configurations to standard output streams
+            friend class QuantumMonteCarlo::DqmcIO;
+
 
             // ------------------------------------------ Interfaces ----------------------------------------------
 

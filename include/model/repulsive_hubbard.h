@@ -5,15 +5,18 @@
 
 /**
   *  This header file defines Model::RepulsiveHubbard class 
-  *  for describing the repulsive fermion hubbard model, 
-  *  which is derived from Model::ModelBase.
+  *  for describing the repulsive fermion hubbard model, which is derived from Model::ModelBase.
   */  
 
 #include "model/model_base.h"
 
 
-namespace Model {
+// forward declaration
+namespace QuantumMonteCarlo {
+    class DqmcIO;
+}
 
+namespace Model {
 
     // --------------------------------- Derived class Model::RepulsiveHubbard -------------------------------------
     class RepulsiveHubbard : public ModelBase {
@@ -39,6 +42,12 @@ namespace Model {
 
 
         public:
+
+            // ----------------------------------------- Friend class ---------------------------------------------
+            // friend class QuantumMonteCarlo::DqmcIO for reading the bosonic fields from file 
+            // or outputting the current field configurations to standard output streams
+            friend class QuantumMonteCarlo::DqmcIO;
+
 
             // ------------------------------------------ Interfaces ----------------------------------------------
 

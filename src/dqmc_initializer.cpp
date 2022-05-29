@@ -25,8 +25,8 @@ namespace QuantumMonteCarlo {
 
 
     void DqmcInitializer::parse_toml_config(  std::string_view toml_config,
-                                              LatticeBasePtr& lattice, 
                                               ModelBasePtr& model, 
+                                              LatticeBasePtr& lattice, 
                                               DqmcWalkerPtr& walker,
                                               MeasureHandlerPtr& meas_handler,
                                               CheckerBoardBasePtr& checkerboard )
@@ -275,8 +275,8 @@ namespace QuantumMonteCarlo {
     }
 
 
-    void DqmcInitializer::initial_modules( LatticeBase& lattice, 
-                                           ModelBase& model, 
+    void DqmcInitializer::initial_modules( ModelBase& model, 
+                                           LatticeBase& lattice, 
                                            DqmcWalker& walker,
                                            MeasureHandler& meas_handler )
     {
@@ -300,8 +300,8 @@ namespace QuantumMonteCarlo {
     }
 
 
-    void DqmcInitializer::initial_modules( LatticeBase& lattice, 
-                                           ModelBase& model, 
+    void DqmcInitializer::initial_modules( ModelBase& model, 
+                                           LatticeBase& lattice, 
                                            DqmcWalker& walker,
                                            MeasureHandler& meas_handler,
                                            CheckerBoardBase& checkerboard )
@@ -329,8 +329,8 @@ namespace QuantumMonteCarlo {
     }
 
 
-    void DqmcInitializer::initial_dqmc( LatticeBase& lattice, 
-                                        ModelBase& model, 
+    void DqmcInitializer::initial_dqmc( ModelBase& model, 
+                                        LatticeBase& lattice, 
                                         DqmcWalker& walker,
                                         MeasureHandler& meas_handler )
     {
