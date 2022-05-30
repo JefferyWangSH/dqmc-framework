@@ -11,9 +11,6 @@
 #include <fstream>
 #include <string>
 #include <boost/format.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/local_time/local_time.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -51,7 +48,8 @@ namespace QuantumMonteCarlo {
             // including initialization status and simulation parameters.
             // the behavior of this function depends on specific model and lattice types.
             template<typename StreamType>
-            static void output_init_info              ( StreamType& ostream, 
+            static void output_init_info              ( StreamType& ostream,
+                                                        int world_size, 
                                                         const ModelBase& model, 
                                                         const LatticeBase& lattice,
                                                         const DqmcWalker& walker, 
@@ -100,7 +98,8 @@ namespace QuantumMonteCarlo {
 
 
     template<typename StreamType>
-    void DqmcIO::output_init_info( StreamType& ostream, 
+    void DqmcIO::output_init_info( StreamType& ostream,
+                                   int world_size, 
                                    const ModelBase& model, 
                                    const LatticeBase& lattice, 
                                    const DqmcWalker& walker,
@@ -120,12 +119,6 @@ namespace QuantumMonteCarlo {
             boost::format fmt_param_double("%| 28s|%| 7s|%| 24.3f|\n");
             const std::string_view joiner = "->";
             auto bool2str = [](bool b) {if (b) return "True"; else return "False";};
-            
-            // -------------------------------------------------------------------------------------------
-            //                             Output current date and time
-            // -------------------------------------------------------------------------------------------
-            const auto current_time = boost::posix_time::second_clock::local_time();
-            ostream << boost::format(" Current time: %s\n") % current_time << std::endl;
 
 
             // -------------------------------------------------------------------------------------------
@@ -225,7 +218,7 @@ namespace QuantumMonteCarlo {
                     << std::endl;
             
             ostream << fmt_param_int % "Sweeps for warmup" % joiner % meas_handler.WarmUpSweeps()
-                    << fmt_param_int % "Number of bins" % joiner % meas_handler.BinsNum()
+                    << fmt_param_int % "Number of bins" % joiner % ( meas_handler.BinsNum() * world_size )
                     << fmt_param_int % "Sweeps per bin" % joiner % meas_handler.BinsSize()
                     << fmt_param_int % "Sweeps between bins" % joiner % meas_handler.SweepsBetweenBins()
                     << std::endl;

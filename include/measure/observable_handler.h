@@ -13,9 +13,6 @@
 #include "measure/observable.h"
 
 
-// forward declaration
-namespace Utils { class MPI; }
-
 namespace Observable {
 
     using ObsName = std::string;
@@ -23,7 +20,7 @@ namespace Observable {
     using ObsTable = std::vector<std::string>;
     
 
-    // ----------------------------- Handler class Observable::ObservableHandler ------------------------------
+    // -----------------------------  Handler class Observable::ObservableHandler  ------------------------------
     class ObservableHandler {
         protected:
 
@@ -75,10 +72,6 @@ namespace Observable {
 
             // initialize the handler
             void initial(const ObsNameList& obs_list);
-
-            // friend class Utils::MPI 
-            // for collecting measuring data among a set of MPI processes
-            friend Utils::MPI;
 
         private:
             

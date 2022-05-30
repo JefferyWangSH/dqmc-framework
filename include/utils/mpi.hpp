@@ -11,7 +11,7 @@
 #include <boost/serialization/vector.hpp>
 #include "utils/eigen_boost_serialization.hpp"
 #include "measure/observable.h"
-#include "measure/observable_handler.h"
+#include "measure/measure_handler.h"
 
 
 namespace Utils {
@@ -62,42 +62,45 @@ namespace Utils {
             }
 
 
-            // gather all observable objects in ObservableHandler
-            // note that the Utils::MPI class should be a friend class of Observable::ObservableHandler
+            // gather all observable objects in the measuring handler
+            // note that the Utils::MPI class should be a friend class of Measure::MeasureHandler
             // to get access to the protected observable members
-            static void mpi_gather( const boost::mpi::communicator &world, Observable::ObservableHandler& obs_handler )
+            static void mpi_gather( const boost::mpi::communicator &world, Measure::MeasureHandler& meas_handler )
             {   
                 // scalar observables
-                for ( auto& scalar_obs : obs_handler.m_eqtime_scalar_obs ) {
+                for ( auto& scalar_obs : meas_handler.m_eqtime_scalar_obs ) {
                     gather_observable( world, scalar_obs.get() );
                 }
-                for ( auto& scalar_obs : obs_handler.m_dynamic_scalar_obs ) {
+                for ( auto& scalar_obs : meas_handler.m_dynamic_scalar_obs ) {
                     gather_observable( world, scalar_obs.get() );
                 }
 
                 // vector observables
-                for ( auto& vector_obs : obs_handler.m_eqtime_vector_obs ) {
+                for ( auto& vector_obs : meas_handler.m_eqtime_vector_obs ) {
                     gather_observable( world, vector_obs.get() );
                 }
-                for ( auto& vector_obs : obs_handler.m_dynamic_vector_obs ) {
+                for ( auto& vector_obs : meas_handler.m_dynamic_vector_obs ) {
                     gather_observable( world, vector_obs.get() );
                 }
 
                 // matrix observables
-                for ( auto& matrix_obs : obs_handler.m_eqtime_matrix_obs ) {
+                for ( auto& matrix_obs : meas_handler.m_eqtime_matrix_obs ) {
                     gather_observable( world, matrix_obs.get() );
                 }
-                for ( auto& matrix_obs : obs_handler.m_dynamic_matrix_obs ) {
+                for ( auto& matrix_obs : meas_handler.m_dynamic_matrix_obs ) {
                     gather_observable( world, matrix_obs.get() );
                 }
 
                 // statistics of the configuration sign
-                if ( obs_handler.m_equaltime_sign ) {
-                    gather_observable( world, obs_handler.m_equaltime_sign.get() );
+                if ( meas_handler.m_equaltime_sign ) {
+                    gather_observable( world, meas_handler.m_equaltime_sign.get() );
                 }
-                if ( obs_handler.m_dynamic_sign ) {
-                    gather_observable( world, obs_handler.m_dynamic_sign.get() );
+                if ( meas_handler.m_dynamic_sign ) {
+                    gather_observable( world, meas_handler.m_dynamic_sign.get() );
                 }
+
+                // reset the number of bins
+                meas_handler.m_bin_num *= world.size();
             }
 
 

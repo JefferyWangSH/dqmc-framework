@@ -12,9 +12,11 @@
 
 #include "measure/observable_handler.h"
 
+// forward declaration
 namespace Model { class ModelBase; }
 namespace Lattice { class LatticeBase; }
 namespace QuantumMonteCarlo { class DqmcWalker; }
+namespace Utils { class MPI; }
 
 
 namespace Measure {
@@ -29,7 +31,7 @@ namespace Measure {
     using MomentumIndexList = std::vector<int>;
 
 
-    // ------------------------------------- Handler class Measure::MeasureHandler ---------------------------------
+    // -----------------------------------  Handler class Measure::MeasureHandler  ---------------------------------
     class MeasureHandler : public Observable::ObservableHandler {
         private:
             
@@ -53,7 +55,7 @@ namespace Measure {
 
             MeasureHandler() = default;
 
-            // ---------------------------- Set up measuring params and observables -------------------------------
+            // ---------------------------  Set up measuring params and observables  ------------------------------
             
             void set_measure_params( int sweeps_warmup, int bin_num, int bin_size, int sweeps_between_bins );
 
@@ -65,12 +67,12 @@ namespace Measure {
             void set_measured_momentum_list( const MomentumIndexList& momentum_index_list );
 
 
-            // ------------------------------------- Initializations ----------------------------------------------
+            // ------------------------------------  Initializations  ---------------------------------------------
             
             void initial( const LatticeBase& lattice, const DqmcWalker& walker );
             
             
-            // --------------------------------------- Interfaces -------------------------------------------------
+            // ---------------------------------------  Interfaces  -----------------------------------------------
             
             const bool isWarmUp() const;
             const bool isEqualTime() const ;
@@ -97,7 +99,7 @@ namespace Measure {
             // template<typename ObsType> const ObsType find(const ObsName& obs_name);
 
 
-            // ---------------------------- Subroutines for measuring observables ---------------------------------
+            // --------------------------  Subroutines for measuring observables  ---------------------------------
 
             // perform one step of sampling for the measurements
             void equaltime_measure( const DqmcWalker& walker, const ModelBase& model, const LatticeBase& lattice );
@@ -114,6 +116,11 @@ namespace Measure {
 
             // clear the temporary data
             void clear_temporary();
+
+
+            // ---------------------------------  Friend class Utils::MPI  ---------------------------------------
+            // for collecting measuring data among a set of MPI processes
+            friend Utils::MPI;
 
     };
 
