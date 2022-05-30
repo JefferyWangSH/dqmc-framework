@@ -41,6 +41,9 @@ namespace QuantumMonteCarlo {
 
             // set up the format of the progress bar
             static void progress_bar_format( unsigned int width, char complete, char incomplete );
+
+            // set up the rate of refreshing the progress bar
+            static void set_refresh_rate( unsigned int refresh_rate );
             
             // return the duration time of the dqmc process, e.g thermalization or measurements
             static const double timer();
@@ -76,7 +79,9 @@ namespace QuantumMonteCarlo {
             // declarations of static members
             static bool m_show_progress_bar;
             static unsigned int m_progress_bar_width;
+            static unsigned int m_refresh_rate;
             static char m_progress_bar_complete_char, m_progress_bar_incomplete_char;
+            
             static std::chrono::steady_clock::time_point m_begin_time, m_end_time;
 
             // sweep and update the field configurations 

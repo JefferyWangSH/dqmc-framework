@@ -25,7 +25,7 @@ namespace QuantumMonteCarlo {
 
 
     void DqmcInitializer::parse_toml_config(  std::string_view toml_config,
-                                              const boost::mpi::communicator& world,
+                                              int world_size,
                                               ModelBasePtr& model, 
                                               LatticeBasePtr& lattice, 
                                               DqmcWalkerPtr& walker,
@@ -213,7 +213,7 @@ namespace QuantumMonteCarlo {
         meas_handler = std::make_unique<Measure::MeasureHandler>();
 
         // send measuring tasks to a set of processes
-        const int bins_per_proc = (bin_num % world.size() == 0)? bin_num/world.size() : bin_num/world.size()+1;
+        const int bins_per_proc = (bin_num % world_size == 0)? bin_num/world_size : bin_num/world_size+1;
         meas_handler->set_measure_params( sweeps_warmup, bins_per_proc, bin_size, sweeps_between_bins );
         meas_handler->set_observables( observables );
 

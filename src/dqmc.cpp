@@ -12,6 +12,7 @@ namespace QuantumMonteCarlo {
     // definitions of the static members
     bool Dqmc::m_show_progress_bar{true};
     unsigned int Dqmc::m_progress_bar_width{70};
+    unsigned int Dqmc::m_refresh_rate{10};
     char Dqmc::m_progress_bar_complete_char{'='}, Dqmc::m_progress_bar_incomplete_char{' '};
     std::chrono::steady_clock::time_point Dqmc::m_begin_time{}, Dqmc::m_end_time{};
 
@@ -24,6 +25,12 @@ namespace QuantumMonteCarlo {
         Dqmc::m_progress_bar_width = width;
         Dqmc::m_progress_bar_complete_char = complete;
         Dqmc::m_progress_bar_incomplete_char = incomplete;
+    }
+
+    // set up the rate of refreshing the progress bar
+    void Dqmc::set_refresh_rate( unsigned int refresh_rate )
+    {
+        Dqmc::m_refresh_rate = refresh_rate;
     }
     
     // timer functions
@@ -85,7 +92,7 @@ namespace QuantumMonteCarlo {
 
                 // record the tick
                 ++progressbar;
-                if ( Dqmc::m_show_progress_bar ) {
+                if ( Dqmc::m_show_progress_bar && (sweep % Dqmc::m_refresh_rate == 1) ) {
                     std::cout << " Warming up  "; progressbar.display();
                 }
             }
@@ -119,7 +126,7 @@ namespace QuantumMonteCarlo {
 
                     // record the tick
                     ++progressbar;
-                    if ( Dqmc::m_show_progress_bar ) {
+                    if ( Dqmc::m_show_progress_bar && (sweep % Dqmc::m_refresh_rate == 1) ) {
                         std::cout << " Measuring   "; progressbar.display();
                     }
                 }
