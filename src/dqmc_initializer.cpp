@@ -50,7 +50,7 @@ namespace QuantumMonteCarlo {
             const double chemical_potential = config["Model"]["Params"]["chemical_potential"].value_or(0.0);
             
             if ( model ) { model.reset(); }
-            model = std::unique_ptr<Model::RepulsiveHubbard>(new Model::RepulsiveHubbard());
+            model = std::make_unique<Model::RepulsiveHubbard>();
             model->set_model_params( hopping_t, onsite_u, chemical_potential );
 
         }
@@ -63,7 +63,7 @@ namespace QuantumMonteCarlo {
             const double chemical_potential = config["Model"]["Params"]["chemical_potential"].value_or(0.0);
             
             if ( model ) { model.reset(); }
-            model = std::unique_ptr<Model::AttractiveHubbard>(new Model::AttractiveHubbard());
+            model = std::make_unique<Model::AttractiveHubbard>();
             model->set_model_params( hopping_t, onsite_u, chemical_potential );
         }
 
@@ -108,7 +108,7 @@ namespace QuantumMonteCarlo {
 
             // create 2d square lattice object
             if ( lattice ) { lattice.reset(); }
-            lattice = std::unique_ptr<Lattice::Square>(new Lattice::Square());
+            lattice = std::make_unique<Lattice::Square>();
             lattice->set_lattice_params( lattice_size );
 
             // initial lattice module in place
@@ -144,7 +144,7 @@ namespace QuantumMonteCarlo {
         if ( checkerboard ) { checkerboard.reset(); }
         if ( is_checker_board ) {
             if ( lattice_type == "Square" ) {
-                checkerboard = std::unique_ptr<CheckerBoard::Square>(new CheckerBoard::Square());
+                checkerboard = std::make_unique<CheckerBoard::Square>();
             }
             else {
                 std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
@@ -164,7 +164,7 @@ namespace QuantumMonteCarlo {
 
         // create dqmc walker and set up parameters
         if ( walker ) { walker.reset(); }
-        walker = std::unique_ptr<DqmcWalker>(new DqmcWalker());
+        walker = std::make_unique<DqmcWalker>();
         walker->set_physical_params( beta, time_size );
         walker->set_stabilization_pace( stabilization_pace );
 
@@ -210,7 +210,7 @@ namespace QuantumMonteCarlo {
         
         // create measure handler and set up parameters
         if ( meas_handler ) { meas_handler.reset(); }
-        meas_handler = std::unique_ptr<Measure::MeasureHandler>(new Measure::MeasureHandler());
+        meas_handler = std::make_unique<Measure::MeasureHandler>();
 
         // send measuring tasks to a set of processes
         const int bins_per_proc = (bin_num % world.size() == 0)? bin_num/world.size() : bin_num/world.size()+1;
