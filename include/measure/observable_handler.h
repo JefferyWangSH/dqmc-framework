@@ -13,6 +13,9 @@
 #include "measure/observable.h"
 
 
+// forward declaration
+namespace Utils { class MPI; }
+
 namespace Observable {
 
     using ObsName = std::string;
@@ -38,8 +41,8 @@ namespace Observable {
             using DynamicVectorObs = std::vector<std::shared_ptr<VectorObs>>;
             using DynamicMatrixObs = std::vector<std::shared_ptr<MatrixObs>>;
 
-            // map of observables for quick reference
-            // only for finding or searching cetain observable, and frequently calls should be avoided
+            // map of observable objects for quick references
+            // only for finding or searching certain observable, and frequent calls should be avoided
             ObsMap m_obs_map{};
 
             EqtimeScalarObs m_eqtime_scalar_obs{};
@@ -73,6 +76,9 @@ namespace Observable {
             // initialize the handler
             void initial(const ObsNameList& obs_list);
 
+            // friend class Utils::MPI 
+            // for collecting measuring data among a set of MPI processes
+            friend Utils::MPI;
 
         private:
             
@@ -89,7 +95,7 @@ namespace Observable {
     };
 
 
-    // implementation of template member function
+    // implementation of the template member function
     template<typename ObsType> 
     const ObsType ObservableHandler::find(const ObsName& obs_name) {
         if ( this->find(obs_name) ) {

@@ -105,12 +105,14 @@ namespace Observable {
                 assert( bin >= 0 && bin < this->m_bin_num );
                 return this->m_bin_data[bin];
             }
-
+            
             ObsType& bin_data(int bin) {
                 assert( bin >= 0 && bin < this->m_bin_num );
                 return this->m_bin_data[bin];
             }
 
+            std::vector<ObsType>& bin_data() { return this->m_bin_data; }
+            
 
             // ---------------------------------  Set up parameters and methods  ------------------------------------
             

@@ -11,6 +11,7 @@
  #include <vector>
  #include <string_view>
  #include <memory>
+ #include <boost/mpi.hpp>
 
 namespace Lattice { class LatticeBase; }
 namespace Model { class ModelBase; }
@@ -45,6 +46,7 @@ namespace QuantumMonteCarlo {
             // parse parmameters from the toml configuration file
             // create modules and setup module parameters according to the input configurations
             static void parse_toml_config           ( std::string_view toml_config,
+                                                      const boost::mpi::communicator& world,
                                                       ModelBasePtr& model, 
                                                       LatticeBasePtr& lattice, 
                                                       DqmcWalkerPtr& walker,
