@@ -1,0 +1,60 @@
+ Current time: 2022-May-31 02:59:07 
+
+ Distribute tasks to 10 processes, with the master process being cb0505.para.bscc. 
+
+ Configurations of auxiliary fields set to random. 
+
+ Initialization finished. 
+
+ The simulation is going to get started with parameters shown below : 
+
+
+ Model: Attractive Hubbard
+
+        Hopping constant 't'     ->                   1.000
+      Onsite interaction 'U'     ->                   4.000
+    Checimcal potential 'mu'     ->                   0.000
+
+ Lattice: Square lattice
+
+                Size of cell     ->                   8 * 8
+              Momentum point     ->         (1.00, 1.00) pi
+       Checkerboard breakups     ->                   False
+
+ MonteCarlo Params:
+
+         Inverse temperature     ->                   8.000
+       Imaginary-time length     ->                     160
+     Imaginary-time interval     ->                   0.050
+          Stabilization pace     ->                      10
+
+ Measuring Params:
+
+                     Warm up     ->                    True
+          Equal-time measure     ->                    True
+           Dynamical measure     ->                    True
+
+           Sweeps for warmup     ->                     512
+              Number of bins     ->                      20
+              Sweeps per bin     ->                     100
+         Sweeps between bins     ->                      20
+
+ Warming up  [>                                                           ] 0% 0.237s Warming up  [==>                                                         ] 4% 2.569s Warming up  [====>                                                       ] 8% 4.858s Warming up  [=======>                                                    ] 12% 7.218s Warming up  [=========>                                                  ] 16% 9.521s Warming up  [===========>                                                ] 19% 11.881s Warming up  [==============>                                             ] 23% 14.204s Warming up  [================>                                           ] 27% 16.525s Warming up  [==================>                                         ] 31% 18.847s Warming up  [=====================>                                      ] 35% 21.073s Warming up  [=======================>                                    ] 39% 23.344s Warming up  [==========================>                                 ] 43% 25.701s Warming up  [============================>                               ] 47% 28.008s Warming up  [==============================>                             ] 51% 30.375s Warming up  [=================================>                          ] 55% 32.702s Warming up  [===================================>                        ] 58% 35.018s Warming up  [=====================================>                      ] 62% 37.337s Warming up  [========================================>                   ] 66% 39.683s Warming up  [==========================================>                 ] 70% 41.983s Warming up  [============================================>               ] 74% 44.298s Warming up  [===============================================>            ] 78% 46.645s Warming up  [=================================================>          ] 82% 48.835s Warming up  [===================================================>        ] 86% 51.118s Warming up  [======================================================>     ] 90% 53.324s Warming up  [========================================================>   ] 94% 55.653s Warming up  [==========================================================> ] 98% 57.911s Warming up  [============================================================] 100% 59.002s
+ Measuring   [>                                                           ] 0% 0.445s Measuring   [======>                                                     ] 10% 5.003s Measuring   [============>                                               ] 20% 9.522s Measuring   [==================>                                         ] 31% 14.138s Measuring   [========================>                                   ] 40% 18.833s Measuring   [==============================>                             ] 50% 25.776s Measuring   [====================================>                       ] 61% 30.340s Measuring   [==========================================>                 ] 70% 34.909s Measuring   [================================================>           ] 81% 39.571s Measuring   [======================================================>     ] 91% 44.320s Measuring   [============================================================] 100% 50.969s
+
+ The simulation finished in 1 m 49.98 s. 
+
+ Maximum of the wrapping error: 2.56558e-08
+
+  Averaged sign (equal-time)     ->      1.000000000000  pm  0.000000000000
+   Averaged sign (dynamical)     ->      1.000000000000  pm  0.000000000000
+
+              Filling number     ->      0.993360796615  pm  0.003661948763
+           Double occupation     ->      0.372504364185  pm  0.001824732448
+              Kinetic energy     ->     -1.355109223139  pm  0.001237162974
+      Local spin correlation     ->      0.248352068245  pm  0.000299886584
+       Momentum distribution     ->      0.032888843024  pm  0.000572004530
+         SDW order parameter     ->      0.001606021932  pm  0.000001632873
+         CDW order parameter     ->      0.106476837688  pm  0.012170897321
+  S-wave pairing correlation     ->      4.056553758404  pm  0.194095217350
+        Superfluid stiffness     ->      0.021573660878  pm  0.003421888872
