@@ -1,5 +1,5 @@
-#ifndef UTIL_NUMERICAL_STABLE_HPP
-#define UTIL_NUMERICAL_STABLE_HPP
+#ifndef UTILS_NUMERICAL_STABLE_HPP
+#define UTILS_NUMERICAL_STABLE_HPP
 #pragma once
 
 /**
@@ -18,16 +18,16 @@
 
 namespace Utils {
 
-    // ------------------------------- Utils::NumericalStable class ----------------------------------
-    // including static subroutines for numerical stablization
+    // ----------------------------------  Utils::NumericalStable class  ------------------------------------
+    // including static subroutines for numerical stabilizations
     class NumericalStable {
+        
         public:
-
-        using Matrix = Eigen::MatrixXd;
-        using Vector = Eigen::VectorXd;
+            using Matrix = Eigen::MatrixXd;
+            using Vector = Eigen::VectorXd;
 
         /*
-         *  Subroutine to return the difference between two same-size matrices.
+         *  Subroutine to return the maximum difference of two matrices with the same size.
          *  Input: umat, vmat
          *  Output: the maximum difference -> error
          */
@@ -46,10 +46,11 @@ namespace Utils {
             error = tmp_error;
         }
 
+
         /*
          *  Subroutine to perform the decomposition of a vector, dvec = dmax * dmin,
-         *  to ensure all elements that greater than one are in dmax,
-         *  and all elements that less than one are in dmin.
+         *  to ensure all elements that greater than one are stored in dmax,
+         *  and all elements that less than one are stored in dmin.
          *  Input: dvec
          *  Output: dmax, dmin
          */
@@ -69,10 +70,11 @@ namespace Utils {
             }
         }
 
+
         /*
-         * Subroutine to perform full matrix * diagonal matrix ^ -1 * full matrix
-         * Input: vmat, dvec, umat
-         * Output: zmat
+         *  Subroutine to perform dense matrix * (diagonal matrix)^-1 * dense matrix
+         *  Input: vmat, dvec, umat
+         *  Output: zmat
          */
         static void mult_v_invd_u(const Matrix& vmat, const Vector& dvec, const Matrix& umat, Matrix& zmat) {
             assert( vmat.cols() == umat.cols() );
@@ -95,10 +97,11 @@ namespace Utils {
             }
         }
 
+
         /*
-         * Subroutine to perform full matrix * diagonal matrix * full matrix
-         * Input: vmat, dvec, umat
-         * Output: zmat
+         *  Subroutine to perform dense matrix * diagonal matrix * dense matrix
+         *  Input: vmat, dvec, umat
+         *  Output: zmat
          */
         static void mult_v_d_u(const Matrix& vmat, const Vector& dvec, const Matrix& umat, Matrix& zmat) {
             assert( vmat.cols() == umat.cols() );
@@ -121,9 +124,10 @@ namespace Utils {
             }
         }
 
+
         /*
-         * return (1 + USV^T)^-1, with method of QR decomposition
-         * if dynamical observables measured, return (1 + USV^T)^-1 * USV^T as well.
+         *  return (1 + USV^T)^-1, with method of QR decomposition
+         *  to obtain equal-time Green's functions G(t,t)
          */
         static void compute_greens_00_bb(const Matrix& U, const Vector& S, const Matrix& V, Matrix& gtt) {
             // split S = Sbi^-1 * Ss
@@ -140,16 +144,17 @@ namespace Utils {
             }
 
             // compute (1 + USV^T)^-1 in a stable manner
-            // note that H is kinda good conditioned, containing small scale information only.
+            // note that H is good conditioned, which only contains information of small scale.
             Matrix H = Sbi.asDiagonal() * U.transpose() + Ss.asDiagonal() * V.transpose();
 
-            /* gtt */
+            // compute gtt using QR decomposition
             gtt = H.fullPivHouseholderQr().solve(Sbi.asDiagonal() * U.transpose());
         }
 
+
         /*
-         * return (1 + USV^T)^-1 * USV^T, with method of QR decomposition
-         * to obtain time-displaced Greens function G(\beta, 0)
+         *  return (1 + USV^T)^-1 * USV^T, with method of QR decomposition
+         *  to obtain time-displaced Green's functions G(beta, 0)
          */
         static void compute_greens_b0(const Matrix& U, const Vector& S, const Matrix& V, Matrix& gt0) {
             // split S = Sbi^-1 * Ss
@@ -166,12 +171,13 @@ namespace Utils {
             }
 
             // compute (1 + USV^T)^-1 * USV^T in a stable manner
-            // note that H is kinda good conditioned, containing small scale information only.
+            // note that H is good conditioned, which only contains information of small scale.
             Matrix H = Sbi.asDiagonal() * U.transpose() + Ss.asDiagonal() * V.transpose();
 
-            /* gt0 */
+            // compute gtt using QR decomposition
             gt0 = H.fullPivHouseholderQr().solve(Ss.asDiagonal() * V.transpose());
         }
+
 
         /*
          *  return (1 + left * right^T)^-1 in a stable manner, with method of MGS factorization
@@ -181,13 +187,13 @@ namespace Utils {
             assert(left.MatDim() == right.MatDim());
             const int ndim = left.MatDim();
 
-            /* at l = 0 */
+            // at time slice t = 0
             if ( left.empty() ) {
                 compute_greens_00_bb(right.MatrixV(), right.SingularValues(), right.MatrixU(), gtt);
                 return;
             }
 
-            /* at l = lt */
+            // at time slice t = nt (beta)
             if ( right.empty() ) {
                 compute_greens_00_bb(left.MatrixU(), left.SingularValues(), left.MatrixV(), gtt);
                 return;
@@ -207,8 +213,8 @@ namespace Utils {
             Matrix Atmp(ndim, ndim), Btmp(ndim, ndim);
             Matrix tmp(ndim, ndim);
 
-            /** Modified Gram-Schmidt (MGS) factorization */
-            // breakup dr = drmax * drmin , dl = dlmax * dlmin
+            // modified Gram-Schmidt (MGS) factorization
+            // perfrom the breakups dr = drmax * drmin , dl = dlmax * dlmin
             div_dvec_max_min(dl, dlmax, dlmin);
             div_dvec_max_min(dr, drmax, drmin);
 
@@ -228,32 +234,33 @@ namespace Utils {
             tmp = Atmp + Btmp;
             mult_v_invd_u(ur, drmax, tmp.inverse(), Atmp);
 
-            /* gtt */
+            // finally obtain gtt
             mult_v_invd_u(Atmp, dlmax, ul.transpose(), gtt);
         }
 
+
         /*
-         *  return time-displaced Greens function in a stable manner,
-         *  with method of MGS factorization
+         *  return time-displaced Green's function in a stable manner,
+         *  with the method of MGS factorization
          */
         static void compute_dynamic_greens(SvdStack& left, SvdStack& right, Matrix &gt0, Matrix &g0t) {
             assert( left.MatDim() == right.MatDim() );
             const int ndim = left.MatDim();
 
-            /* at l = 0 */
+            // at time slice t = 0
             if( left.empty() ) {
                 // gt0 = gtt at t = 0
                 compute_greens_00_bb(right.MatrixV(), right.SingularValues(), right.MatrixU(), gt0);
 
-                // g0t = - ( 1 - gtt ）at t = 0
-                // for convenience: in fact no definition for g0t at t = 0.
+                // g0t = - ( 1 - gtt ）at t = 0, and this is a natural extension of g0t for t = 0.
+                // however from the physical point of view, g0t should degenerate to gtt at t = 0,
                 g0t = - (Matrix::Identity(ndim, ndim) - gt0);
                 return;
             }
 
-            /* at l = lt */
+            // at time slice t = nt (beta)
             if( right.empty() ) {
-                // gt0 = ( 1 + B(\beta, 0) )^-1 * B(\beta, 0)
+                // gt0 = ( 1 + B(beta, 0) )^-1 * B(beta, 0)
                 compute_greens_b0(left.MatrixU(), left.SingularValues(), left.MatrixV(), gt0);
 
                 // g0t = -gtt at t = beta
@@ -277,12 +284,12 @@ namespace Utils {
             Matrix Xtmp(ndim, ndim), Ytmp(ndim, ndim);
             Matrix tmp(ndim, ndim);
 
-            /** Modified Gram-Schmidt (MGS) factorization */
-            // breakup dr = drmax * drmin , dl = dlmax * dlmin
+            // modified Gram-Schmidt (MGS) factorization
+            // perfrom the breakups dr = drmax * drmin , dl = dlmax * dlmin
             div_dvec_max_min(dl, dlmax, dlmin);
             div_dvec_max_min(dr, drmax, drmin);
 
-            /** gt0 */
+            // compute gt0
             // Atmp = ul^T * ur, Btmp = vl^T * vr
             Atmp = ul.transpose() * ur;
             Btmp = vl.transpose() * vr;
@@ -299,7 +306,7 @@ namespace Utils {
             mult_v_invd_u(ur, drmax, tmp.inverse(), Atmp);
             mult_v_d_u(Atmp, dlmin, vl.transpose(), gt0);
 
-            /** g0t */
+            // compute g0t
             // Xtmp = vr^T * vl, Ytmp = ur^T * ul
             Xtmp = vr.transpose() * vl;
             Ytmp = ur.transpose() * ul;
@@ -322,4 +329,4 @@ namespace Utils {
 
 } // namespace Utils
 
-#endif // UTIL_NUMERICAL_STABLE_HPP
+#endif // UTILS_NUMERICAL_STABLE_HPP

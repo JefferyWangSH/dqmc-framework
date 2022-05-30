@@ -1,5 +1,5 @@
-#ifndef UTIL_FFT_SOLVER_H
-#define UTIL_FFT_SOLVER_H
+#ifndef UTILS_FFT_SOLVER_H
+#define UTILS_FFT_SOLVER_H
 #pragma once
 
 // This class, which is initially intended to transform real-space greens function to momentum space, 
@@ -80,4 +80,4 @@ namespace Utils {
 } // namespace Utils
 
 
-#endif // UTIL_FFT_SOLVER_H
+#endif // UTILS_FFT_SOLVER_H

@@ -1,5 +1,5 @@
-#ifndef UTIL_RANDOM_H
-#define UTIL_RANDOM_H
+#ifndef UTILS_RANDOM_H
+#define UTILS_RANDOM_H
 #pragma once
 
 #include <random>
@@ -19,4 +19,4 @@ namespace Utils {
 
 } // namespace Utils
 
-#endif // UTIL_RANDOM_H
+#endif // UTILS_RANDOM_H

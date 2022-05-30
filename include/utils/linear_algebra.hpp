@@ -1,5 +1,5 @@
-#ifndef UTIL_LINEAR_ALGEBRA_HPP
-#define UTIL_LINEAR_ALGEBRA_HPP
+#ifndef UTILS_LINEAR_ALGEBRA_HPP
+#define UTILS_LINEAR_ALGEBRA_HPP
 #pragma once
 
 /**
@@ -17,10 +17,12 @@
 #include <Eigen/Core>
 #include <mkl_lapacke.h>
 
+
 namespace Utils {
 
-    // --------------------------------- LinearAlgebra class ---------------------------------
+    // -------------------------------------  Utils::LinearAlgebra class  ----------------------------------------
     class LinearAlgebra {
+
         public:
 
         /**
@@ -31,9 +33,9 @@ namespace Utils {
           *  @param row -> number of rows.
           *  @param col -> number of cols.
           *  @param mat -> arbitrary `row` * `col` real matrix to be solved.
-          *  @param u -> u matrix in Eigen::Matrix, `row` * `row`.
-          *  @param s -> eigenvalues s in Eigen::Vector, descending sorted.
-          *  @param v -> v matrix in Eigen::Matrix, `col` * `col`.
+          *  @param u -> u matrix of type Eigen::MatrixXd, `row` * `row`.
+          *  @param s -> eigenvalues s of type Eigen::VectorXd, descending sorted.
+          *  @param v -> v matrix of type Eigen::MatrixXd, `col` * `col`.
           */
         static void mkl_lapack_dgesvd(  const int& row, 
                                         const int& col, 
@@ -44,7 +46,8 @@ namespace Utils {
         {
             assert( row == mat.rows() );
             assert( col == mat.cols() );
-            // TODO: currently, the subroutine would fail if the input matrix has different number of rows and columns
+            // TODO: currently, the subroutine would fail 
+            // if the input matrix has different rows and columns
             assert( row == col );
 
             // matrix size
@@ -69,7 +72,7 @@ namespace Utils {
                 exit(1);
             }
 
-            // convert results to Eigen
+            // convert the results into Eigen style
             u = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>(tmp_u, col, col);
             s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(tmp_s, 1, col);
             v = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(tmp_vt, row, row);
@@ -79,13 +82,13 @@ namespace Utils {
         /**
           *  Calculate eigenvalues and eigenstates given an arbitrary N * N real symmetric matrix, using MKL_LAPACK
           *        A  ->  T^dagger * S * T
-          *  where T is rotation matrix, which is orthogonal;
-          *        S is diagonal matrix with eigenvalues being diagonal elements.
+          *  where T is the rotation matrix, which is orthogonal;
+          *        S is a diagonal matrix with eigenvalues being diagonal elements.
           *
           *  @param size -> number of rows/cols.
           *  @param mat -> arbitrary `size` * `size` real symmetric matrix to be solved.
           *  @param s -> diagonal eigen matrix.
-          *  @param t -> rotation matrix, columns being eigenstates.
+          *  @param t -> rotation matrix, whose columns are corresponding eigenstates.
           */
         static void mkl_lapack_dsyev(  const int& size, 
                                        const Eigen::MatrixXd& mat, 
@@ -115,13 +118,15 @@ namespace Utils {
                 exit(1);
             }
 
-            // convert eigenvalues and eigenvectors to eigen style
+            // convert the results into Eigen style
             s = Eigen::Map<Eigen::Matrix<double, 1, Eigen::Dynamic, Eigen::RowMajor>>(tmp_s, 1, n);
             t = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>(mat_in, n, n);
         }
 
     };
 
+
 } // namespace Utils
 
-#endif // UTIL_LINEAR_ALGEBRA_HPP
+
+#endif // UTILS_LINEAR_ALGEBRA_HPP

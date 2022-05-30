@@ -1,5 +1,5 @@
-#ifndef UTIL_SVD_STACK_H
-#define UTIL_SVD_STACK_H
+#ifndef UTILS_SVD_STACK_H
+#define UTILS_SVD_STACK_H
 
 /**
   *  This head file includes SvdClass and SvdStack class for stable 
@@ -16,9 +16,11 @@
 namespace Utils {
 
 
-    // --------------------------------------- Utils::SvdClass ------------------------------------------
+    // ------------------------------------------  Utils::SvdClass  ----------------------------------------------
     class SvdClass {
+
         private:
+
             using uMat = Eigen::MatrixXd;
             using sVec = Eigen::VectorXd;
             using vMat = Eigen::MatrixXd;
@@ -28,6 +30,7 @@ namespace Utils {
             vMat m_v_mat{};
 
         public:
+
             EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
             SvdClass() = default;
@@ -40,15 +43,18 @@ namespace Utils {
     };
 
 
-    // ---------------- Utils::SvdStack class for multiplications of matrix stacks ----------------------
+    // -----------------------  Utils::SvdStack class for multiplications of matrix stacks  ----------------------
     // udv stack of a matrix product: u * d * vt = ... A_2 * A_1 * A_0
     class SvdStack {
+
         private:
+
             using VecSvd = std::vector<SvdClass>;
             using Matrix = Eigen::MatrixXd;
             using Vector = Eigen::VectorXd;
         
         public:
+
             VecSvd m_stack{};
             int m_mat_dim{};  
             int m_stack_length{0};
@@ -56,6 +62,7 @@ namespace Utils {
             Matrix m_tmp_matrix{};
 
         public:
+
             EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
             SvdStack() = default;
@@ -73,10 +80,10 @@ namespace Utils {
             const Matrix MatrixV();
             
             // clear the stack
-            // simply set stack_length = 0, the memory is not deallocated.
+            // simply set stack_length = 0, note that the memory is not really deallocated.
             void clear();
 
-            // defined operations of the class: push and pop
+            // defined operations of svdstack class: push() and pop()
             // adding a matrix to the stack from the left
             void push(const Matrix& matrix);
 
@@ -87,4 +94,5 @@ namespace Utils {
 
 } // namespace Utils
 
-#endif // UTIL_SVD_STACK_H
+
+#endif // UTILS_SVD_STACK_H
