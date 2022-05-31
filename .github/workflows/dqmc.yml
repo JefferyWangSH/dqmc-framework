@@ -1,4 +1,4 @@
-name: dqmc-test
+name: dqmc
 
 on:
   push:
@@ -52,7 +52,15 @@ jobs:
       - name: Checkout project code
         uses: actions/checkout@v3
 
-      - name: Build Tests with CMake
+      - name: Build project with CMake
         run: |
-          cd ${{github.workspace}}/test/build
-          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}}/test && make
+          cd ${{github.workspace}}/build
+          cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ${{github.workspace}} && make
+
+      - name: Show helping messages
+        run: ${{github.workspace}}/build/dqmc --help
+
+      - name: Run dqmc simulation
+        run: |
+          mpirun -np 4 --oversubscribe ${{github.workspace}}/build/dqmc --config ${{github.workspace}}/example/config.toml
+      
