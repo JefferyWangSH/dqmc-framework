@@ -164,7 +164,7 @@ int main( int argc, char* argv[] ) {
 
     if ( rank == master ) {
         std::cout << " Initialization finished. \n\n" 
-                  << " The simulation is going to get started with parameters shown below : \n\n"
+                  << " The simulation is going to get started with parameters shown below : \n"
                   << std::endl;
     }
 

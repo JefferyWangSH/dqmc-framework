@@ -14,7 +14,7 @@
 [Lattice]
     # support lattice type: Square, Cubic(todo) and Honeycomb(todo)
     type = "Square"
-    cell = [ 4, 4 ]
+    cell = [ 8, 8 ]
 
     # symmetric points in the reciprocal lattice ( k stars )
     # for 2d square lattice, the following options are supported

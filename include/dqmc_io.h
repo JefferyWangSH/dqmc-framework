@@ -128,7 +128,7 @@ namespace QuantumMonteCarlo {
             // ------------------------------  Repulsive Hubbard model  ----------------------------------
             if ( const auto repulsive_hubbard = dynamic_cast<const Model::RepulsiveHubbard*>(&model);
                 repulsive_hubbard != nullptr ) {
-                ostream << " Model: Attractive Hubbard\n\n"
+                ostream << " Model: Attractive Hubbard\n"
                         << fmt_param_double % "Hopping constant \'t\'" % joiner % repulsive_hubbard->HoppingT()
                         << fmt_param_double % "Onsite interaction \'U\'" % joiner % repulsive_hubbard->OnSiteU()
                         << fmt_param_double % "Checimcal potential \'mu\'" % joiner % repulsive_hubbard->ChemicalPotential()
@@ -138,7 +138,7 @@ namespace QuantumMonteCarlo {
             // ------------------------------  Attractive Hubbard model  ---------------------------------
             else if ( const auto attractive_hubbard = dynamic_cast<const Model::AttractiveHubbard*>(&model); 
                 attractive_hubbard != nullptr ) {
-                ostream << " Model: Attractive Hubbard\n\n"
+                ostream << " Model: Attractive Hubbard\n"
                         << fmt_param_double % "Hopping constant \'t\'" % joiner % attractive_hubbard->HoppingT()
                         << fmt_param_double % "Onsite interaction \'U\'" % joiner % attractive_hubbard->OnSiteU()
                         << fmt_param_double % "Checimcal potential \'mu\'" % joiner % attractive_hubbard->ChemicalPotential()
@@ -166,7 +166,7 @@ namespace QuantumMonteCarlo {
                 const double px = (square_lattice->Index2Momentum(meas_handler.Momentum(), 0)/M_PI);
                 const double py = (square_lattice->Index2Momentum(meas_handler.Momentum(), 1)/M_PI);
 
-                ostream << " Lattice: Square lattice\n\n"
+                ostream << " Lattice: Square lattice\n"
                         << fmt_param_str % "Size of cell" % joiner % ( fmt_cell % side_length % side_length )
                         << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py )
                         << std::flush;
@@ -201,7 +201,7 @@ namespace QuantumMonteCarlo {
             // -------------------------------------------------------------------------------------------
             //                               Output MonteCarlo Params
             // -------------------------------------------------------------------------------------------
-            ostream << " MonteCarlo Params:\n\n"
+            ostream << " MonteCarlo Params:\n"
                     << fmt_param_double % "Inverse temperature" % joiner % walker.Beta()
                     << fmt_param_int % "Imaginary-time length" % joiner % walker.TimeSize()
                     << fmt_param_double % "Imaginary-time interval" % joiner % walker.TimeInterval()
@@ -211,7 +211,7 @@ namespace QuantumMonteCarlo {
             // -------------------------------------------------------------------------------------------
             //                                Output Measuring Params
             // -------------------------------------------------------------------------------------------
-            ostream << " Measuring Params:\n\n"
+            ostream << " Measuring Params:\n"
                     << fmt_param_str % "Warm up" % joiner % bool2str(meas_handler.isWarmUp())
                     << fmt_param_str % "Equal-time measure" % joiner % bool2str(meas_handler.isEqualTime())
                     << fmt_param_str % "Dynamical measure" % joiner % bool2str(meas_handler.isDynamic())
