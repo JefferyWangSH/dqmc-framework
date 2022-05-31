@@ -1,10 +1,9 @@
-# DQMC-Hubbard Model 
-# This project is currently under heavy development !
-![workflow](https://github.com/JefferyWangSH/dqmc-hubbard-model/actions/workflows/dqmc_test.yml/badge.svg?branch=master)
+# General-DQMC
+![workflow](https://github.com/JefferyWangSH/general-dqmc/actions/workflows/dqmc.yml/badge.svg?branch=master)
 
-In this repository, we present a C++ implementation of determinant Quantum Monte Carlo `(DQMC)` simulation applied to fermion Hubbard model on two-dimensional square lattice.
+In this repository, we present a general C++ implementation of determinant Quantum Monte Carlo `(DQMC)` algorithm for the simulation of fermionic quantum models on various lattice geometries.
 
-Simulations of the model with both attractive and repulsive interaction are performed and tested in a large parameter range.
+Currently, simulations of the fermionic Hubbard model with both attractive and repulsive interaction are supported. Different lattices, e.g. 2d square lattice, 2d honeycomb lattice (todo) and 3d cubic lattice (todo) are supported or scheduled to be implemented.
 
 ---
 
@@ -14,16 +13,18 @@ Simulations of the model with both attractive and repulsive interaction are perf
 
 * `gcc/g++` `( version >= 7.1, support C++17 standard )` and `cmake` `( version >= 3.21 )` installed.
 * `Boost C++ libraries` `( version >= 1.71 )` installed.
-* `Eigen library` `( version >= 3.4.0 )` providing a user-friendly interface of matrices.
+* `Eigen library` `( version >= 3.4.0 )` providing a user-friendly matrix interfaces.
 * `Intel Math Kernel Library (MKL)` for high-accuracy linear algebra and numerical stabilization.
-* `Message Passing Interface (MPI)` for large scale of distributed parallelization. Both `OpenMPI` and `Intel MPI` are tested and work well.
+* `Message Passing Interface (MPI)` for large scales of distributed parallel accelerations. Both `OpenMPI` and `Intel MPI` have been tested and work well.
 
 ### Usages ###
 
-1. Download source codes from github.
+To be accomplished
+
+<!-- 1. Download the source code from github.
     ``` shell
     $ # download the source code
-    $ git clone https://github.com/JefferyWangSH/DQMC-Hubbard-Model.git {PROGRAM_ROOT}
+    $ git clone https://github.com/JefferyWangSH/general-dqmc.git {PROGRAM_ROOT}
     ```
 2. Enter the [`build/`](build/) directory and run [`runcmake.sh`](build/runcmake.sh) which will analyse the program using cmake.
     ``` shell
@@ -46,22 +47,20 @@ Simulations of the model with both attractive and repulsive interaction are perf
 5. Running the program directly with command `mpirun` also works, and one can always use option `--help` to see helping messages:
     ``` shell
     $ # start simulation
-    $ mpirun -np 4 --oversubscribe {PROGRAM_ROOT}/build/dqmc_hubbard
+    $ mpirun -np 4 --oversubscribe {PROGRAM_ROOT}/build/dqmc
     $
     $ # show helping messages
-    $ mpirun {PROGRAM_ROOT}/build/dqmc_hubbard --help
-    ```
+    $ mpirun {PROGRAM_ROOT}/build/dqmc --help
+    ``` -->
 
 
 ## Features ##
 
-1. Program works well in condition of moderate model parameters.
-2. Stable sweeping procedure with high computational efficiency.
-3. Support distributed parallel using MPI.  
-4. Support both attractive and repulsive hubbard interaction.
-5. Support simulation of doped systems by reweighting.
-6. Support equal-time and dynamical measurements of physical observables.
-7. Support checkerboard break-ups with efficient linear algebra.
+1. **Core DQMC modules independent of specific models and lattices.** The well-designed DQMC sweeping process is tested stable and of high computational efficiency.
+2. **Modularly designed and highly extensible.** To simulate other models on different lattices, one should simply write their own Model and Lattice class, which should be derived from corresponding base classes, and implement the virtual interfaces and methods in a correct way. 
+3. Support equal-time and dynamical measurements of various physical observables, and **adding measurements of user-defined observables is straightforward.**
+4. **Distributed parallel acceleration using MPI.**  
+5. Support checkerboard break-ups with efficient linear algebra ( for bipartite lattices only ).
 
 
 ## References ##
