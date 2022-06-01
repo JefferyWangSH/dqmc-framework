@@ -46,7 +46,7 @@ namespace Lattice {
         // the point group of 2d sqaure lattice is C4v
         this->m_num_k_stars = (std::floor(this->m_side_length/2.0)+1)*(std::floor(this->m_side_length/2.0)+2)/2;
         
-        // initialize indices of athis->m_side_length k stars
+        // initialize indices of k stars
         this->m_k_stars_index.reserve(this->m_num_k_stars);
         for (auto index = 0; index < this->m_num_k_stars; ++index) {
             this->m_k_stars_index.emplace_back(index);
@@ -79,8 +79,8 @@ namespace Lattice {
 
             this->m_nearest_neighbour_table(index, 0) = ((x+1)%this->m_side_length) + this->m_side_length * y;
             this->m_nearest_neighbour_table(index, 2) = ((x-1)%this->m_side_length) + this->m_side_length * y;
-            this->m_nearest_neighbour_table(index, 1) = (x%this->m_side_length) + this->m_side_length * ((y+1)%this->m_side_length);
-            this->m_nearest_neighbour_table(index, 3) = (x%this->m_side_length) + this->m_side_length * ((y-1)%this->m_side_length);
+            this->m_nearest_neighbour_table(index, 1) = x + this->m_side_length * ((y+1)%this->m_side_length);
+            this->m_nearest_neighbour_table(index, 3) = x + this->m_side_length * ((y-1)%this->m_side_length);
         }
     }
 

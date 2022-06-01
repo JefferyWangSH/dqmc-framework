@@ -3,6 +3,7 @@
 
 #include "lattice/lattice_base.h"
 #include "lattice/square.h"
+#include "lattice/cubic.h"
 
 #include "model/model_base.h"
 #include "model/repulsive_hubbard.h"
@@ -55,183 +56,216 @@
 
 int main(int argc, char* argv[]) {
 
-    boost::mpi::environment env(argc, argv);
-    boost::mpi::communicator world;
-    const int master = 0;
-    const int rank = world.rank();
-
-    // -------------------------------------------------------------------------------------------
-    //                             Output current date and time
-    // -------------------------------------------------------------------------------------------
-    if ( rank == master ) {
-        const auto current_time = boost::posix_time::second_clock::local_time();
-        std::cout << boost::format(" Current time: %s \n") % current_time << std::endl;
-    }
-
-
-    // -------------------------------------------------------------------------------------------
-    //                             Output MPI and hardware info
-    // -------------------------------------------------------------------------------------------
-    if ( rank == master ) {
-        // print MPI and hardware information
-        boost::format fmt_mpi(" Distribute tasks to %s processes, with the master process being %s. \n");
-        std::cout << fmt_mpi % world.size() % env.processor_name() << std::endl;
-    }
-
-
-    // set up random seeds
-    Utils::Random::set_seed( std::time(nullptr) + rank );
-    // // fixed random seed for debug
-    // Utils::Random::set_seed( 12345 );
-
-
-    std::unique_ptr<Model::ModelBase> model;
-    std::unique_ptr<Lattice::LatticeBase> lattice;
-    std::unique_ptr<QuantumMonteCarlo::DqmcWalker> walker;
-    std::unique_ptr<Measure::MeasureHandler> meas_handler;
-    std::unique_ptr<CheckerBoard::CheckerBoardBase> checkerboard;
-
-
-    // parse parmas from the configuation file
-    QuantumMonteCarlo::DqmcInitializer::parse_toml_config( 
-            "../config.toml", world.size(),
-            model, lattice, walker, meas_handler, checkerboard );
-
-    // initialize models
-    if ( checkerboard ) { 
-        // using checkerboard break-up
-        QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler, *checkerboard ); 
-    }
-    else { 
-        QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler ); 
-    }
-
-    // randomly initialize the bosonic fields
-    // todo: read fields from file
-    model->set_bosonic_fields_to_random();
-    if (rank == master ) { 
-        std::cout << " Configurations of auxiliary fields set to random. \n" << std::endl; 
-    }
-    // QuantumMonteCarlo::DqmcIO::read_bosonic_fields_from_file( "../out.dat", *model);
-
-    // initialize modules for dqmc
-    QuantumMonteCarlo::DqmcInitializer::initial_dqmc( *model, *lattice, *walker, *meas_handler );
-
-    if ( rank == master ) {
-        std::cout << " Initialization finished. \n\n" 
-                  << " The simulation is going to get started with parameters shown below : \n\n"
-                  << std::endl;
-    }
-
-    // output the initialization info
-    if ( rank == master ) {
-        QuantumMonteCarlo::DqmcIO::output_init_info 
-            ( 
-                std::cout, world.size(), 
-                *model, *lattice, *walker, *meas_handler, checkerboard 
-            );
-    }
-
-    QuantumMonteCarlo::Dqmc::show_progress_bar( (rank == master) );
-    QuantumMonteCarlo::Dqmc::progress_bar_format( 60, '=', ' ' );
-    QuantumMonteCarlo::Dqmc::set_refresh_rate( 10 );
-    
-    // start the dqmc simulation
-    QuantumMonteCarlo::Dqmc::timer_begin();
-    QuantumMonteCarlo::Dqmc::thermalize( *walker, *model, *lattice, *meas_handler );
-    QuantumMonteCarlo::Dqmc::measure( *walker, *model, *lattice, *meas_handler );
-    
-    // gather observable objects from other processes
-    Utils::MPI::mpi_gather( world, *meas_handler );
-
-    // perform the analysis
-    QuantumMonteCarlo::Dqmc::analyse( *meas_handler );
-
-    // end the timer
-    QuantumMonteCarlo::Dqmc::timer_end();
-
-    // output the ending info
-    if ( rank == master ) {
-        QuantumMonteCarlo::DqmcIO::output_ending_info( std::cout, *walker );
-    }
 
     
-    // std::ofstream outfile("../out.dat");
-    // QuantumMonteCarlo::DqmcIO::output_observable_in_bins(
-    //     outfile, meas_handler->find<Observable::VectorObs>("density_of_states")
-    // );
-    // outfile.close();
+    
+    // test cubic lattice
 
-    // QuantumMonteCarlo::DqmcIO::output_k_stars( std::cout, *lattice );
+    Lattice::Cubic* cubic = new Lattice::Cubic();
 
-    // QuantumMonteCarlo::DqmcIO::output_imaginary_time_grids( std::cout, *walker );
+    cubic->set_lattice_params({3,3,3});
+    cubic->initial();
 
-    // std::ofstream outfile("../out.dat");
-    // QuantumMonteCarlo::DqmcIO::output_bosonic_fields( outfile, *model );
-    // outfile.close();
+    // std::cout << cubic->m_index2site_table << std::endl;
+    // std::cout << cubic->m_index2site_table.size() << std::endl;
+
+    // std::cout << cubic->m_space_size << std::endl;
+    // std::cout << cubic->m_hopping_matrix << std::endl;
+    // std::cout << cubic->m_hopping_matrix.size() << std::endl;
+    
 
 
-    if ( rank == master ) 
-    {
-        if ( meas_handler->find("equaltime_sign") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("equaltime_sign") );
-        }
 
-        if ( meas_handler->find("dynamic_sign") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("dynamic_sign") );
-        }
 
-        std::cout << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+    // boost::mpi::environment env(argc, argv);
+    // boost::mpi::communicator world;
+    // const int master = 0;
+    // const int rank = world.rank();
+
+    // // -------------------------------------------------------------------------------------------
+    // //                             Output current date and time
+    // // -------------------------------------------------------------------------------------------
+    // if ( rank == master ) {
+    //     const auto current_time = boost::posix_time::second_clock::local_time();
+    //     std::cout << boost::format(" Current time: %s \n") % current_time << std::endl;
+    // }
+
+
+    // // -------------------------------------------------------------------------------------------
+    // //                             Output MPI and hardware info
+    // // -------------------------------------------------------------------------------------------
+    // if ( rank == master ) {
+    //     // print MPI and hardware information
+    //     boost::format fmt_mpi(" Distribute tasks to %s processes, with the master process being %s. \n");
+    //     std::cout << fmt_mpi % world.size() % env.processor_name() << std::endl;
+    // }
+
+
+    // // set up random seeds
+    // Utils::Random::set_seed( std::time(nullptr) + rank );
+    // // // fixed random seed for debug
+    // // Utils::Random::set_seed( 12345 );
+
+
+    // std::unique_ptr<Model::ModelBase> model;
+    // std::unique_ptr<Lattice::LatticeBase> lattice;
+    // std::unique_ptr<QuantumMonteCarlo::DqmcWalker> walker;
+    // std::unique_ptr<Measure::MeasureHandler> meas_handler;
+    // std::unique_ptr<CheckerBoard::CheckerBoardBase> checkerboard;
+
+
+    // // parse parmas from the configuation file
+    // QuantumMonteCarlo::DqmcInitializer::parse_toml_config( 
+    //         "../../example/config.toml", world.size(),
+    //         model, lattice, walker, meas_handler, checkerboard );
+
+    // // initialize models
+    // if ( checkerboard ) { 
+    //     // using checkerboard break-up
+    //     QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler, *checkerboard ); 
+    // }
+    // else { 
+    //     QuantumMonteCarlo::DqmcInitializer::initial_modules( *model, *lattice, *walker, *meas_handler ); 
+    // }
+
+    // // randomly initialize the bosonic fields
+    // // todo: read fields from file
+    // model->set_bosonic_fields_to_random();
+    // if (rank == master ) { 
+    //     std::cout << " Configurations of auxiliary fields set to random. \n" << std::endl; 
+    // }
+    // // QuantumMonteCarlo::DqmcIO::read_bosonic_fields_from_file( "../out.dat", *model);
+
+    // // initialize modules for dqmc
+    // QuantumMonteCarlo::DqmcInitializer::initial_dqmc( *model, *lattice, *walker, *meas_handler );
+
+    // if ( rank == master ) {
+    //     std::cout << " Initialization finished. \n\n" 
+    //               << " The simulation is going to get started with parameters shown below : \n\n"
+    //               << std::endl;
+    // }
+
+    // // output the initialization info
+    // if ( rank == master ) {
+    //     QuantumMonteCarlo::DqmcIO::output_init_info 
+    //         ( 
+    //             std::cout, world.size(), 
+    //             *model, *lattice, *walker, *meas_handler, checkerboard 
+    //         );
+    // }
+
+    // QuantumMonteCarlo::Dqmc::show_progress_bar( (rank == master) );
+    // QuantumMonteCarlo::Dqmc::progress_bar_format( 60, '=', ' ' );
+    // QuantumMonteCarlo::Dqmc::set_refresh_rate( 10 );
+    
+    // // start the dqmc simulation
+    // QuantumMonteCarlo::Dqmc::timer_begin();
+    // QuantumMonteCarlo::Dqmc::thermalize( *walker, *model, *lattice, *meas_handler );
+    // QuantumMonteCarlo::Dqmc::measure( *walker, *model, *lattice, *meas_handler );
+    
+    // // gather observable objects from other processes
+    // Utils::MPI::mpi_gather( world, *meas_handler );
+
+    // // perform the analysis
+    // QuantumMonteCarlo::Dqmc::analyse( *meas_handler );
+
+    // // end the timer
+    // QuantumMonteCarlo::Dqmc::timer_end();
+
+    // // output the ending info
+    // if ( rank == master ) {
+    //     QuantumMonteCarlo::DqmcIO::output_ending_info( std::cout, *walker );
+    // }
+
+    
+    // // std::ofstream outfile("../out.dat");
+    // // QuantumMonteCarlo::DqmcIO::output_observable_in_bins(
+    // //     outfile, meas_handler->find<Observable::VectorObs>("density_of_states")
+    // // );
+    // // outfile.close();
+
+    // // QuantumMonteCarlo::DqmcIO::output_k_stars( std::cout, *lattice );
+
+    // // QuantumMonteCarlo::DqmcIO::output_imaginary_time_grids( std::cout, *walker );
+
+    // // std::ofstream outfile("../out.dat");
+    // // QuantumMonteCarlo::DqmcIO::output_bosonic_fields( outfile, *model );
+    // // outfile.close();
+
+
+    // if ( rank == master ) 
+    // {
+    //     if ( meas_handler->find("equaltime_sign") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("equaltime_sign") );
+    //     }
+
+    //     if ( meas_handler->find("dynamic_sign") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("dynamic_sign") );
+    //     }
+
+    //     std::cout << std::endl;
       
-        if ( meas_handler->find("filling_number") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("filling_number") );
-        }
+    //     if ( meas_handler->find("filling_number") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("filling_number") );
+    //     }
 
-        if ( meas_handler->find("double_occupancy") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("double_occupancy") );
-        }
+    //     if ( meas_handler->find("double_occupancy") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("double_occupancy") );
+    //     }
 
-        if ( meas_handler->find("kinetic_energy") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("kinetic_energy") );
-        }
+    //     if ( meas_handler->find("kinetic_energy") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("kinetic_energy") );
+    //     }
 
-        if ( meas_handler->find("local_spin_corr") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("local_spin_corr") );
-        }
+    //     if ( meas_handler->find("local_spin_corr") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("local_spin_corr") );
+    //     }
 
-        if ( meas_handler->find("momentum_distribution") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("momentum_distribution") );
-        }
+    //     if ( meas_handler->find("momentum_distribution") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("momentum_distribution") );
+    //     }
 
-        if ( meas_handler->find("spin_density_structure_factor") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("spin_density_structure_factor") );
-        }
+    //     if ( meas_handler->find("spin_density_structure_factor") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("spin_density_structure_factor") );
+    //     }
 
-        if ( meas_handler->find("charge_density_structure_factor") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("charge_density_structure_factor") );
-        }
+    //     if ( meas_handler->find("charge_density_structure_factor") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("charge_density_structure_factor") );
+    //     }
 
-        if ( meas_handler->find("s_wave_pairing_corr") ) {
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("s_wave_pairing_corr") );
-        }
+    //     if ( meas_handler->find("s_wave_pairing_corr") ) {
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("s_wave_pairing_corr") );
+    //     }
 
-        // important!!!
-        // todo: the correctness of superfluid stiffness measurements should be further checked in attractive hubbard model
-        if ( meas_handler->find("superfluid_stiffness") ) {  
-            QuantumMonteCarlo::DqmcIO::output_observable( 
-                std::cout, meas_handler->find<Observable::ScalarObs>("superfluid_stiffness") );
-        }
-    }
+    //     // important!!!
+    //     // todo: the correctness of superfluid stiffness measurements should be further checked in attractive hubbard model
+    //     if ( meas_handler->find("superfluid_stiffness") ) {  
+    //         QuantumMonteCarlo::DqmcIO::output_observable( 
+    //             std::cout, meas_handler->find<Observable::ScalarObs>("superfluid_stiffness") );
+    //     }
+    // }
 
 
 

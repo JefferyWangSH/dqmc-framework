@@ -2,6 +2,7 @@
 #define LATTICE_SQUARE_H
 #pragma once
 
+
 /**
   *  This header file defines the Lattice::Square class for 2d square lattice,
   *  derived from the base class Lattice::LatticeBase.
