@@ -12,14 +12,19 @@
     chemical_potential = 0.0
 
 [Lattice]
-    # support lattice type: Square, Cubic(todo) and Honeycomb(todo)
+    # support lattice type: Square, Cubic and Honeycomb(todo)
     type = "Square"
     cell = [ 8, 8 ]
 
     # symmetric points in the reciprocal lattice ( k stars )
     # for 2d square lattice, the following options are supported
-    #   1. GammaPoint, MPoint, XPoint for single high symmetric momentum point
-    #   2. DeltaLine, ZLine, SigmaLine, Gamma2X2M2GammaLoop for high symmetric lines
+    #   1. GammaPoint, XPoint, MPoint for high symmetry momentum points
+    #   2. DeltaLine, ZLine, SigmaLine, Gamma2X2M2GammaLoop for high symmetry lines
+    #   3. KstarsAll for all inequivalent momentum points
+    #
+    # for 3d cubic lattice, the following options are supported
+    #   1. GammaPoint, XPoint, MPoint, RPoint for high symmetry momentum points
+    #   2. DeltaLine, ZLine, SigmaLine, LambdaLine, SLine and TLine for high symmetry lines
     #   3. KstarsAll for all inequivalent momentum points
     momentum = "MPoint"
     momentum_list = "KstarsAll"
