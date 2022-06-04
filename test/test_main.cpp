@@ -63,8 +63,51 @@ int main(int argc, char* argv[]) {
 
     Lattice::Cubic* cubic = new Lattice::Cubic();
 
-    cubic->set_lattice_params({3,3,3});
+    cubic->set_lattice_params({10,10,10});
     cubic->initial();
+
+    // std::cout << cubic->Index2Momentum( cubic->GammaPointIndex() ) << std::endl;
+    // std::cout << cubic->Index2Momentum( cubic->XPointIndex() ) << std::endl;
+    // std::cout << cubic->Index2Momentum( cubic->MPointIndex() ) << std::endl;
+    // std::cout << cubic->Index2Momentum( cubic->RPointIndex() ) << std::endl;
+    // std::cout << cubic->Index2Momentum( cubic->DeltaLineIndex() ) << std::endl;
+
+    for ( auto k : cubic->LambdaLineIndex() ) {
+        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    }
+
+    for ( auto k : cubic->SLineIndex() ) {
+        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    }
+
+    for ( auto k : cubic->TLineIndex() ) {
+        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    }
+
+
+
+
+
+
+
+
+    // // number of k stars for cubic lattice
+    // for (int ll = 2; ll <= 20; ll++) {
+    //     int kstar_num = 0;
+    //     for ( int i = 1; i <= std::floor(ll/2.0)+1; i++ ) {
+    //         kstar_num += i*(i+1)/2;
+    //     }
+
+    //     const auto halfl = std::floor(ll/2.0)+1;
+    //     std::cout << halfl*(halfl+1)*(2*halfl+1)/12 + halfl*(halfl+1)/4 << "   "
+    //               << kstar_num << std::endl;
+
+    //     // std::cout << (std::floor(ll/2.0)+1)*(std::floor(ll/2.0)+2)/2 
+    //     //           << std::endl;
+    // }
+
+    
+
 
     // std::cout << cubic->m_index2site_table << std::endl;
     // std::cout << cubic->m_index2site_table.size() << std::endl;

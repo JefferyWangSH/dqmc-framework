@@ -172,11 +172,21 @@ namespace QuantumMonteCarlo {
                         << std::flush;
             }
             
-            // // ----------------------------------  3d Cubic lattice  -------------------------------------
-            // else if ( const auto cubic_lattice = dynamic_cast<const Lattice::Cubic*>(&lattice);
-            //     cubic_lattice != nullptr ) {
-            //     // todo
-            // }
+            // ----------------------------------  3d Cubic lattice  -------------------------------------
+            else if ( const auto cubic_lattice = dynamic_cast<const Lattice::Cubic*>(&lattice);
+                cubic_lattice != nullptr ) {
+                boost::format fmt_cell("%d * %d * %d");
+                boost::format fmt_momentum("(%.2f, %.2f, %.2f) pi");
+                const int side_length = cubic_lattice->SideLength();
+                const double px = (cubic_lattice->Index2Momentum(meas_handler.Momentum(), 0)/M_PI);
+                const double py = (cubic_lattice->Index2Momentum(meas_handler.Momentum(), 1)/M_PI);
+                const double pz = (cubic_lattice->Index2Momentum(meas_handler.Momentum(), 2)/M_PI);
+
+                ostream << " Lattice: Cubic lattice\n"
+                        << fmt_param_str % "Size of cell" % joiner % ( fmt_cell % side_length % side_length % side_length )
+                        << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py % py )
+                        << std::flush;
+            }
 
             // // --------------------------------  2d Honeycomb lattice  -----------------------------------
             // else if ( const auto honeycomb_lattice = dynamic_cast<const Lattice::Honeycomb*>(&lattice);

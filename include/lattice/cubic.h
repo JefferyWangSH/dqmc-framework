@@ -18,14 +18,17 @@ namespace Lattice {
 
         private:
             
-            // // some high symmetric points in the reciprocal lattice
-            // LatticeInt m_gamma_point_index{};
-            // LatticeInt m_m_point_index{};
-            // LatticeInt m_x_point_index{};
-            // LatticeIntVec m_delta_line_index{};
-            // LatticeIntVec m_z_line_index{};
-            // LatticeIntVec m_sigma_line_index{};
-            // LatticeIntVec m_gamma2x2m2gamma_loop_index{};   // indexes of the defined loop
+            // some high symmetry points in the reciprocal lattice
+            LatticeInt m_gamma_point_index{};           // (0,0,0)
+            LatticeInt m_x_point_index{};               // (pi,0,0)
+            LatticeInt m_m_point_index{};               // (pi,pi,0)
+            LatticeInt m_r_point_index{};               // (pi,pi,pi)
+            LatticeIntVec m_delta_line_index{};         // (0,0,0)   ->  (pi,0,0)
+            LatticeIntVec m_z_line_index{};             // (pi,0,0)  ->  (pi,pi,0)
+            LatticeIntVec m_sigma_line_index{};         // (0,0,0)   ->  (pi,pi,0)
+            LatticeIntVec m_lambda_line_index{};        // (0,0,0)   ->  (pi,pi,pi)
+            LatticeIntVec m_s_line_index{};             // (pi,0,0)  ->  (pi,pi,pi)
+            LatticeIntVec m_t_line_index{};             // (pi,pi,0) ->  (pi,pi,pi)
 
 
         public:
@@ -38,14 +41,17 @@ namespace Lattice {
             // initializations
             void initial();
 
-            // // interfaces for high symmetric momentum points
-            // const LatticeInt GammaPointIndex()     const ;
-            // const LatticeInt MPointIndex()         const ;
-            // const LatticeInt XPointIndex()         const ;
-            // const LatticeIntVec& DeltaLineIndex()  const ;
-            // const LatticeIntVec& ZLineIndex()      const ;
-            // const LatticeIntVec& SigmaLineIndex()  const ;
-            // const LatticeIntVec& Gamma2X2M2GammaLoopIndex() const ;
+            // interfaces for high symmetry momentum points
+            const LatticeInt GammaPointIndex()     const ;
+            const LatticeInt XPointIndex()         const ;
+            const LatticeInt MPointIndex()         const ;
+            const LatticeInt RPointIndex()         const ;
+            const LatticeIntVec& DeltaLineIndex()  const ;
+            const LatticeIntVec& ZLineIndex()      const ;
+            const LatticeIntVec& SigmaLineIndex()  const ;
+            const LatticeIntVec& LambdaLineIndex() const ;
+            const LatticeIntVec& SLineIndex()      const ;
+            const LatticeIntVec& TLineIndex()      const ;
             
 
         private:
@@ -56,7 +62,7 @@ namespace Lattice {
 
             void initial_nearest_neighbour_table();
             void initial_displacement_table();
-            void initial_symmetric_points();
+            void initial_symmetry_points();
             void initial_fourier_factor_table();
 
             void initial_hopping_matrix();

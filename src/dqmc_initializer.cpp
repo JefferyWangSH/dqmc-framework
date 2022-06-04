@@ -118,7 +118,35 @@ namespace QuantumMonteCarlo {
         // -------------------------------------  3D Cubic lattice  -----------------------------------------
         else if ( lattice_type == "Cubic" )
         {
-            // todo
+            // parse size of the lattice
+            std::vector<int> lattice_size;
+            toml::array* lattice_arr = config["Lattice"]["cell"].as_array();
+            if ( lattice_arr && lattice_arr->size() == 3 && lattice_arr->is_homogeneous<int64_t>() ) {
+                lattice_size.reserve(lattice_arr->size());
+                for ( auto&& el : *lattice_arr ) {
+                    if ( el.value_or(0) < 1 ) {
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "the input cell of 3d cubic lattice should be a vector containing three positive intergers, "
+                                  << "please check the config." << std::endl;
+                        exit(1);
+                    }
+                    lattice_size.emplace_back(el.value_or(0));
+                }
+            }
+            else {
+                std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                          << "the input cell of 3d cubic lattice should be a vector containing three positive intergers, "
+                          << "please check the config." << std::endl;
+                exit(1);
+            }
+
+            // create 3d cubic lattice object
+            if ( lattice ) { lattice.reset(); }
+            lattice = std::make_unique<Lattice::Cubic>();
+            lattice->set_lattice_params( lattice_size );
+
+            // initial lattice module in place
+            if ( !lattice->InitialStatus() ) { lattice->initial(); }
         }
 
         // ------------------------------------  2D Honeycomb lattice  --------------------------------------
@@ -260,12 +288,43 @@ namespace QuantumMonteCarlo {
                               << "fail to convert \'Lattice::LatticeBase\' to \'Lattice::Square\'." << std::endl;
                     exit(1);
                 }
-
             }
 
             // -----------------------------------  3D Cubic lattice  ---------------------------------------
             if ( lattice_type == "Cubic" ) {
-                // todo
+                // covert base class pointer to that of the derived cubic lattice class
+                if ( const auto cubic_lattice = dynamic_cast<const Lattice::Cubic*>(lattice.get()) ) {
+
+                    if ( momentum == "GammaPoint" )  { meas_handler->set_measured_momentum( cubic_lattice->GammaPointIndex() ); }
+                    else if ( momentum == "MPoint" ) { meas_handler->set_measured_momentum( cubic_lattice->MPointIndex() ); }
+                    else if ( momentum == "XPoint" ) { meas_handler->set_measured_momentum( cubic_lattice->XPointIndex() ); }
+                    else if ( momentum == "RPoint" ) { meas_handler->set_measured_momentum( cubic_lattice->RPointIndex() ); }
+                    else { 
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "undefined momentum \'" << momentum << "\' for 3d cubic lattice, "
+                                  << "please check the config." << std::endl;
+                        exit(1);
+                    }
+
+                    if ( momentum_list == "KstarsAll" ) { meas_handler->set_measured_momentum_list( cubic_lattice->kStarsIndex() ); }
+                    else if ( momentum_list == "DeltaLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->DeltaLineIndex() ); }
+                    else if ( momentum_list == "ZLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->ZLineIndex() ); }
+                    else if ( momentum_list == "SigmaLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->SigmaLineIndex() ); }
+                    else if ( momentum_list == "LambdaLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->LambdaLineIndex() ); }
+                    else if ( momentum_list == "SLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->SLineIndex() ); }
+                    else if ( momentum_list == "TLine" ) { meas_handler->set_measured_momentum_list( cubic_lattice->TLineIndex() ); }
+                    else { 
+                        std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                                  << "undefined momentum list \'" << momentum_list << "\' for 3d cubic lattice, "
+                                  << "please check the config." << std::endl;
+                        exit(1);
+                    }
+                }
+                else {
+                    std::cerr << "QuantumMonteCarlo::DqmcInitializer::parse_toml_config(): "
+                              << "fail to convert \'Lattice::LatticeBase\' to \'Lattice::Cubic\'." << std::endl;
+                    exit(1);
+                }
             }
 
             // ----------------------------------  2D Honeycomb lattice  ------------------------------------
