@@ -3,10 +3,10 @@
 
 namespace Lattice {
 
-    // high symmetric points in the reciprocal lattice
+    // high symmetry points in the reciprocal lattice
     const LatticeInt Square::GammaPointIndex() const { return this->m_gamma_point_index; }
-    const LatticeInt Square::MPointIndex() const { return this->m_m_point_index; }
     const LatticeInt Square::XPointIndex() const { return this->m_x_point_index; }
+    const LatticeInt Square::MPointIndex() const { return this->m_m_point_index; }
     const LatticeIntVec& Square::DeltaLineIndex() const { return this->m_delta_line_index; }
     const LatticeIntVec& Square::ZLineIndex() const { return this->m_z_line_index; }
     const LatticeIntVec& Square::SigmaLineIndex() const { return this->m_sigma_line_index; }
@@ -41,9 +41,9 @@ namespace Lattice {
     
     void Square::initial_index2momentum_table()
     {
-        // total number of k stars (inequivalent momentum points) in 2d square lattice,
-        // which locate in the zone surrounded by loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0).
-        // the point group of 2d sqaure lattice is C4v
+        // k stars (inequivalent momentum points) in 2d square lattice
+        // locate in the zone surrounded by loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0).
+        // note that the point group of 2d sqaure lattice is C4v
         this->m_num_k_stars = (std::floor(this->m_side_length/2.0)+1)*(std::floor(this->m_side_length/2.0)+2)/2;
         
         // initialize indices of k stars
@@ -105,9 +105,9 @@ namespace Lattice {
     }
             
 
-    void Square::initial_symmetric_points() 
+    void Square::initial_symmetry_points() 
     {
-        // some higher symmetric points of 2d sqaure lattice
+        // high symmetry points of 2d square lattice
         // Gamma point:  (0,  0)
         // X point:      (pi, 0)
         // M point:      (pi, pi)
@@ -115,9 +115,10 @@ namespace Lattice {
         this->m_x_point_index     = this->m_num_k_stars - std::floor(this->m_side_length/2.0) - 1;
         this->m_m_point_index     = this->m_num_k_stars - 1; 
 
-        // Delta line:   (0,0)   ->  (pi,0)
-        // Z line:       (pi,0)  ->  (pi,pi)
-        // Sigma line:   (pi,pi) ->  (0,0)
+        // high symmetry lines of 2d square lattice
+        // Delta line:   (0,0)  ->  (pi,0)
+        // Z line:       (pi,0) ->  (pi,pi)
+        // Sigma line:   (0,0)  ->  (pi,pi)
         this->m_delta_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
         this->m_z_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
         this->m_sigma_line_index.reserve(std::floor(this->m_side_length/2.0)+1);
@@ -185,7 +186,7 @@ namespace Lattice {
 
             this->initial_nearest_neighbour_table();
             this->initial_displacement_table();
-            this->initial_symmetric_points();
+            this->initial_symmetry_points();
             this->initial_fourier_factor_table();
 
             this->initial_hopping_matrix();  

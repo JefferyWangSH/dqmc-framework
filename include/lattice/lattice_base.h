@@ -108,7 +108,7 @@ namespace Lattice {
             virtual void initial_nearest_neighbour_table() = 0;
             virtual void initial_displacement_table()      = 0;
             virtual void initial_index2momentum_table()    = 0;
-            virtual void initial_symmetric_points()        = 0;
+            virtual void initial_symmetry_points()        = 0;
             virtual void initial_fourier_factor_table()    = 0;
 
     };

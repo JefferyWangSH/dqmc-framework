@@ -18,14 +18,16 @@ namespace Lattice {
 
         private:
             
-            // some high symmetric points in the reciprocal lattice
-            LatticeInt m_gamma_point_index{};
-            LatticeInt m_m_point_index{};
-            LatticeInt m_x_point_index{};
-            LatticeIntVec m_delta_line_index{};
-            LatticeIntVec m_z_line_index{};
-            LatticeIntVec m_sigma_line_index{};
-            LatticeIntVec m_gamma2x2m2gamma_loop_index{};   // indexes of the defined loop
+            // some high symmetry points in the reciprocal lattice
+            LatticeInt m_gamma_point_index{};           // (0,0)
+            LatticeInt m_x_point_index{};               // (pi,0)
+            LatticeInt m_m_point_index{};               // (pi,pi)
+            LatticeIntVec m_delta_line_index{};         // (0,0)  ->  (pi,0)
+            LatticeIntVec m_z_line_index{};             // (pi,0) ->  (pi,pi)
+            LatticeIntVec m_sigma_line_index{};         // (0,0)  ->  (pi,pi)
+
+            // defined loop (0,0) -> (pi,0) -> (pi,pi) -> (0,0) 
+            LatticeIntVec m_gamma2x2m2gamma_loop_index{};   
 
 
         public:
@@ -38,10 +40,10 @@ namespace Lattice {
             // initializations
             void initial();
 
-            // interfaces for high symmetric momentum points
+            // interfaces for high symmetry momentum points
             const LatticeInt GammaPointIndex()     const ;
-            const LatticeInt MPointIndex()         const ;
             const LatticeInt XPointIndex()         const ;
+            const LatticeInt MPointIndex()         const ;
             const LatticeIntVec& DeltaLineIndex()  const ;
             const LatticeIntVec& ZLineIndex()      const ;
             const LatticeIntVec& SigmaLineIndex()  const ;
@@ -56,7 +58,7 @@ namespace Lattice {
 
             void initial_nearest_neighbour_table();
             void initial_displacement_table();
-            void initial_symmetric_points();
+            void initial_symmetry_points();
             void initial_fourier_factor_table();
 
             void initial_hopping_matrix();
