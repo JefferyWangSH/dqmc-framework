@@ -128,7 +128,7 @@ namespace QuantumMonteCarlo {
             // ------------------------------  Repulsive Hubbard model  ----------------------------------
             if ( const auto repulsive_hubbard = dynamic_cast<const Model::RepulsiveHubbard*>(&model);
                 repulsive_hubbard != nullptr ) {
-                ostream << " Model: Attractive Hubbard\n"
+                ostream << " Model: Repulsive Hubbard\n"
                         << fmt_param_double % "Hopping constant \'t\'" % joiner % repulsive_hubbard->HoppingT()
                         << fmt_param_double % "Onsite interaction \'U\'" % joiner % repulsive_hubbard->OnSiteU()
                         << fmt_param_double % "Checimcal potential \'mu\'" % joiner % repulsive_hubbard->ChemicalPotential()
