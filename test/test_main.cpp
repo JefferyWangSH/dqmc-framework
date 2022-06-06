@@ -72,22 +72,28 @@ int main(int argc, char* argv[]) {
     // std::cout << cubic->Index2Momentum( cubic->RPointIndex() ) << std::endl;
     // std::cout << cubic->Index2Momentum( cubic->DeltaLineIndex() ) << std::endl;
 
-    for ( auto k : cubic->LambdaLineIndex() ) {
-        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
-    }
+    // for ( auto k : cubic->LambdaLineIndex() ) {
+    //     std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    // }
 
-    for ( auto k : cubic->SLineIndex() ) {
-        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
-    }
+    // for ( auto k : cubic->SLineIndex() ) {
+    //     std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    // }
 
-    for ( auto k : cubic->TLineIndex() ) {
-        std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
-    }
+    // for ( auto k : cubic->TLineIndex() ) {
+    //     std::cout << cubic->Index2Momentum( k ) << "\n" << std::endl;
+    // }
 
+    // std::cout << cubic->NearestNeighbour(0,0) << std::endl;
+    // std::cout << cubic->NearestNeighbour(0,1) << std::endl;
+    // std::cout << cubic->NearestNeighbour(0,2) << std::endl;
+    // std::cout << cubic->NearestNeighbour(0,3) << std::endl;
+    // std::cout << cubic->NearestNeighbour(0,4) << std::endl;
+    // std::cout << cubic->NearestNeighbour(0,5) << std::endl;
 
-
-
-
+    std::cout << cubic->Index2Site(337) << std::endl;
+    std::cout << cubic->Index2Site(123) << std::endl;
+    std::cout << cubic->Index2Site( cubic->Displacement(123,337) ) << std::endl;
 
 
 

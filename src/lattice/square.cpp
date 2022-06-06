@@ -77,10 +77,10 @@ namespace Lattice {
             const auto x = index % this->m_side_length;
             const auto y = index / this->m_side_length;
 
-            this->m_nearest_neighbour_table(index, 0) = ((x+1)%this->m_side_length) + this->m_side_length * y;
-            this->m_nearest_neighbour_table(index, 2) = ((x-1)%this->m_side_length) + this->m_side_length * y;
-            this->m_nearest_neighbour_table(index, 1) = x + this->m_side_length * ((y+1)%this->m_side_length);
-            this->m_nearest_neighbour_table(index, 3) = x + this->m_side_length * ((y-1)%this->m_side_length);
+            this->m_nearest_neighbour_table(index, 0) = ( (x+1)%this->m_side_length ) + this->m_side_length * y;
+            this->m_nearest_neighbour_table(index, 2) = ( (x-1+this->m_side_length)%this->m_side_length ) + this->m_side_length * y;
+            this->m_nearest_neighbour_table(index, 1) = x + this->m_side_length * ( (y+1)%this->m_side_length );
+            this->m_nearest_neighbour_table(index, 3) = x + this->m_side_length * ( (y-1+this->m_side_length)%this->m_side_length );
         }
     }
 
