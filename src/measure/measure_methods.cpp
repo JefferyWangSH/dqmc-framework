@@ -153,8 +153,8 @@ namespace Measure {
 
 
     // Structure factor of spin density wave (SDW) defined as 
-    // 1/(4N) \sum ij ( exp( -i Q*(ri-rj) ) * (n_up - n_dn)(j) * (n_up - n_dn)(i) ) 
-    // where Q is the wave momentum of sdw, and the factor 1/4 comes from the spin 1/2 of electrons
+    // 1/N \sum ij ( exp( -i Q*(ri-rj) ) * (n_up - n_dn)(j) * (n_up - n_dn)(i) ) 
+    // where Q is the wave momentum of sdw.
     void Methods::measure_spin_density_structure_factor( ScalarObs& sdw_factor, 
                                                          const MeasureHandler& meas_handler,
                                                          const DqmcWalker& walker,
@@ -174,9 +174,7 @@ namespace Measure {
             RealScalar tmp_sdw = 0.0;
             for (auto i = 0; i < lattice.SpaceSize(); ++i) {
                 for (auto j = 0; j < lattice.SpaceSize(); ++j) {
-                    // factor 1/4 comes from spin 1/2 of electrons
-                    tmp_sdw += 0.25 * config_sign 
-                        * lattice.FourierFactor( lattice.Displacement(i,j), meas_handler.Momentum() )
+                    tmp_sdw += config_sign * lattice.FourierFactor( lattice.Displacement(i,j), meas_handler.Momentum() )
                         * ( + guc(i,i) * guc(j,j) + guc(i,j) * gu(i,j)
                             + gdc(i,i) * gdc(j,j) + gdc(i,j) * gd(i,j)
                             - gdc(i,i) * guc(j,j) - guc(i,i) * gdc(j,j) );

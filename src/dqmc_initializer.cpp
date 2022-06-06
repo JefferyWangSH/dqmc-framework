@@ -186,7 +186,7 @@ namespace QuantumMonteCarlo {
         // --------------------------------------------------------------------------------------------------
         //                                   Parse the DqmcWalker module
         // --------------------------------------------------------------------------------------------------
-        const int beta = config["MonteCarlo"]["beta"].value_or(4.0);
+        const double beta = config["MonteCarlo"]["beta"].value_or(4.0);
         const double time_size = config["MonteCarlo"]["time_size"].value_or(80);
         const int stabilization_pace = config["MonteCarlo"]["stabilization_pace"].value_or(10);
 

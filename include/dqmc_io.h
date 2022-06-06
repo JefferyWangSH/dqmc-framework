@@ -184,7 +184,7 @@ namespace QuantumMonteCarlo {
 
                 ostream << " Lattice: Cubic lattice\n"
                         << fmt_param_str % "Size of cell" % joiner % ( fmt_cell % side_length % side_length % side_length )
-                        << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py % py )
+                        << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py % pz )
                         << std::flush;
             }
 
