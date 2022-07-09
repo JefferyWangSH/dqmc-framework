@@ -16,6 +16,7 @@
 #define EIGEN_VECTORIZE_SSE4_2
 #include <Eigen/Core>
 #include <mkl_lapacke.h>
+#include <iostream>
 
 
 namespace Utils {
