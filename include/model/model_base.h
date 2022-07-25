@@ -6,9 +6,6 @@
 /**
   *  This header file defines the abstract base class Model::ModelBase, 
   *  which is pure virtual, for describing different kinds of quantum models.
-  *  Up to now, it only supports fermionic systems with spin-1/2,
-  *  and the fermionic fields should interact with Z2 bosonic fields 
-  *  after a real-valued Hubbard–Stratonovich transformation.
   */  
 
 #include <memory>
@@ -22,6 +19,7 @@
 namespace QuantumMonteCarlo {
     class DqmcWalker;
 }
+
 namespace Lattice {
     class LatticeBase;
 }
@@ -71,14 +69,14 @@ namespace Model {
             //      expK = exp( -dt K )    and    expV(t) = exp(- dt V_sigma(t) )
             // where dt is the interval of the imaginary-time grids, 
             // and their transpose and inversion are straightforward.
-            // cation that the V matrix depends on the configurations of bosonic fields and the spin of fermion,
-            // and in general, it also depends on the model and specific HS transformation.
+            // it is notable that the V matrix depends on the configurations of bosonic fields and the spin of fermion,
+            // and in general, it also depends on the specific model and the HS transformation.
 
-            // From the perspective of effiency, we donot need to calculate expV explicitly,
-            // because in many cases, depending on the specific model and HS transformation,
-            // they are diagonalized and it is straightforward to directly define their muplication rules.
-            // Meanwhile, for specific quantum model on a biparticle lattice, 
-            // it should be much more efficient if checkerboard breakups can be applied,
+            // From the perspective of effiency, we do not need to calculate expV explicitly,
+            // because for a large group of quantum models, they are sparse or even diagonalized
+            // and it is straightforward to directly define their multiplication rules.
+            // Meanwhile, for a specific quantum model on a biparticle lattice, 
+            // it should be numerically more efficient if checkerboard breakups can be applied,
             // and in that case there is also no need to explicitly compute the exponential of K.
             
             // In conclusion, directly computing the expK or expV are not a necessity
@@ -100,7 +98,7 @@ namespace Model {
             std::function<MultInvExpKMethod>    m_mult_inv_expK_from_right{};
             std::function<MultTransExpKMethod>  m_mult_trans_expK_from_left{};
 
-            // other model parameters should be defined in the derived Model classes .
+            // other model parameters should be defined in the derived Model classes.
 
 
         public:
