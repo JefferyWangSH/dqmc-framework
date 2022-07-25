@@ -1,55 +1,55 @@
- Current time: 2022-May-31 16:47:42 
+>> Current time: 2022-Jul-25 17:37:19
 
- Distribute tasks to 10 processes, with the master process being cc0808.para.bscc. 
+>> Distribute tasks to 10 processors, with the master processor being cb0506.para.bscc.
 
- Configurations of auxiliary fields read from input config file. 
+>> Configurations of the bosonic fields read from the input config file.
 
- Initialization finished. 
+>> Initialization finished. 
 
- The simulation is going to get started with parameters shown below : 
+>> The simulation is going to get started with parameters shown below :
 
- Model: Attractive Hubbard
-        Hopping constant 't'     ->                   1.000
-      Onsite interaction 'U'     ->                   4.000
-    Checimcal potential 'mu'     ->                   0.000
+   Model: Attractive Hubbard
+          Hopping constant 't'     ->                   1.000
+        Onsite interaction 'U'     ->                   4.000
+      Checimcal potential 'mu'     ->                   0.000
 
- Lattice: Square lattice
-                Size of cell     ->                   8 * 8
-              Momentum point     ->         (1.00, 1.00) pi
-       Checkerboard breakups     ->                   False
+   Lattice: Square lattice
+                  Size of cell     ->                   8 * 8
+                Momentum point     ->         (1.00, 1.00) pi
+         Checkerboard breakups     ->                   False
 
- MonteCarlo Params:
-         Inverse temperature     ->                   8.000
-       Imaginary-time length     ->                     160
-     Imaginary-time interval     ->                   0.050
-          Stabilization pace     ->                      10
+   MonteCarlo Params:
+           Inverse temperature     ->                   8.000
+         Imaginary-time length     ->                     160
+       Imaginary-time interval     ->                   0.050
+            Stabilization pace     ->                      10
 
- Measuring Params:
-                     Warm up     ->                    True
-          Equal-time measure     ->                    True
-           Dynamical measure     ->                    True
+   Measuring Params:
+                       Warm up     ->                    True
+            Equal-time measure     ->                    True
+             Dynamical measure     ->                    True
 
-           Sweeps for warmup     ->                     512
-              Number of bins     ->                      20
-              Sweeps per bin     ->                     100
-         Sweeps between bins     ->                      20
+             Sweeps for warmup     ->                     512
+                Number of bins     ->                      20
+                Sweeps per bin     ->                     100
+           Sweeps between bins     ->                      20
 
- Warming up  [>                                                           ] 0% 0.201s Warming up  [==>                                                         ] 4% 2.198s Warming up  [====>                                                       ] 8% 4.203s Warming up  [=======>                                                    ] 12% 6.204s Warming up  [=========>                                                  ] 16% 8.178s Warming up  [===========>                                                ] 19% 10.124s Warming up  [==============>                                             ] 23% 12.102s Warming up  [================>                                           ] 27% 14.081s Warming up  [==================>                                         ] 31% 16.103s Warming up  [=====================>                                      ] 35% 18.115s Warming up  [=======================>                                    ] 39% 20.133s Warming up  [==========================>                                 ] 43% 22.133s Warming up  [============================>                               ] 47% 24.140s Warming up  [==============================>                             ] 51% 26.134s Warming up  [=================================>                          ] 55% 28.115s Warming up  [===================================>                        ] 58% 30.114s Warming up  [=====================================>                      ] 62% 32.097s Warming up  [========================================>                   ] 66% 34.093s Warming up  [==========================================>                 ] 70% 36.100s Warming up  [============================================>               ] 74% 38.098s Warming up  [===============================================>            ] 78% 40.042s Warming up  [=================================================>          ] 82% 42.019s Warming up  [===================================================>        ] 86% 43.994s Warming up  [======================================================>     ] 90% 45.967s Warming up  [========================================================>   ] 94% 47.943s Warming up  [==========================================================> ] 98% 49.941s Warming up  [============================================================] 100% 50.949s
- Measuring   [>                                                           ] 0% 0.414s Measuring   [======>                                                     ] 10% 4.425s Measuring   [============>                                               ] 20% 8.473s Measuring   [==================>                                         ] 31% 12.501s Measuring   [========================>                                   ] 40% 16.570s Measuring   [==============================>                             ] 50% 22.601s Measuring   [====================================>                       ] 61% 26.677s Measuring   [==========================================>                 ] 70% 30.779s Measuring   [================================================>           ] 81% 34.832s Measuring   [======================================================>     ] 91% 38.903s Measuring   [============================================================] 100% 44.526s
+ Warming up [>                                                           ] 0% 0.197s Warming up [==>                                                         ] 4% 2.030s Warming up [====>                                                       ] 8% 3.835s Warming up [=======>                                                    ] 12% 5.641s Warming up [=========>                                                  ] 16% 7.444s Warming up [===========>                                                ] 19% 9.249s Warming up [==============>                                             ] 23% 11.040s Warming up [================>                                           ] 27% 12.839s Warming up [==================>                                         ] 31% 14.690s Warming up [=====================>                                      ] 35% 16.873s Warming up [=======================>                                    ] 39% 19.131s Warming up [==========================>                                 ] 43% 21.345s Warming up [============================>                               ] 47% 23.557s Warming up [==============================>                             ] 51% 25.762s Warming up [=================================>                          ] 55% 27.971s Warming up [===================================>                        ] 58% 30.189s Warming up [=====================================>                      ] 62% 32.394s Warming up [========================================>                   ] 66% 34.593s Warming up [==========================================>                 ] 70% 36.796s Warming up [============================================>               ] 74% 38.995s Warming up [===============================================>            ] 78% 41.195s Warming up [=================================================>          ] 82% 43.097s Warming up [===================================================>        ] 86% 44.930s Warming up [======================================================>     ] 90% 46.735s Warming up [========================================================>   ] 94% 48.886s Warming up [==========================================================> ] 98% 51.087s Warming up [============================================================] 100% 52.184s
+ Measuring  [>                                                           ] 0% 0.445s Measuring  [======>                                                     ] 10% 4.855s Measuring  [============>                                               ] 20% 9.295s Measuring  [==================>                                         ] 31% 13.712s Measuring  [========================>                                   ] 40% 18.122s Measuring  [==============================>                             ] 50% 24.729s Measuring  [====================================>                       ] 61% 29.140s Measuring  [==========================================>                 ] 70% 33.562s Measuring  [================================================>           ] 81% 37.978s Measuring  [======================================================>     ] 91% 42.276s Measuring  [============================================================] 100% 61.375s
 
- The simulation finished in 1 m 43.16 s. 
+>> The simulation finished in 1 m 56.43 s.
 
- Maximum of the wrapping error: 1.94551e-08
+>> Maximum of the wrapping error: 6.06023e-09
 
-  Averaged sign (equal-time)     ->      1.000000000000  pm  0.000000000000
-   Averaged sign (dynamical)     ->      1.000000000000  pm  0.000000000000
+    Averaged sign (equal-time)     ->      1.000000000000  pm  0.000000000000
+     Averaged sign (dynamical)     ->      1.000000000000  pm  0.000000000000
 
-              Filling number     ->      0.998749784920  pm  0.002911426037
-           Double occupation     ->      0.375346593556  pm  0.001547712400
-              Kinetic energy     ->     -1.360282714878  pm  0.001872992385
-      Local spin correlation     ->      0.248056597807  pm  0.000368300031
-       Momentum distribution     ->      0.032952894929  pm  0.000363070032
-         SDW order parameter     ->      0.001604808176  pm  0.000001597463
-         CDW order parameter     ->      0.122965824841  pm  0.013946644187
-  S-wave pairing correlation     ->      3.880228918321  pm  0.191740706964
-        Superfluid stiffness     ->      0.020884168427  pm  0.003139898973
+                Filling number     ->      1.001427447249  pm  0.002920881471
+             Double occupation     ->      0.376431151897  pm  0.001457934749
+                Kinetic energy     ->     -1.357560650350  pm  0.001842596104
+        Local spin correlation     ->      0.248565143455  pm  0.000270894802
+         Momentum distribution     ->      0.033311172300  pm  0.000365117419
+           SDW order parameter     ->      0.006435304346  pm  0.000005860399
+           CDW order parameter     ->      0.120032733357  pm  0.014365787879
+    S-wave pairing correlation     ->      3.954260813608  pm  0.215701855906
+          Superfluid stiffness     ->      0.020206542771  pm  0.004027214845

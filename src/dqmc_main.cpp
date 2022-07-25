@@ -42,9 +42,9 @@ int main( int argc, char* argv[] ) {
     //                                      Program options
     // ------------------------------------------------------------------------------------------------
     
-    std::string config_file;
-    std::string fields_file;
-    std::string out_path;
+    std::string config_file{};
+    std::string fields_file{};
+    std::string out_path{};
     
     // read parameters from the command line 
     boost::program_options::options_description opts("Program options");
@@ -66,13 +66,13 @@ int main( int argc, char* argv[] ) {
     try {
         boost::program_options::store(parse_command_line(argc, argv, opts), vm);
     }
-    catch (...) {
-        std::cerr << " main(): undefined options got from command line." << std::endl; exit(1);
+    catch ( ... ) {
+        std::cerr << "main(): undefined options got from command line." << std::endl; exit(1);
     }
     boost::program_options::notify(vm);
 
     // show the helping messages
-    if (vm.count("help")) {
+    if ( vm.count("help") ) {
         std::cerr << argv[0] << "\n" << opts << std::endl;
         return 0;
     }
@@ -82,7 +82,7 @@ int main( int argc, char* argv[] ) {
         if ( access(out_path.c_str(), 0) != 0 ) {
             const std::string command = "mkdir -p " + out_path;
             if ( system(command.c_str()) != 0 ) {
-                std::cerr << boost::format(" main(): fail to creat folder at %s .\n") % out_path 
+                std::cerr << boost::format("main(): fail to creat folder at %s .\n") % out_path 
                           << std::endl;
                 exit(1);
             }
@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ) {
     // ------------------------------------------------------------------------------------------------
     if ( rank == master ) {
         const auto current_time = boost::posix_time::second_clock::local_time();
-        std::cout << boost::format(" Current time: %s \n") % current_time << std::endl;
+        std::cout << boost::format(">> Current time: %s\n") % current_time << std::endl;
     }
 
 
@@ -103,8 +103,8 @@ int main( int argc, char* argv[] ) {
     //                                Output MPI and hardware info
     // ------------------------------------------------------------------------------------------------
     if ( rank == master ) {
-        // print MPI and hardware information
-        boost::format fmt_mpi(" Distribute tasks to %s processes, with the master process being %s. \n");
+        // print the MPI and hardware information
+        boost::format fmt_mpi(">> Distribute tasks to %s processors, with the master processor being %s.\n");
         std::cout << fmt_mpi % world.size() % env.processor_name() << std::endl;
     }
 
@@ -146,16 +146,16 @@ int main( int argc, char* argv[] ) {
     }
 
     if ( fields_file.empty() ) {
-        // randomly initialize the auxiliary fields with no input fields configs
+        // randomly initialize the bosonic fields if there are no input field configs
         model->set_bosonic_fields_to_random();
         if ( rank == master ) { 
-            std::cout << " Configurations of auxiliary fields set to random. \n" << std::endl; 
+            std::cout << ">> Configurations of the bosonic fields set to random.\n" << std::endl; 
         }
     }
     else {
         QuantumMonteCarlo::DqmcIO::read_bosonic_fields_from_file( fields_file, *model);
         if ( rank == master ) { 
-            std::cout << " Configurations of auxiliary fields read from input config file. \n" << std::endl; 
+            std::cout << ">> Configurations of the bosonic fields read from the input config file.\n" << std::endl; 
         }
     }
 
@@ -163,8 +163,8 @@ int main( int argc, char* argv[] ) {
     QuantumMonteCarlo::DqmcInitializer::initial_dqmc( *model, *lattice, *walker, *meas_handler );
 
     if ( rank == master ) {
-        std::cout << " Initialization finished. \n\n" 
-                  << " The simulation is going to get started with parameters shown below : \n"
+        std::cout << ">> Initialization finished. \n\n" 
+                  << ">> The simulation is going to get started with parameters shown below :\n"
                   << std::endl;
     }
 
@@ -274,7 +274,7 @@ int main( int argc, char* argv[] ) {
         
         std::ofstream outfile;
 
-        // output the auxiliary fields configurations
+        // output the configurations of the bosonic fields
         // if there exist input file of fields configs, overwrite it.
         // otherwise the field configs are stored under the output folder.
         const auto fields_out = ( fields_file.empty() )? out_path + "/fields.out" : fields_file;

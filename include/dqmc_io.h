@@ -114,9 +114,9 @@ namespace QuantumMonteCarlo {
         else {
             
             // output formats
-            boost::format fmt_param_str("%| 28s|%| 7s|%| 24s|\n");
-            boost::format fmt_param_int("%| 28s|%| 7s|%| 24d|\n");
-            boost::format fmt_param_double("%| 28s|%| 7s|%| 24.3f|\n");
+            boost::format fmt_param_str("%| 30s|%| 7s|%| 24s|\n");
+            boost::format fmt_param_int("%| 30s|%| 7s|%| 24d|\n");
+            boost::format fmt_param_double("%| 30s|%| 7s|%| 24.3f|\n");
             const std::string_view joiner = "->";
             auto bool2str = [](bool b) {if (b) return "True"; else return "False";};
 
@@ -128,7 +128,7 @@ namespace QuantumMonteCarlo {
             // ------------------------------  Repulsive Hubbard model  ----------------------------------
             if ( const auto repulsive_hubbard = dynamic_cast<const Model::RepulsiveHubbard*>(&model);
                 repulsive_hubbard != nullptr ) {
-                ostream << " Model: Repulsive Hubbard\n"
+                ostream << "   Model: Repulsive Hubbard\n"
                         << fmt_param_double % "Hopping constant \'t\'" % joiner % repulsive_hubbard->HoppingT()
                         << fmt_param_double % "Onsite interaction \'U\'" % joiner % repulsive_hubbard->OnSiteU()
                         << fmt_param_double % "Checimcal potential \'mu\'" % joiner % repulsive_hubbard->ChemicalPotential()
@@ -138,7 +138,7 @@ namespace QuantumMonteCarlo {
             // ------------------------------  Attractive Hubbard model  ---------------------------------
             else if ( const auto attractive_hubbard = dynamic_cast<const Model::AttractiveHubbard*>(&model); 
                 attractive_hubbard != nullptr ) {
-                ostream << " Model: Attractive Hubbard\n"
+                ostream << "   Model: Attractive Hubbard\n"
                         << fmt_param_double % "Hopping constant \'t\'" % joiner % attractive_hubbard->HoppingT()
                         << fmt_param_double % "Onsite interaction \'U\'" % joiner % attractive_hubbard->OnSiteU()
                         << fmt_param_double % "Checimcal potential \'mu\'" % joiner % attractive_hubbard->ChemicalPotential()
@@ -166,7 +166,7 @@ namespace QuantumMonteCarlo {
                 const double px = (square_lattice->Index2Momentum(meas_handler.Momentum(), 0)/M_PI);
                 const double py = (square_lattice->Index2Momentum(meas_handler.Momentum(), 1)/M_PI);
 
-                ostream << " Lattice: Square lattice\n"
+                ostream << "   Lattice: Square lattice\n"
                         << fmt_param_str % "Size of cell" % joiner % ( fmt_cell % side_length % side_length )
                         << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py )
                         << std::flush;
@@ -182,7 +182,7 @@ namespace QuantumMonteCarlo {
                 const double py = (cubic_lattice->Index2Momentum(meas_handler.Momentum(), 1)/M_PI);
                 const double pz = (cubic_lattice->Index2Momentum(meas_handler.Momentum(), 2)/M_PI);
 
-                ostream << " Lattice: Cubic lattice\n"
+                ostream << "   Lattice: Cubic lattice\n"
                         << fmt_param_str % "Size of cell" % joiner % ( fmt_cell % side_length % side_length % side_length )
                         << fmt_param_str % "Momentum point" % joiner % ( fmt_momentum % px % py % pz )
                         << std::flush;
@@ -211,7 +211,7 @@ namespace QuantumMonteCarlo {
             // -------------------------------------------------------------------------------------------
             //                               Output MonteCarlo Params
             // -------------------------------------------------------------------------------------------
-            ostream << " MonteCarlo Params:\n"
+            ostream << "   MonteCarlo Params:\n"
                     << fmt_param_double % "Inverse temperature" % joiner % walker.Beta()
                     << fmt_param_int % "Imaginary-time length" % joiner % walker.TimeSize()
                     << fmt_param_double % "Imaginary-time interval" % joiner % walker.TimeInterval()
@@ -221,7 +221,7 @@ namespace QuantumMonteCarlo {
             // -------------------------------------------------------------------------------------------
             //                                Output Measuring Params
             // -------------------------------------------------------------------------------------------
-            ostream << " Measuring Params:\n"
+            ostream << "   Measuring Params:\n"
                     << fmt_param_str % "Warm up" % joiner % bool2str(meas_handler.isWarmUp())
                     << fmt_param_str % "Equal-time measure" % joiner % bool2str(meas_handler.isEqualTime())
                     << fmt_param_str % "Dynamical measure" % joiner % bool2str(meas_handler.isDynamic())
@@ -252,13 +252,13 @@ namespace QuantumMonteCarlo {
             const double sec = (double)Dqmc::timer()/1000 - 86400 * day - 3600 * hour - 60 * minute;
 
             // output the time cost of simulation
-            if ( day ) { ostream << boost::format("\n The simulation finished in %d d %d h %d m %.2f s. \n") % day % hour % minute % sec << std::endl; }
-            else if ( hour ) { ostream << boost::format("\n The simulation finished in %d h %d m %.2f s. \n") % hour % minute % sec << std::endl; }
-            else if ( minute ) { ostream << boost::format("\n The simulation finished in %d m %.2f s. \n") % minute % sec << std::endl; }
-            else { ostream << boost::format("\n The simulation finished in %.2f s. \n") % sec << std::endl; }
+            if ( day ) { ostream << boost::format("\n>> The simulation finished in %d d %d h %d m %.2f s.\n") % day % hour % minute % sec << std::endl; }
+            else if ( hour ) { ostream << boost::format("\n>> The simulation finished in %d h %d m %.2f s.\n") % hour % minute % sec << std::endl; }
+            else if ( minute ) { ostream << boost::format("\n>> The simulation finished in %d m %.2f s.\n") % minute % sec << std::endl; }
+            else { ostream << boost::format("\n>> The simulation finished in %.2f s.\n") % sec << std::endl; }
 
             // output wrapping errors of the evaluations of Green's functions
-            ostream << boost::format(" Maximum of the wrapping error: %.5e\n") % walker.WrapError() << std::endl;
+            ostream << boost::format(">> Maximum of the wrapping error: %.5e\n") % walker.WrapError() << std::endl;
         }
     }
 
@@ -277,7 +277,7 @@ namespace QuantumMonteCarlo {
                 
                 // for scalar observables
                 if constexpr ( std::is_same_v<ObsType, Observable::ScalarType> ) {
-                    boost::format fmt_scalar_obs("%| 28s|%| 7s|%| 20.12f|  pm  %.12f");
+                    boost::format fmt_scalar_obs("%| 30s|%| 7s|%| 20.12f|  pm  %.12f");
                     const std::string joiner = "->";
                     ostream << fmt_scalar_obs % obs.description() % joiner % obs.mean_value() % obs.error_bar() << std::endl;
                 }

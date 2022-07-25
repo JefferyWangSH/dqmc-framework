@@ -93,13 +93,13 @@ namespace QuantumMonteCarlo {
                 // record the tick
                 ++progressbar;
                 if ( Dqmc::m_show_progress_bar && (sweep % Dqmc::m_refresh_rate == 1) ) {
-                    std::cout << " Warming up  "; progressbar.display();
+                    std::cout << " Warming up "; progressbar.display();
                 }
             }
             
             // progress bar finish
             if ( Dqmc::m_show_progress_bar ) {
-                std::cout << " Warming up  "; progressbar.done();
+                std::cout << " Warming up "; progressbar.done();
             }
         }
     }
@@ -127,7 +127,7 @@ namespace QuantumMonteCarlo {
                     // record the tick
                     ++progressbar;
                     if ( Dqmc::m_show_progress_bar && (sweep % Dqmc::m_refresh_rate == 1) ) {
-                        std::cout << " Measuring   "; progressbar.display();
+                        std::cout << " Measuring  "; progressbar.display();
                     }
                 }
 
@@ -145,7 +145,7 @@ namespace QuantumMonteCarlo {
 
             // progress bar finish
             if ( Dqmc::m_show_progress_bar ) {
-                std::cout << " Measuring   "; progressbar.done();
+                std::cout << " Measuring  "; progressbar.done();
             }
         }
     }
