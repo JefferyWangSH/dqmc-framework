@@ -108,6 +108,7 @@ namespace Measure {
             //    1. Dynamical green's functions in momentum space: G(k,t) = < c(k,t) * c^+(k,0) >
             //    2. Density of states in imaginary-time space: D(tau) = 1/N \sum i < c(i,t) * c^+(i,0) >
             //    3. Superfluid stiffness rho_s of superconducting: rho_s = ( Gamma_L - Gamma_T ) / 4
+            //    4. Dynamic spin susceptibility, proportional to 1/T1 of STM, 1/T1 = \sum q < Sz(q,t) Sz(q,0) >
             
             static void measure_dynamic_config_sign             (  ScalarObs& dynamic_sign, 
                                                                    const MeasureHandler& meas_handler,
@@ -128,6 +129,12 @@ namespace Measure {
                                                                    const LatticeBase& lattice );
 
             static void measure_superfluid_stiffness            (  ScalarObs& superfluid_stiffness,
+                                                                   const MeasureHandler& meas_handler,
+                                                                   const DqmcWalker& walker,
+                                                                   const ModelBase& model,
+                                                                   const LatticeBase& lattice );
+
+            static void measure_dynamic_spin_susceptibility     (  VectorObs& dynamic_spin_susceptibility, 
                                                                    const MeasureHandler& meas_handler,
                                                                    const DqmcWalker& walker,
                                                                    const ModelBase& model,

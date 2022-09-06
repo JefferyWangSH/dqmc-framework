@@ -24,6 +24,7 @@ namespace Observable {
                                     "greens_functions", 
                                     "density_of_states", 
                                     "superfluid_stiffness", 
+                                    "dynamic_spin_susceptibility",
                                 };
 
     // public member for external calls
@@ -38,7 +39,8 @@ namespace Observable {
                                     "s_wave_pairing_corr",
                                     "greens_functions", 
                                     "density_of_states", 
-                                    "superfluid_stiffness", 
+                                    "superfluid_stiffness",
+                                    "dynamic_spin_susceptibility",
                                 };
 
 
@@ -239,6 +241,15 @@ namespace Observable {
                 superfluid_stiffness->add_method(Measure::Methods::measure_superfluid_stiffness);
                 this->m_dynamic_scalar_obs.emplace_back(superfluid_stiffness);
                 this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(superfluid_stiffness);
+            }
+
+            // -------------------------------  Dynamic spin susceptibility  ---------------------------------
+            if ( obs_name == "dynamic_spin_susceptibility" ) {
+                ptrVectorObs dynamic_spin_susceptibility = std::make_shared<VectorObs>();
+                dynamic_spin_susceptibility->set_name_and_description(obs_name, "Dynamic Spin Susceptibility");
+                dynamic_spin_susceptibility->add_method(Measure::Methods::measure_dynamic_spin_susceptibility);
+                this->m_dynamic_vector_obs.emplace_back(dynamic_spin_susceptibility);
+                this->m_obs_map[obs_name] = std::static_pointer_cast<ObservableBase>(dynamic_spin_susceptibility);
             }
 
             // add new methods here

@@ -320,7 +320,7 @@ namespace Measure {
             // the factor 1/2 comes from two degenerate spin states ( model dependent )
             const GreensFunc& gt0 = ( t == 0 )?
                     0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
-                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) ); 
+                  : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) );
             density_of_states.tmp_value()(t) += config_sign * gt0.trace() / lattice.SpaceSize();
         }
         ++density_of_states;
@@ -413,6 +413,48 @@ namespace Measure {
         // see https://arxiv.org/pdf/1912.08848.pdf
         superfluid_stiffness.tmp_value() += 0.25 * tmp_rho_s / ( lattice.SpaceSize()*lattice.SpaceSize() );
         ++superfluid_stiffness;
+    }
+
+
+    // transverse relaxation time 1/T1, which is proportional to the dynamic spin susceptibility
+    // 
+    //      1/T1 = 1/N \sum q < Sz(q,t) Sz(q,0) > = 1/N \sim i < Sz(i,t) Sz(i,0) >
+    // 
+    void Methods::measure_dynamic_spin_susceptibility(  VectorObs& dynamic_spin_susceptibility, 
+                                                        const MeasureHandler& meas_handler,
+                                                        const DqmcWalker& walker,
+                                                        const ModelBase& model,
+                                                        const LatticeBase& lattice )
+    {   
+        const auto& config_sign = walker.ConfigSign();
+        const GreensFunc& g00up = walker.GreenttUp(walker.TimeSize()-1); 
+        const GreensFunc& g00dn = walker.GreenttDn(walker.TimeSize()-1);
+        const GreensFunc& gc00up = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - g00up.transpose();
+        const GreensFunc& gc00dn = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - g00dn.transpose();
+        
+        for ( auto t = 0; t < walker.TimeSize(); ++t ) {
+            const GreensFunc& gttup = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.GreenttUp(t-1);
+            const GreensFunc& gttdn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.GreenttDn(t-1);
+            const GreensFunc& gt0up = ( t == 0 )? walker.Greent0Up(walker.TimeSize()-1) : walker.Greent0Up(t-1);
+            const GreensFunc& gt0dn = ( t == 0 )? walker.Greent0Dn(walker.TimeSize()-1) : walker.Greent0Dn(t-1);
+            const GreensFunc& g0tup = ( t == 0 )? walker.Green0tUp(walker.TimeSize()-1) : walker.Green0tUp(t-1);
+            const GreensFunc& g0tdn = ( t == 0 )? walker.Green0tDn(walker.TimeSize()-1) : walker.Green0tDn(t-1);
+            const GreensFunc& gcttup = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gttup.transpose();
+            const GreensFunc& gcttdn = Matrix::Identity(lattice.SpaceSize(), lattice.SpaceSize()) - gttdn.transpose();
+            
+            for ( auto i = 0; i < lattice.SpaceSize(); ++i ) {
+                // the factor 1/4 comes from the spin 1/2, e.g. Sz = 1/2 ( nup - ndn )
+                dynamic_spin_susceptibility.tmp_value()(t) += 0.25 * config_sign / lattice.SpaceSize() *
+                ( 
+                    + gcttup(i,i) * gc00up(i,i) - g0tup(i,i) * gt0up(i,i)
+                    + gcttdn(i,i) * gc00dn(i,i) - g0tdn(i,i) * gt0dn(i,i)
+                    - gcttup(i,i) * gc00dn(i,i) - gc00up(i,i) * gcttdn(i,i)
+                );
+            }
+        
+        }
+        ++dynamic_spin_susceptibility;
+        
     }
 
 

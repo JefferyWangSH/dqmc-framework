@@ -339,6 +339,21 @@ int main( int argc, char* argv[] ) {
             outfile.close();
         }
 
+        // dynamic spin susceptibility
+        if ( meas_handler->find("dynamic_spin_susceptibility") ) {
+            // output of means and errors
+            outfile.open(out_path + "/dss.out", std::ios::trunc);
+            QuantumMonteCarlo::DqmcIO::output_observable(
+                outfile, meas_handler->find<Observable::VectorObs>("dynamic_spin_susceptibility") );
+            outfile.close();
+
+            // output of raw data in terms of bins
+            outfile.open(out_path + "/dss.bins.out", std::ios::trunc);
+            QuantumMonteCarlo::DqmcIO::output_observable_in_bins(
+                outfile, meas_handler->find<Observable::VectorObs>("dynamic_spin_susceptibility") );
+            outfile.close();
+        }
+
     }
 
 

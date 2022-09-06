@@ -56,6 +56,7 @@
     #   9. greens_functions                 (dynamical)
     #  10. density_of_states                (dynamical)
     #  11. superfluid_stiffness             (dynamical, and only for 2d square lattice)
+    #  12. dynamic_spin_susceptibility      (dynamical)
     
     # option 'all/All'  : measure all supported observables
     # option 'none/None': measure nothing
