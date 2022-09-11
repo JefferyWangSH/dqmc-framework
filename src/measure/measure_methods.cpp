@@ -416,7 +416,7 @@ namespace Measure {
     }
 
 
-    // transverse relaxation time 1/T1, which is proportional to the dynamic spin susceptibility
+    // transverse relaxation time 1/T1, which is proportional to the (local) dynamic spin susceptibility
     // 
     //      1/T1 = 1/N \sum q < Sz(q,t) Sz(q,0) > = 1/N \sim i < Sz(i,t) Sz(i,0) >
     // 
