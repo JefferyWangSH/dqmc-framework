@@ -286,7 +286,8 @@ namespace Measure {
         const auto& config_sign = walker.ConfigSign();
 
         for (auto t = 0; t < walker.TimeSize(); ++t) {
-            // the factor 1/2 comes from two degenerate spin states ( model dependent )
+            // the factor 1/2 comes from two degenerate spin states ( spin averaged, which is model dependent )
+            // note: gt0 will automatically degenerate to g00 if t = 0, it should be safe to replace Greentt with Greent0
             const GreensFunc& gt0 = ( t == 0 )?
                     0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
                   : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) ); 
@@ -317,7 +318,8 @@ namespace Measure {
     {   
         const auto& config_sign = walker.ConfigSign();
         for (auto t = 0; t < walker.TimeSize(); ++t) {
-            // the factor 1/2 comes from two degenerate spin states ( model dependent )
+            // the factor 1/2 comes from two degenerate spin states ( spin averaged, which is model dependent )
+            // note: gt0 will automatically degenerate to g00 if t = 0, it should be safe to replace Greentt with Greent0
             const GreensFunc& gt0 = ( t == 0 )?
                     0.5 * ( walker.GreenttUp(walker.TimeSize()-1) + walker.GreenttDn(walker.TimeSize()-1) )
                   : 0.5 * ( walker.Greent0Up(t-1) + walker.Greent0Dn(t-1) );
@@ -350,20 +352,21 @@ namespace Measure {
 
         RealScalar tmp_rho_s = 0.0;
 
-        const GreensFunc& g00_up = walker.GreenttUp(walker.TimeSize()-1); 
-        const GreensFunc& g00_dn = walker.GreenttDn(walker.TimeSize()-1); 
+        const GreensFunc& g00up = walker.GreenttUp(walker.TimeSize()-1); 
+        const GreensFunc& g00dn = walker.GreenttDn(walker.TimeSize()-1); 
         const auto& config_sign = walker.ConfigSign();
 
         for (auto t = 0; t < walker.TimeSize(); ++t) {
             // dynamic greens functions
-            // degenerating to equal-time greens function if t equals 0.
-            const GreensFunc& gt0_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.Greent0Up(t-1);
-            const GreensFunc& g0t_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.Green0tUp(t-1);
-            const GreensFunc& gtt_up = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.GreenttUp(t-1);
-            const GreensFunc& gt0_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.Greent0Dn(t-1);
-            const GreensFunc& g0t_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.Green0tDn(t-1);
-            const GreensFunc& gtt_dn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.GreenttDn(t-1);
-        
+            // which degenerate to the equal-time greens function if t equals 0.
+            // todo: check the correctness, eg. gt0(t=0) = g00 and g0t(t=0) = g00-1
+            const GreensFunc& gttup = ( t == 0 )? walker.GreenttUp(walker.TimeSize()-1) : walker.GreenttUp(t-1);
+            const GreensFunc& gttdn = ( t == 0 )? walker.GreenttDn(walker.TimeSize()-1) : walker.GreenttDn(t-1);
+            const GreensFunc& gt0up = ( t == 0 )? walker.Greent0Up(walker.TimeSize()-1) : walker.Greent0Up(t-1);
+            const GreensFunc& gt0dn = ( t == 0 )? walker.Greent0Dn(walker.TimeSize()-1) : walker.Greent0Dn(t-1);
+            const GreensFunc& g0tup = ( t == 0 )? walker.Green0tUp(walker.TimeSize()-1) : walker.Green0tUp(t-1);
+            const GreensFunc& g0tdn = ( t == 0 )? walker.Green0tDn(walker.TimeSize()-1) : walker.Green0tDn(t-1);
+            
             // the first site i
             for (auto i = 0; i < lattice.SpaceSize(); ++i) {
                 // the nearest neighbor of site i along positive direction of axis x
@@ -398,14 +401,14 @@ namespace Measure {
                     // compute the stiffness
                     tmp_rho_s += model.HoppingT() * model.HoppingT() * config_sign * fourier_factor * (
                             // uncorrelated part
-                            - ( gtt_up(j,jpx) - gtt_up(jpx,j) + gtt_dn(j,jpx) - gtt_dn(jpx,j) ) *
-                              ( g00_up(i,ipx) - g00_up(ipx,i) + g00_dn(i,ipx) - g00_dn(ipx,i) )
+                            - ( gttup(j,jpx) - gttup(jpx,j) + gttdn(j,jpx) - gttdn(jpx,j) ) *
+                              ( g00up(i,ipx) - g00up(ipx,i) + g00dn(i,ipx) - g00dn(ipx,i) )
                                         
                             // correlated part
-                            - g0t_up(ipx,jpx) * gt0_up(j,i) - g0t_dn(ipx, jpx) * gt0_dn(j, i)
-                            + g0t_up(i,jpx) * gt0_up(j,ipx) + g0t_dn(i, jpx) * gt0_dn(j, ipx)
-                            + g0t_up(ipx,j) * gt0_up(jpx,i) + g0t_dn(ipx, j) * gt0_dn(jpx, i)
-                            - g0t_up(i,j) * gt0_up(jpx,ipx) - g0t_dn(i, j) * gt0_dn(jpx, ipx) );
+                            - g0tup(ipx,jpx) * gt0up(j,i) - g0tdn(ipx, jpx) * gt0dn(j, i)
+                            + g0tup(i,jpx) * gt0up(j,ipx) + g0tdn(i, jpx) * gt0dn(j, ipx)
+                            + g0tup(ipx,j) * gt0up(jpx,i) + g0tdn(ipx, j) * gt0dn(jpx, i)
+                            - g0tup(i,j) * gt0up(jpx,ipx) - g0tdn(i, j) * gt0dn(jpx, ipx) );
                 }
             }
         }
