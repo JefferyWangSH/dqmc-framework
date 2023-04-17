@@ -183,6 +183,9 @@ namespace Measure {
             for (auto& matrix_obs : this->m_eqtime_matrix_obs) {
                 matrix_obs->tmp_value() /= matrix_obs->counts() * this->m_equaltime_sign->tmp_value();
             }
+
+            // record the absolute value of sign
+            this->m_equaltime_sign->tmp_value() = std::abs(this->m_equaltime_sign->tmp_value());
         }
 
         if ( this->m_is_dynamic ) {
@@ -198,6 +201,9 @@ namespace Measure {
             for (auto& matrix_obs : this->m_dynamic_matrix_obs) {
                 matrix_obs->tmp_value() /= matrix_obs->counts() * this->m_dynamic_sign->tmp_value();  
             }
+
+            // record the absolute value of sign
+            this->m_dynamic_sign->tmp_value() = std::abs(this->m_dynamic_sign->tmp_value());
         }
     }
 
