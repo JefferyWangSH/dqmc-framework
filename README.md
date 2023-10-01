@@ -1,5 +1,5 @@
-# General-DQMC
-![workflow](https://github.com/JefferyWangSH/general-dqmc/actions/workflows/dqmc.yml/badge.svg?branch=master)
+# dqmc-framework
+![workflow](https://github.com/JefferyWangSH/dqmc-framework/actions/workflows/make.yml/badge.svg?branch=master)
 
 In this repository, we present a general C++ implementation of determinant Quantum Monte Carlo `(DQMC)` algorithm for the simulation of fermionic quantum models on various lattice geometries.
 
@@ -76,6 +76,6 @@ To be accomplished
 
 ## License & Support ##
 
-The code is open source under GPL-3.0 License. 
+This code is an open-source software under the MIT license.
 
-If any questions, feel free to contact me via email 17307110117@fudan.edu.cn.
+If any problems or bugs, feel free to contact me via email 17307110117@fudan.edu.cn.
